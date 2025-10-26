@@ -1,22 +1,22 @@
 const mongoose = require('mongoose');
 
 const stateOfGaugesSchema = mongoose.Schema({
-    food: Number,
-    moral: Number,
-    health: Number,
-    security: Number,
-    hunger: Number,
+    food: { type: Number, default : 50 },
+    moral: { type: Number, default : 50 },
+    health: { type: Number, default : 50 },
+    security: { type: Number, default : 50 },
+    hunger: { type: Number, default : 50 },
 })
 
 const gameSchema = mongoose.Schema({
     player: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-    currentCard: { type: mongoose.Schema.Types.ObjectId, ref: 'cartes' },
-    usedCards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'cartes' }],
+    currentCard: { type: mongoose.Schema.Types.ObjectId, ref: 'cards' },
+    usedCards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'cards' }],
     ended : {type: Boolean, default: false},
-    currentScénarios: [String],
-    numberDays: Number,
-    createdAt: Date,
-    lastEventDay: Number,
+    currentScenarios: [String],
+    numberDays: { type: Number, default : 0 },
+    createdAt: { type: Date, default : Date.now() },
+    lastEventDay: { type: Number, default : 0 },
     stateOfGauges: stateOfGaugesSchema
 });
 
