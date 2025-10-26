@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const succèsSchema = mongoose.Schema({
     name: String,
     description: String,
-    trigger: {type: Boolean, default: false}
+    type: String,
+    condition: {type: Boolean, default: false}
 });
 
 const Succès = mongoose.model('succès', succèsSchema);

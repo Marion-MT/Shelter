@@ -9,11 +9,14 @@ const stateOfGaugesSchema = mongoose.Schema({
 })
 
 const gameSchema = mongoose.Schema({
+    player: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    currentCard: { type: mongoose.Schema.Types.ObjectId, ref: 'cartes' },
     usedCards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'cartes' }],
-    gameSave : {type: Boolean, default: false},
+    ended : {type: Boolean, default: false},
     currentScénarios: [String],
     numberDays: Number,
-    tweet: { type: mongoose.Schema.Types.ObjectId, ref: 'tweets' },
+    createdAt: Date,
+    lastEventDay: Number,
     stateOfGauges: stateOfGaugesSchema
 });
 

@@ -4,6 +4,7 @@ const choiceSchema = mongoose.Schema({
     endTrigger: { type: String, default: null },
     trigger: { type: String, default: null },
     nextCard : { type: String, default: null },
+    nextPool: { type: String, default: null },
     text : String,
     effect:  {
         hunger : { type: Number }, 
@@ -32,9 +33,10 @@ const conditionsSchema = mongoose.Schema({
 
 const carteSchema = mongoose.Schema({
     type: String,
-    title: String,
+    pool: String,
+    text: String,
     cooldown: Number,
-    tag: String,
+    incrementsDay: Boolean,
     right: choiceSchema,
     left: choiceSchema,
     conditions: conditionsSchema,
