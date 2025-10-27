@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 type HomeScreenProps = {
@@ -24,23 +24,25 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-            <View style={styles.text}>
-                <Text style={styles.title}>Home Screen</Text>
-                <TouchableOpacity onPress={() => handleNavigateGame()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to Game Screen</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to Succes Screen</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to Credit Screen</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to Parametre Screen</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
+        <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+                <Text style={styles.title}>shelter</Text>
+                <View>
+                    <TouchableOpacity onPress={() => handleNavigateGame()} style={styles.button} activeOpacity={0.8}>
+                        <Text style={styles.btnText}>nouvelle partie</Text>
+                    </TouchableOpacity>
+                    {/* <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
+                        <Text style={styles.btnText}>paramètres</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
+                        <Text style={styles.btnText}>succès</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
+                        <Text style={styles.btnText}>crédits</Text>
+                    </TouchableOpacity> */}
+                </View>
+            </KeyboardAvoidingView>
+        </ImageBackground>
     )
 }
 
@@ -48,24 +50,30 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
-    },
-    text: {
-        alignItems: 'center',
+        justifyContent: 'space-evenly',
     },
     title: {
-        fontSize: 40,
+        fontSize: 70,
         fontWeight: '600',
-        fontFamily: 'Futura',
-        paddingBottom: 30,      
+        fontFamily: 'DaysLater',
+        color: '#EFDAB7',
+        marginBottom: 35,     
     },
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#95979A',
-        width: 200,
-        height: 40,
-        borderRadius: 20,
+        backgroundColor: '#352C2B',
+        width: 235,
+        height: 60,
+        borderWidth: 2.5,
+        borderColor: 'black',
+        borderRadius: 15,
         margin: 15,
+    },
+    btnText: {
+        textTransform: 'uppercase',
+        fontSize: 23,
+        fontWeight: 'bold',
+        color: '#EFDAB7',
     },
 });
