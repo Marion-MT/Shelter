@@ -10,6 +10,10 @@ type GaugeProps = {
 };
 
 export default function Gauge({ icon, color, percent, indicator } : GaugeProps) {
+
+
+    const delta = 5;    // to shift the fill bar to the top and avoid to hide it behind the icon
+    const newPercent = delta + percent * (100 - delta) / 100;
  
   return (
     <View style={styles.container}>
@@ -19,7 +23,7 @@ export default function Gauge({ icon, color, percent, indicator } : GaugeProps) 
 
         <View style={styles.gaugeGlobalContent}>                               
             <View style={styles.barContainer}>
-                <View style={[styles.barFill, { height: `${percent}%`, backgroundColor: color, borderTopLeftRadius: percent <= 95 ? 0 : 10, borderTopRightRadius: percent <= 95 ? 0 : 10, }]} >
+                <View style={[styles.barFill, { height: `${newPercent}%`, backgroundColor: color}]} >
 
                 </View>
             </View>
@@ -54,24 +58,27 @@ gaugeGlobalContent:{
 icon:{
     width: 35,
     height: 35,
-    marginTop: -20,
+    marginTop: -12,
 
 },
 barContainer: {
     width: 18,
     height: 70,
-    borderRadius: 9,
+    borderTopLeftRadius : 9,
+    borderTopRightRadius : 9,
     backgroundColor: '#554946',
 
     borderColor: '#242120',
     borderWidth: 4,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+
+    overflow : 'hidden'
 
 },
 barFill: {
     width: '100%',
     height: '90%',
-    borderRadius: 10,
+
     backgroundColor: '#8378b7'
 }
 });
