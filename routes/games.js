@@ -28,8 +28,9 @@ cardSelectGlobal = cards[Math.floor(Math.random() * (cards.length))];
     player: userId,
     currentCard: cardSelectGlobal._id,
     })
-
     await newGame.save()
+
+    const populatedGame= await Game.findById(newGame._id).populate('currentCard')
 
     // MAJ historique avec verif de doublon + currentGame
     const user = await User.findById(userId)
@@ -46,7 +47,9 @@ cardSelectGlobal = cards[Math.floor(Math.random() * (cards.length))];
 
         await user.save()
 
-    return res.json({ result: true, message: 'Nouvelle partie crée', game: newGame})
+        
+
+    return res.json({ result: true, message: 'Nouvelle partie crée', game: populatedGame})
 
 } catch (err) {
     return res.json({ result:false, error: err.message})
@@ -69,6 +72,51 @@ router.get('/', authenticateToken, async (req,res) => {
     }
 })
 
+/* current game */
 
+router.get('/current', authenticateToken, async (req,res) => {
+
+    try {
+    const userId = req.user.userId
+    const user = await User.findById(userId)
+        .populate({
+            path: 'currentGame',
+            populate: 'currentCard'
+        })
+    if (!user.currentGame) {
+        return res.json({ result:false , error: 'Aucune game en cours'})
+    }
+
+    currentCard = await user.currentGame.currentCard
+    console.log( 'current card: ' , currentCard)
+    return res.json({ result: true , currentGame: user.currentGame})
+    } catch (err) {
+        return res.json({ result: false, error: err.message})
+    }
+})
+
+/*  choix du joueur " gauche: non / droite: oui "*/
+
+router.post('/choice', authenticateToken, async (req,res) => {
+    try {
+         const { choice } = req.body;
+
+    if (!checkBody(req.body,['choice'])) {
+        return res.json({ result: false, error: 'Missing or empty fields'})
+        ;
+    }
+
+    if(!cardSelectGlobal) {
+        return res.json({ result:false , error : 'Aucune carte selectionner !'})
+    }
+
+
+
+
+
+    } catch (err) {
+        return res.json({ result: false, error: err.message})
+    }
+})
 
 module.exports = router;

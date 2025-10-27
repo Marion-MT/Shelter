@@ -13,7 +13,10 @@ const userSchema = mongoose.Schema({
     token: String,
     bestScore: Number,
     currentGame: { type: mongoose.Schema.Types.ObjectId, ref: 'games' },
-    settings: settingSchema,
+    settings: {
+        type: settingSchema,
+        default: () => ({})
+    },
     historicGames: [{ type: mongoose.Schema.Types.ObjectId, ref: 'games' }],
     UnlockedAchievements : [{ type: mongoose.Schema.Types.ObjectId, ref: 'succès' }]
 })

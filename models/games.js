@@ -17,7 +17,10 @@ const gameSchema = mongoose.Schema({
     numberDays: { type: Number, default : 0 },
     createdAt: { type: Date, default : Date.now() },
     lastEventDay: { type: Number, default : 0 },
-    stateOfGauges: stateOfGaugesSchema
+    stateOfGauges: {
+        type: stateOfGaugesSchema,
+        default: () => ({})
+    }
 });
 
 const Game = mongoose.model('games', gameSchema);

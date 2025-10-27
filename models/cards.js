@@ -38,9 +38,18 @@ const cardSchema = mongoose.Schema({
     text: {type:String, required:true},
     cooldown: { type: Number, default : 15 },
     incrementsDay: Boolean,
-    right: choiceSchema,
-    left: choiceSchema,
-    conditions: conditionsSchema,
+    right: {
+        type: choiceSchema,
+        default: () => ({})
+    },
+    left: {
+        type: choiceSchema,
+        default: () => ({})
+    },
+    conditions: {
+        type: conditionsSchema,
+        default: () => ({})
+    },
 
 });
 
