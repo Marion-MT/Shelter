@@ -8,23 +8,27 @@ type EndGameScreenProps = {
 }
 
 export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
+
+    const deathData = {
+        cause: 'hunger',
+        title: 'faim',
+        description: `Vos efforts n'ont pas suffi. Les réserves sont vides depuis trop longtemps, et la faim vous a emporté.`,
+    }
     
-    const consequence = (cause) => {
+    const changeColor = (cause) => {
         if (cause === 'hunger') {
-            return <Text style={styles.deadHunger}>faim</Text>
+            return '#f28f27'
         }
         else if (cause === 'security') {
-            return <Text style={styles.deadSecurity}>bêtes sauvage</Text>
+            return '#378ded'
         }
         else if (cause === 'health') {
-            return <Text style={styles.deadHealth}>maladie</Text>
+            return '#cf5a34'
         }
         else if (cause === 'moral') {
-            return <Text style={styles.deadMoral}>folie</Text>
+            return '#6b8a48'
         }
     };
-    
-    const cause = 'hunger';
 
     return (
             <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
@@ -40,15 +44,15 @@ export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
                             <View style={styles.deadWhat}>
                                 <Image source={require('../assets/icon-skull.png')} resizeMode="contain" style={styles.skullLogo} />
                                 <Text style={styles.deadText}>vous êtes morts de</Text>
-                                {consequence(cause)}
+                                <Text style={[styles.deadCause, {color: changeColor(deathData.cause)}]}>{deathData.title}</Text>
                             </View>
                             <View style={styles.deadResume}>
-                                <Text style={styles.resumeText}>Vos efforts n'ont pas suffi. Les réserves sont vides depuis trop longtemps, et la faim vous a emporté.</Text>
+                                <Text style={styles.resumeText}>{deathData.description}</Text>
                             </View>
                         </View>
                     </View>
                 </View>    
-                <TouchableOpacity style={styles.button} activeOpacity={0.8}>
+                <TouchableOpacity style={[styles.button, {backgroundColor: changeColor(deathData.cause)}]} activeOpacity={0.8}>
                 <Text style={styles.btnText}>continuer</Text>
                 </TouchableOpacity>
             </ImageBackground>
@@ -109,33 +113,11 @@ export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
             fontWeight: 'bold',
             textTransform: 'uppercase',
         },
-        deadHunger: {
+        deadCause: {
             marginTop: 5,
             fontSize: 23,
             fontWeight: 'bold',
             textTransform: 'uppercase',
-            color: '#f28f27',
-        },
-        deadSecurity: {
-            marginTop: 5,
-            fontSize: 23,
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            color: '#388FF0',
-        },
-        deadHealth: {
-            marginTop: 5,
-            fontSize: 23,
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            color: '#cf5a34',
-        },
-        deadMoral: {
-            marginTop: 5,
-            fontSize: 23,
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            color: '#74954E',
         },
         deadResume: {
             flex: 1,
@@ -154,10 +136,9 @@ export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
         button: {
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#342C29',
             width: 235,
             height: 60,
-            borderWidth: 1,
+            borderWidth: 1.5,
             borderColor: 'black',
             borderRadius: 15,
             margin: 15,
@@ -166,6 +147,6 @@ export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
             textTransform: 'uppercase',
             fontSize: 23,
             fontWeight: 'bold',
-            color: '#EFDAB7',
+            color: 'black',
         },
     });
