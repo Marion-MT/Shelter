@@ -12,6 +12,7 @@ import SplashScreen from './screens/SplashScreen';
 import SuccesScreen from './screens/SuccesScreen';
 import RecapGameScreen from './screens/RecapGameScreen';
 
+<<<<<<< HEAD
 //redux imports
 import { Provider } from 'react-redux';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
@@ -40,10 +41,24 @@ const store = configureStore({
 
 const persistor = persistStore(store);
 */
+=======
+import { useFonts } from 'expo-font';
+>>>>>>> fb60c3cdc793ebcbfdca48e595cc83ba86558f3f
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
+  const [loaded, error] = useFonts({
+    DaysLater: require('./assets/fonts/28 Days Later.ttf'),
+    ArialRounded: require('./assets/fonts/arialroundedmtbold.ttf'),
+  });
+
+  if (!loaded && !error) {
+    return null;
+  }
+
+
   return (
     <Provider store={store}>
         <NavigationContainer>
