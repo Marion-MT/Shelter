@@ -21,15 +21,14 @@
     "persist": "^0.2.7",
     "react": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-config": "^1.5.9",
+    "react-native-dotenv": "^3.4.11",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
-<<<<<<< HEAD
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
-    "redux-persist": "^6.0.0"
-=======
+    "redux-persist": "^6.0.0",
     "vector-icons": "^0.1.0"
->>>>>>> fb60c3cdc793ebcbfdca48e595cc83ba86558f3f
   },
   "private": true,
   "devDependencies": {

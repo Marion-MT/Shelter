@@ -1,10 +1,10 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
+import { View, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { useEffect, useState } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
-import { useDispatch, UseDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { signin } from "../reducers/user";
 
 type ConnexionScreenProps = {
@@ -23,13 +23,11 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailerror, setEmailError] = useState(false);
-    const [isVisible, setIsvisible] = useState(false);
+    const [isVisible, setIsvisible] = useState(false); //pour que le MDP soit caché
+
+    
 
     const dispatch = useDispatch();
-
-    const handleNavigate = () => {
-        navigation.navigate('Home', { screen: 'Home' });
-    };
 
     const handleSignin = () => {
             fetch(`${BACKEND_ADDRESS}/users/signin`, {
@@ -76,10 +74,13 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                     secureTextEntry={!isVisible}
                     onChangeText={(value) => setPassword(value)}
                     value={password}
-
                     />
                     <TouchableOpacity onPress={() => handleSignin()} style={styles.button} activeOpacity={0.8}>
                         <Text>Go</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Pas encore de compte ?</Text>
+                    <TouchableOpacity onPress={() => handleSignin()} style={styles.button} activeOpacity={0.8}>
+                        <Text>Créer un compte</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -100,7 +101,9 @@ const styles = StyleSheet.create({
         fontSize: 40,
         fontWeight: '600',
         fontFamily: 'Futura',
-        paddingBottom: 30,      
+        paddingBottom: 30,
+        alignItems: 'center',
+        justifyContent: 'center',      
     },
     button: {
         alignItems: 'center',
