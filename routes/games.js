@@ -8,7 +8,7 @@ let cardSelectGlobal = null
 
 
 /* nouvelle games */
-router.post('/new', authMiddleWare, async (req, res, next) => {
+router.post('/new', authMiddleWare, async (req, res) => {
  try {
 const userId = req.user._id
 
@@ -29,13 +29,23 @@ cardSelectGlobal = cards[Math.floor(Math.random() * (cards.length))]
     })
 
     await newGame.save()
-    await User.findByIdAndUpdate(userId, {currentGame: newGame._id })
-    
+    await User.findByIdAndUpdate(userId, {currentGame: newGame._id })  // <-- lie la game au user
+
     return res.json({ result: true, message: 'Nouvelle partie crée', game: newGame})
 
 } catch (err) {
     return res.json({ result:false, error: err.message})
 }
+})
+
+/* historique game */
+
+router.get('/', authMiddleWare, (req,res) => {
+    try {
+
+    } catch (err) {
+        return res.json({ result: false, error: err.message})
+    }
 })
 
 
