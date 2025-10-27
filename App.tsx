@@ -1,5 +1,8 @@
+import 'react-native-reanimated';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import ConnexionScreen from './screens/ConnexionScreen';
 import CreditScreen from './screens/CreditScreen';
@@ -29,19 +32,21 @@ export default function App() {
 
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='Introduction' component={IntroductionScreen} />
-        <Stack.Screen name='Connexion' component={ConnexionScreen} />
-        <Stack.Screen name='Home' component={HomeScreen} />
-        <Stack.Screen name='Parametre' component={ParametreScreen} />
-        <Stack.Screen name='Credit' component={CreditScreen} />
-        <Stack.Screen name='Succes' component={SuccesScreen} />
-        <Stack.Screen name='Game' component={GameScreen} />
-        <Stack.Screen name='EndGame' component={EndGameScreen} />
-        <Stack.Screen name='RecapGame' component={RecapGameScreen} />
-        <Stack.Screen name='Splash' component={SplashScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name='Introduction' component={IntroductionScreen} />
+          <Stack.Screen name='Connexion' component={ConnexionScreen} />
+          <Stack.Screen name='Home' component={HomeScreen} />
+          <Stack.Screen name='Parametre' component={ParametreScreen} />
+          <Stack.Screen name='Credit' component={CreditScreen} />
+          <Stack.Screen name='Succes' component={SuccesScreen} />
+          <Stack.Screen name='Game' component={GameScreen} />
+          <Stack.Screen name='EndGame' component={EndGameScreen} />
+          <Stack.Screen name='RecapGame' component={RecapGameScreen} />
+          <Stack.Screen name='Splash' component={SplashScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

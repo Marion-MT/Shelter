@@ -13,7 +13,8 @@ export default function Gauge({ icon, color, percent, indicator } : GaugeProps) 
 
 
     const delta = 5;    // to shift the fill bar to the top and avoid to hide it behind the icon
-    const newPercent = delta + percent * (100 - delta) / 100;
+    const newPercent = percent === 0 ? 0 : delta + percent * (100 - delta) / 100;
+
  
   return (
     <View style={styles.container}>

@@ -1,32 +1,37 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ImageBackground } from "react-native"
+import { View, Text, StyleSheet, Image, ImageBackground, Dimensions  } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { useState, useRef } from 'react';
 import Gauge from '../components/Gauges';
+import AnimatedCard from '../components/AnimatedCard';
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
+
 export default function GameScreen({ navigation }: GameScreenProps ) {
 
     const foodPercent : number = 40;
+    const numberDays: number = 10;
    
     const handleNavigate = () => {
         navigation.navigate('EndGame', { screen: 'EndGame' });
     };
 
+
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.backgroundImage}>
             <View style={styles.container}>
                 <View style={styles.hud}>
-                    <Text style={styles.numberDays}>JOUR 12</Text>
+                    <Text style={styles.numberDays}>JOUR {numberDays}</Text>
                 </View>
                 <View style={styles.main}>
                     <View style={styles.darkBackground}>
                         <View style={styles.cardContainer}>
                             <View style={styles.gaugesContainer}>
-                                <Gauge icon={require('../assets/icon-hunger.png')} color='#f28f27' percent={90} indicator={15}/>
+                                <Gauge icon={require('../assets/icon-hunger.png')} color='#f28f27' percent={10} indicator={15}/>
                                 <Gauge icon={require('../assets/icon-security.png')} color='#378ded' percent={10} indicator={5}/>
-                                <Gauge icon={require('../assets/icon-health.png')} color='#cf5a34' percent={45} indicator={0}/>
+                                <Gauge icon={require('../assets/icon-health.png')} color='#cf5a34' percent={80} indicator={0}/>
                                 <Gauge icon={require('../assets/icon-moral.png')} color='#6b8a48' percent={65} indicator={10}/>
                             </View>
                             <View style={styles.textContainer}>
@@ -34,23 +39,11 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                                     Une tempête approche. Elle risque d'endommager le refuge… Nous n'avons pas beaucoup de temps pour nous préparer.
                                 </Text>
                             </View>
-                            <View style={styles.choiceCardContainer}>
-                                <View style={styles.backCard}>
-                                    <View style={styles.choiceCard}>
-                                        <View style={styles.textSection}>
-                                            <Text style={styles.textChoice}>Sauver les armes et les médicaments</Text>
-
-                                        </View>
-
-                                    </View>
-                                
-                                </View> 
+                            <View style={styles.choiceCardContainer} >
+                               <AnimatedCard leftChoiceText="Oui" rightChoiceText="Non"/>
                             </View>
-
                         </View>
-
-                    </View>
-                
+                    </View>               
                 </View>
                 <View style={styles.bottomSection}>
                     <View style={styles.foodSection}>
@@ -122,19 +115,19 @@ const styles = StyleSheet.create({
     },
     gaugesContainer:{
         width: '100%',
-        height: '22%',
+        height: '25%',
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
     },
     textContainer:{
         width: '100%',
         height: '25%',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop : 20,
-        paddingHorizontal: 20
+        paddingVertical : 5,
+        paddingHorizontal: 20,
     },
     textEvent: {
         color: '#ffe7bf',
@@ -147,7 +140,7 @@ const styles = StyleSheet.create({
         height: '55%',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingTop: 30
+        paddingTop: 20
 
     },
     backCard:{
@@ -165,18 +158,6 @@ const styles = StyleSheet.create({
         borderWidth: 4,
         overflow: 'hidden'
 
-    },
-    textSection: {
-        width: '100%',
-        height: '35%',
-        backgroundColor: '#ae9273',
-        padding: 18
-
-    },
-    textChoice: {
-        fontFamily: 'ArialRounded',
-        fontSize : 18,
-        color: '#242120'
     },
     bottomSection: {
         width: '100%',
