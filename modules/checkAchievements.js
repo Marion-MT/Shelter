@@ -38,3 +38,5 @@ async function checkAchievements(user, game) {
    await user.save()
 
 }
+
+module.exports = { checkAchievements };
