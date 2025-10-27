@@ -1,16 +1,17 @@
 var express = require('express');
 var router = express.Router();
 const Game = require('../models/games')
-const authMiddleWare = require('../middlewares/authMiddleWare');;
+const authenticateToken = require('../middlewares/authMiddleWare');;
 const User = require('../models/users')
 const Card = require('../models/cards')
 let cardSelectGlobal = null
 
 
 /* nouvelle games */
-router.post('/new', authMiddleWare, async (req, res) => {
+router.post('/new', authenticateToken, async (req, res) => {
  try {
-const userId = req.user._id
+    //console.log('User du middleWare: ', req.user)
+const userId = req.user.userId
 
 const activeGame = await Game.findOne({ player: userId , ended: false });
 const cards = await Card.find();
@@ -32,6 +33,11 @@ cardSelectGlobal = cards[Math.floor(Math.random() * (cards.length))];
 
     // MAJ historique avec verif de doublon + currentGame
     const user = await User.findById(userId)
+
+   //console.log('User de la bd : ' ,user)
+        if(!user) {
+            return res.json({ result : false , error: ' Utilisateur non trouvé'})
+        }
         if(!user.historicGames.includes(newGame._id)){
             user.historicGames.push(newGame._id)
         }
@@ -49,11 +55,11 @@ cardSelectGlobal = cards[Math.floor(Math.random() * (cards.length))];
 
 /* historique game */
 
-router.get('/', authMiddleWare, async (req,res) => {
+router.get('/', authenticateToken, async (req,res) => {
 
     try {
 
-    const userId = req.user._id
+    const userId = req.user.userId
     const userGame = await Game.find({ player: userId , ended: true });
         
     return res.json({ result: true, games: userGame})

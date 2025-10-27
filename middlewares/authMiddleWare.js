@@ -12,16 +12,17 @@ const authenticateToken = (req, res, next) => {
 
     // Vérifier et décoder le token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+    //console.log('JWT decode payload: ', decoded)
     // Ajouter les infos du user à la requête pour les routes suivantes
     req.user = {
-      userId: decoded.userId
+      userId: decoded.id
     };
     
     // Passer à la route suivante
     next();
     
   } catch (error) {
+    //console.error('JWT error:', error)
     return res.json({ result: false, error: 'Token invalide ou expiré' });
   }
 };
