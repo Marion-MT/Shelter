@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 type GameScreenProps = {
@@ -12,38 +12,47 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-            <View style={styles.text}>
-                <Text style={styles.title}>Game Screen</Text>
-                <TouchableOpacity onPress={() => handleNavigate()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to EndGame Screen</Text>
-                </TouchableOpacity>
+        <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.backgroundImage}>
+            <View style={styles.container}>
+                <View style={styles.hud}>
+                    <Text style={styles.numberDays}>JOUR 12</Text>
+                </View>
+                <View style={styles.main}>
+                
+                </View>
+                <View style={styles.foodSection}>
+                
+                </View>
             </View>
-        </KeyboardAvoidingView>
+           
+        </ImageBackground>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
+    backgroundImage: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
+        position: 'relative',
     },
-    text: {
-        alignItems: 'center',
+    container: {
+        height: '100%',
+        width: '100%'
     },
-    title: {
-        fontSize: 40,
-        fontWeight: '600',
-        fontFamily: 'Futura',
-        paddingBottom: 30,      
+    hud: {
+        justifyContent:'flex-start',
+        height: 50,
+        width : '100%'
     },
-    button: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#95979A',
-        width: 200,
-        height: 40,
-        borderRadius: 20,
+    numberDays: {
+        color: '#ffe7bf',
+        fontSize: 30,
+        fontFamily: 'DaysLater',
+    },
+    main: {
+
+    },
+    foodSection: {
     },
 });

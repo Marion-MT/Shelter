@@ -12,9 +12,22 @@ import SplashScreen from './screens/SplashScreen';
 import SuccesScreen from './screens/SuccesScreen';
 import RecapGameScreen from './screens/RecapGameScreen';
 
+import { useFonts } from 'expo-font';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
+  const [loaded, error] = useFonts({
+    DaysLater: require('./assets/fonts/28 Days Later.ttf'),
+    ArialRounded: require('./assets/fonts/arialroundedmtbold.ttf'),
+  });
+
+  if (!loaded && !error) {
+    return null;
+  }
+
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
