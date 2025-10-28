@@ -16,6 +16,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get("window");
 const SWIPE_THRESHOLD = width * 0.25;
+const SHOW_TEXT_THRESHOLD = 5;
 
 type SwipeCardProps = {
   leftChoiceText: string;
@@ -27,7 +28,7 @@ type SwipeCardProps = {
 
 export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeLeft, onSwipeRight }: SwipeCardProps) {
 
-  const [isFlipped, setIsFlipped] = useState(true);
+  const [isFlipped, setIsFlipped] = useState(true);     // whether the card is on the front side or the back side
   const flipRotation = useSharedValue(180); // 0 = front, 180 = back
 
   const translateX = useSharedValue(0);
@@ -35,10 +36,10 @@ export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeL
 
   // FLIP ANIMATION
   const flip = () => {
-    flipRotation.value = withTiming(flipRotation.value === 0 ? 180 : 0, { duration: 400 });
+    flipRotation.value = withTiming(flipRotation.value === 0 ? 180 : 0, { duration: 400 }); // Rotation from 0 to 180 in 400ms
   };
 
-  const frontAnimatedStyle = useAnimatedStyle(() => {
+  const frontAnimatedStyle = useAnimatedStyle((): ViewStyle => {
     return {
       transform: [
         {
@@ -49,7 +50,7 @@ export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeL
     };
   });
 
-  const backAnimatedStyle = useAnimatedStyle(() => {
+  const backAnimatedStyle = useAnimatedStyle((): ViewStyle => {
 
     return {
       transform: [
@@ -75,14 +76,16 @@ export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeL
 );
   // SWIPE ANIMATION
   const panGesture = Gesture.Pan()
-  .enabled(!isFlipped)
-  .onUpdate((event) => {
+  .enabled(!isFlipped)    // allow swipe only if the card is on the front side
+  .onUpdate((event) => {      // Update translate and rotation values in real time with the data of event
     translateX.value = event.translationX;
     swipeRotation.value = event.translationX / 20;
   })
   .onEnd(() => {
-    const toRight = translateX.value > 0;
-    if (Math.abs(translateX.value) > SWIPE_THRESHOLD) {
+
+    const toRight = translateX.value > 0;     // bool that is true if the card has been swipping at right
+
+    if (Math.abs(translateX.value) > SWIPE_THRESHOLD) {     // Threshold to validate the gesture 
       translateX.value = withSpring(toRight ? width : -width, {});
     } else {
       translateX.value = withSpring(0);
@@ -90,6 +93,7 @@ export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeL
     }
   });
 
+  // create animated style with the values of the swipe
   const swipeAnimatedStyle = useAnimatedStyle((): ViewStyle => ({
     transform: [
       { translateX: translateX.value },
@@ -98,24 +102,13 @@ export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeL
   }));
 
 
-const [swipeSide, setSwipeSide] = useState<'left' | 'right' | 'center'>('left');
-
-const checkSwipeRotation = (rotation: number) => {
-  if(rotation === 0 ){
-    return 'center';
-  }
-  else if(rotation > 0){
-    return 'right';
-  }
-  else{
-    return 'left';
-  }
-}
+// get the information of the swipe side
+const [swipeSide, setSwipeSide] = useState<'left' | 'right' | 'center'>('center');
 
 useAnimatedReaction(
   () => translateX.value,
   (current) => {
-    runOnJS(setSwipeSide)(Math.abs(current) > 5 ? (current > 0 ? 'right' : 'left') : 'center');
+    runOnJS(setSwipeSide)(Math.abs(current) > SHOW_TEXT_THRESHOLD ? (current > 0 ? 'right' : 'left') : 'center');
   }
 );
 
