@@ -1,7 +1,5 @@
 import { View, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
-import { useEffect, useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useState } from "react"; 
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 import { useDispatch } from "react-redux";
