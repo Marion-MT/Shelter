@@ -163,7 +163,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
         //console.log(' filter card: ',cardsfilter)
         const populatedGame = await Game.findById(game._id).populate('currentCard')
 
-    return res.json({ result : true , gauges: populatedGame.stateOfGauges, card: populatedGame.currentCard, numberDays: populatedGame.numberDays  })
+    return res.json({ result : true , gameOver: false , gauges: populatedGame.stateOfGauges, card: populatedGame.currentCard, numberDays: populatedGame.numberDays  })
 
     } catch (err) {
         return res.json({ result: false, error: err.message})
