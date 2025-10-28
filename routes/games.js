@@ -117,47 +117,38 @@ router.post('/choice', authenticateToken, async (req,res) => {
         if(!user.currentGame.currentCard) {
             return res.json({ result:false , error : 'Aucune carte selectionner !'})
         }
-            console.log(choice, 'current game :', user.currentCard)
             const effects = choice === 'right' ? user.currentGame.currentCard.right.effect : user.currentGame.currentCard.left.effect;
 
-            /*console.log('effects =' ,effects)
-        
-            const game = await Game.findById(user.currentGame._id);
+            const game = await Game.findById(user.currentGame._id)
+            
+            //console.log(Object.keys(effects))
+            Object.keys(effects).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
+                game.stateOfGauges[key] += effects[key];        
+            });
 
-        for (const key in effects){
+            game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"
+            await game.save();
 
-
-
-                    game.stateOfGauges[key] += effects[key]
-
-            }
-        game.markModified('stateOfGauges');
-
-        await game.save();
-
-
-        */
         // ICI push et changement de card selectionner
-        user.currentGame.usedCards.push(user.currentGame.currentCard._id)
-            await user.save()
+        game.usedCards.push(game.currentCard)
 
-            //const updateGame = await Game.findById(user.currentGame._id).populate('currentCard')
-        const exludedIds =  user.currentGame.usedCards  
+        const exludedIds =  game.usedCards  
         // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
-        const cardsFiltred = await Card.find({ _id: { $nin: exludedIds } });  
+        //const cardsFiltred = await Card.find({ _id: { $nin: exludedIds } });  
+        const cards = await Card.find()
 
-        if(cardsFiltred.length === 0) {
+       /* if(cardsFiltred.length === 0) {
             return res.json({ result : false, error: 'Aucune carte disponible'})
-        }
-        const cardSelect = cardsFiltred[Math.floor(Math.random() * (cardsFiltred.length))];
-
-
-        await user.currentGame.save()
+        }*/
+        const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
+        game.currentCard = cardSelect._id
+        game.numberDays += 1
+        await game.save()
 
         //console.log(' filter card: ',cardsfilter)
+        const populatedGame = await Game.findById(game._id).populate('currentCard')
 
-
-    return res.json({ result : true , gameMAJ: user.currentGame })
+    return res.json({ result : true , gauges: populatedGame.stateOfGauges, card: populatedGame.currentCard, numberDays: populatedGame.numberDays  })
 
     } catch (err) {
         return res.json({ result: false, error: err.message})
