@@ -98,6 +98,16 @@ router.get('/', (req, res) => {
 });
 
 
+      ///////// GET user profile  ///////////
+router.get('/profile', authenticateToken, (req, res) =>{
+  const userId=req.user.userId
+  User.findById(userId)
+  .then(data => {
+    res.json({result: true, user: data})
+  })
+})
+
+
 ///////////////////Route Delete//////////////////////
     ///////// Delete stats/achievements  /////////
 router.delete
