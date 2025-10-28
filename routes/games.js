@@ -142,7 +142,8 @@ router.post('/choice', authenticateToken, async (req,res) => {
                     result: true, 
                     gameover: true, 
                     gauges: game.stateOfGauges,
-                    death: death
+                    death: death,
+                   // bestscore: user.bestScore
                 });
     }
 }
