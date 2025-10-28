@@ -7,7 +7,7 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
     
     if (!token) {
-      return res.json({ result: false, error: 'Token manquant' });
+      return res.json({ result: false, error: 'Missing Token' });
     }
 
     // Vérifier et décoder le token

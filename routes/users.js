@@ -16,7 +16,7 @@ router.post('/signup', (req, res) => {
     return;
   }
   const {email, password} = req.body;
-    // Check si l'utilisateur déjà inscrit avant de créer un nouvel utilisateur
+    // Check si utilisateur déjà inscrit avant de créer un nouvel utilisateur
   User.findOne({email}).then(data =>{
     if (data === null) {
       // si l'utilisateur n'existe pas
@@ -26,10 +26,22 @@ router.post('/signup', (req, res) => {
         password: hash, 
       })
       newUser.save().then(data => {
-        res.json({result: true, data})
+        const token = jwt.sign(
+          {id: data._id},
+          process.env.JWT_SECRET,
+          {expiresIn: '24h'}
+        );
+        data.token = token;
+        data.save();
+
+        res.json({result: true, 
+          token,
+          user: {
+          email: data.email}
+        })
       })
     } else {
-      //si l'utilisatuer existe déjà
+      //si l'utilisateur existe déjà
       res.json({result: false, error : 'User already exists'})
     }
   })
