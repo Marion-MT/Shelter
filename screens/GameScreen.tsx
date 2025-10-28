@@ -6,55 +6,22 @@ import AnimatedCard from '../components/AnimatedCard';
 import { cards } from '../data/cards';
 import { responses } from '../data/responses';
 
+import { useSelector, useDispatch } from "react-redux";
+import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reducers/user";
+
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
-export type Choice = {
-  text: string;
-  effect: {
-    hunger: number;
-    security: number;
-    health: number;
-    moral: number;
-    food: number;
-  };
-  consequence?: string | null;
-  trigger?: string | null;
-  endTrigger?: string | null;
-  nextCard?: string | null;
-  nextPool?: string | null;
-  triggerAchievement?: any | null;
-};
-
-export type Conditions = {
-  requiredScenario: string[];
-  forbiddenScenario: string[];
-  minDays: number;
-  maxDays: number;
-  gauges: Record<string, { min: number; max: number }>;
-};
-
-export type Card = {
-  key: string;
-  pool: string;
-  text: string;
-  cooldown: number;
-  incrementsDay: boolean;
-  right: Choice;
-  left: Choice;
-  conditions: Conditions;
-};
-
+const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function GameScreen({ navigation }: GameScreenProps ) {
 
-    const [currentCard, setCurrentCard] = useState<Card | null>(null);
-    const [hunger, setHunger] = useState<number>(50);
-    const [security, setSecurity] = useState<number>(50);
-    const [health, setHealth] = useState<number>(50);
-    const [moral, setMoral] = useState<number>(50);
-    const [food, setFood] = useState<number>(50);
+    const dispatch = useDispatch();
+
+    const user = useSelector((state: string) => state.user.value);
+
+   // const [currentCard, setCurrentCard] = useState<Card | null>(user.currentCard);
 
     const [currentSide, setCurrentSide] = useState<string>('center');
 
@@ -64,46 +31,62 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     const [numberDays, setNumberDays] = useState<number>(1);
 
-
-
-    useEffect(() => {
-        setCurrentCard(cards[0]);
-    }, []);
     
     const handleSideChange = (side: string) : void => {
         setCurrentSide(side)
     }
 
-    const getNextCard = () : void => {
+    const triggerGameover = () => {
+        setTimeout(() => {
+            navigation.navigate('EndGame', { screen: 'EndGame' });
+        }, 1000);
+    }
 
-        setCurrentSide('center');
-        const nextIndex = (indexCard + 1) % cards.length;
+    const getNextCard = async () : Promise<void> => {
 
-        setHunger(responses[nextIndex].gauges.hunger);
-        setSecurity(responses[nextIndex].gauges.security);
-        setHealth(responses[nextIndex].gauges.health);
-        setMoral(responses[nextIndex].gauges.moral);
-        setFood(responses[nextIndex].gauges.food);
+        try{
+            const response = await fetch(`${BACKEND_ADDRESS}/games/choice`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${user.token}`,
+                           'Content-Type': 'application/json' },
+                body: JSON.stringify({ choice:  currentSide}),
+            });
 
-        setNumberDays(responses[nextIndex].numberDays);
+            const data = await response.json();
+
+            if(!data.result){
+                triggerGameover();
+                return;
+            }
+
+            console.log("GameOver :", data.gameover);
+
+            dispatch(setGauges(data.gauges));
+
+            console.log("Gauge :", data.gauges);
+
+            if(data.gameover || !data.card){
+                triggerGameover();
+                return;
+            }
 
 
-        if(!responses[nextIndex].gameover){
- 
             setTimeout(() => {
-                setIndexCard(nextIndex);
-                setCurrentCard(cards[nextIndex]);
+                dispatch(setCurrentCard(data.card));
+                dispatch(setCurrentNumberDays(data.numberDays));
     
 
             }, 100);
 
             setTriggerReset(!triggerReset);
+
+
+        }catch (err) {
+
         }
-        else{
-            setTimeout(() => {
-                navigation.navigate('EndGame', { screen: 'EndGame' });
-            }, 1000);
-        }
+
+        
+        
        
     }
 
@@ -124,6 +107,8 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         navigation.navigate('EndGame', { screen: 'EndGame' });
     };
 
+    const currentCard = user.currentCard;
+
     const hungerIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.hunger || 0) : Math.abs(currentCard?.left?.effect.hunger || 0));
     const securityIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.security || 0) : Math.abs(currentCard?.left?.effect.security || 0));
     const healthIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.health || 0) : Math.abs(currentCard?.left?.effect.health || 0));
@@ -133,16 +118,16 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.backgroundImage}>
             <View style={styles.container}>
                 <View style={styles.hud}>
-                    <Text style={styles.numberDays}>JOUR {numberDays}</Text>
+                    <Text style={styles.numberDays}>JOUR {user.numberDays}</Text>
                 </View>
                 <View style={styles.main}>
                     <View style={styles.darkBackground}>
                         <View style={styles.cardContainer}>
                             <View style={styles.gaugesContainer}>
-                                <Gauge icon={require('../assets/icon-hunger.png')} color='#f28f27' percent={hunger} indicator={hungerIndicator}/>
-                                <Gauge icon={require('../assets/icon-security.png')} color='#378ded' percent={security} indicator={securityIndicator}/>
-                                <Gauge icon={require('../assets/icon-health.png')} color='#cf5a34' percent={health} indicator={healthIndicator}/>
-                                <Gauge icon={require('../assets/icon-moral.png')} color='#6b8a48' percent={moral} indicator={moralIndicator}/>
+                                <Gauge icon={require('../assets/icon-hunger.png')} color='#f28f27' percent={user.stateOfGauges.hunger} indicator={hungerIndicator}/>
+                                <Gauge icon={require('../assets/icon-security.png')} color='#378ded' percent={user.stateOfGauges.security} indicator={securityIndicator}/>
+                                <Gauge icon={require('../assets/icon-health.png')} color='#cf5a34' percent={user.stateOfGauges.health} indicator={healthIndicator}/>
+                                <Gauge icon={require('../assets/icon-moral.png')} color='#6b8a48' percent={user.stateOfGauges.moral} indicator={moralIndicator}/>
                             </View>
                             <View style={styles.textContainer}>
                                 <Text style={styles.textEvent}>
@@ -169,7 +154,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                         <View style={styles.foodGlobalContent}>
                             
                             <View style={styles.foodBarContainer}>
-                                <View style={[styles.foodBarFill, { width: `${food}%`}]}>
+                                <View style={[styles.foodBarFill, { width: `${user.stateOfGauges.food}%`}]}>
 
                                 </View>
                             </View>

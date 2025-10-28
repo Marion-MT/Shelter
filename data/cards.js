@@ -1,5 +1,6 @@
 export const cards = [
   {
+    "_id": "1",
     "key": "CS-1",
     "pool": "general",
     "text": "Des champignons poussent autour du refuge… Ils pourraient nourrir le groupe. Mais peut-être vaudrait-il mieux renforcer les murs en cas d'attaque.",
@@ -67,6 +68,7 @@ export const cards = [
     }
   },
   {
+    "_id": "2",
     "key": "CS-2",
     "pool": "general",
     "text": "Un groupe agressif rôde près du refuge et nous défie de sortir.",
@@ -134,6 +136,7 @@ export const cards = [
     }
   },
   {
+    "_id": "3",
     "key": "CS-3",
     "pool": "general",
     "text": "La cabane prend l’eau et menace nos ressources. Rester sans agir pourrait nous rendre malades.",

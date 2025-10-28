@@ -1,25 +1,35 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setGameState } from "../reducers/user";
 
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
+const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
+
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
-    const user = useSelector((state: string) => state.user.value.token);
-    console.log(user);
+    const user = useSelector((state: string) => state.user.value);
+    const dispatch = useDispatch();
    
     const handleNewGame = () => {
-        fetch('http://192.168.0.45:3000/games/new', {
+        fetch(`${BACKEND_ADDRESS}/games/new`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${user}` }
+            headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(response => response.json())
         .then(data => {
             console.log(data);
-        })      
-        // navigation.navigate('Game', { screen: 'Game' });
+            
+            if (data.error) {
+                console.log('Error:', data.error);
+                return;
+            } else {
+                dispatch(setGameState({ stateOfGauges: data.game.stateOfGauges, numberDays: data.game.numberDays, currentCard: data.game.currentCard }));
+                navigation.navigate('Game', { screen: 'Game' });
+            };
+        });      
     };
 
     const handleNavigateParametres = () => {
