@@ -1,14 +1,25 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { useSelector } from "react-redux";
 
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
+    const user = useSelector((state: string) => state.user.value.token);
+    console.log(user);
    
-    const handleNavigateGame = () => {
-        navigation.navigate('Game', { screen: 'Game' });
+    const handleNewGame = () => {
+        fetch('http://192.168.0.45:3000/games/new', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${user}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        })      
+        // navigation.navigate('Game', { screen: 'Game' });
     };
 
     const handleNavigateParametres = () => {
@@ -28,7 +39,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
                 <Text style={styles.title}>shelter</Text>
                 <View>
-                    <TouchableOpacity onPress={() => handleNavigateGame()} style={styles.button} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => handleNewGame()} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.btnText}>nouvelle partie</Text>
                     </TouchableOpacity>
                     {/* <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>

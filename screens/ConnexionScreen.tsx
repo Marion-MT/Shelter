@@ -15,7 +15,7 @@ type ConnexionScreenProps = {
 const EMAIL_REGEX: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 
-const BACKEND_ADDRESS = 'http://192.168.1.78:3000';
+const BACKEND_ADDRESS = 'http://192.168.0.45:3000';
 
 
 export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
