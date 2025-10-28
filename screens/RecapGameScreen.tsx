@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 type RecapGameScreenProps = {
@@ -6,7 +6,48 @@ type RecapGameScreenProps = {
 }
 
 export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
+    const gameData = {
+        numberDays: 40, 
+        bestScore: 35,
+    };
    
+    const checkScore = () => {
+        if (gameData.numberDays > gameData.bestScore) {
+            return ( 
+                <View style={styles.darkBackground}>
+                    <View style={styles.cardContainer}>
+                        <Text style={styles.text}>Vous avez survécu :</Text>
+                        <View style={styles.daysContainer}>
+                            <Text style={styles.days}>{gameData.numberDays}</Text>
+                        </View>
+                        <View style={styles.newBestScore}>
+                        <Text style={styles.daysText}>Jours</Text>
+                        <Image source={require('../assets/icon-new.png')} style={styles.newLogo} />
+                        </View>
+                        <View style={styles.bestScore}>
+                            <Image source={require('../assets/icon-star.png')} style={styles.logo} />
+                            <Text style={styles.bestScoreText}>Last Record : {gameData.bestScore} jours</Text>
+                        </View>
+                    </View>
+                </View>
+            );
+        } else return (
+            <View style={styles.darkBackground}>
+                <View style={styles.cardContainer}>
+                    <Text style={styles.text}>Vous avez survécu :</Text>
+                    <View style={styles.daysContainer}>
+                        <Text style={styles.days}>{gameData.numberDays}</Text>
+                    </View>
+                    <Text style={styles.daysText}>Jours</Text>
+                    <View style={styles.bestScore}>
+                        <Image source={require('../assets/icon-star.png')} style={styles.logo} />
+                        <Text style={styles.bestScoreText}>Record : {gameData.bestScore} jours</Text>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     const handleNavigateHome = () => {
         navigation.navigate('Home', { screen: 'Home' });
     };
@@ -16,17 +57,19 @@ export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-            <View style={styles.text}>
-                <Text style={styles.title}>RecapGame Screen</Text>
-                <TouchableOpacity onPress={() => handleNavigateHome()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to Home Screen</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleNavigateGame()} style={styles.button} activeOpacity={0.8}>
-                    <Text>Go to Game Screen</Text>
-                </TouchableOpacity>
+        <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
+            <View style={styles.main}>
+                {checkScore()}
+                <View style={styles.btnContainer}> 
+                    <TouchableOpacity style={styles.leftBtn} activeOpacity={0.8}>
+                    <Text style={styles.btnText}>REJOUER</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.rigthBtn} activeOpacity={0.8}>
+                    <Text onPress={() => handleNavigateHome()} style={styles.btnText}>MENU</Text>
+                    </TouchableOpacity>
+                </View>  
             </View>
-        </KeyboardAvoidingView>
+        </ImageBackground>
     )
 }
 
@@ -36,22 +79,117 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    text: {
+    main: {
+        width: '100%',
+        height: '85%',
+        paddingHorizontal: 36,
+        paddingVertical: 30,
+    },
+    darkBackground:{
+        backgroundColor : '#242120',
+        width: '100%',
+        height: 550,
+        borderRadius: 20,
+        padding: 12,
+    },
+    cardContainer: {
+        flex: 1,
+        flexDirection: 'column',
         alignItems: 'center',
+        backgroundColor : '#342c29',
+        width: '100%',
+        height: '100%',
+        borderRadius: 16,
+        borderColor: '#554946',
+        borderWidth: 5
     },
-    title: {
-        fontSize: 40,
-        fontWeight: '600',
-        fontFamily: 'Futura',
-        paddingBottom: 30,      
+    text: {
+        marginTop: 25,
+        color: '#EFDAB7',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
-    button: {
+    daysContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#95979A',
-        width: 200,
-        height: 40,
-        borderRadius: 20,
-        margin: 15,
+        marginTop: 15,
+        width: '48%',
+        height: 60,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: 'black',
+        backgroundColor: '#EFDAB7'
+    },
+    days: {
+        color: 'black',
+        fontSize: 35,
+        fontWeight: 'bold',
+    },
+    newBestScore: {
+      flexDirection: 'row',  
+    },
+    daysText: {
+        marginTop: 10,
+        color: '#EFDAB7',
+        fontSize: 30,
+        fontWeight: 'bold',
+    },
+    newLogo: {
+        marginLeft: 15,
+        width: 65,
+        height: 65,
+    },
+    bestScore: {
+        marginTop: 20,
+        width: '100%',
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#554946'
+    },
+    bestScoreText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#EFDAB7',
+    },
+    logo: {
+        marginRight: 15,
+        width: 25,
+        height: 25,
+    },
+    btnContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    leftBtn: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '47.5%',
+        height: 70,
+        borderWidth: 1.5,
+        borderColor: 'black',
+        borderRadius: 15,
+        marginTop: 30,
+        backgroundColor: '#D05A34',
+    },
+    rigthBtn: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '47.5%',
+        height: 70,
+        borderWidth: 1.5,
+        borderColor: 'black',
+        borderRadius: 15,
+        marginTop: 30,
+        backgroundColor: '#74954E',
+    },
+    btnText: {
+        textTransform: 'uppercase',
+        fontSize: 23,
+        fontWeight: 'bold',
+        color: 'black',
     },
 });

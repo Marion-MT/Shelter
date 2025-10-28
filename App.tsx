@@ -43,8 +43,8 @@ const store = configureStore({
 
 const persistor = persistStore(store);
 */
-
 import { useFonts } from 'expo-font';
+
 
 
 const Stack = createNativeStackNavigator();
