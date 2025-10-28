@@ -6,6 +6,7 @@ const User = require('../models/users')
 const Card = require('../models/cards')
 const { checkBody } = require('../modules/checkBody')
 const { applyEffects } = require('../modules/applyEffects')
+const Ending = require('../models/endings')
 
 
 /* nouvelle games */
@@ -128,6 +129,20 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
             game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"
             await game.save();
+
+         for (const [key, value] of Object.entries(game.stateOfGauges._doc)) { /// <--- obliger d'utiliser Object. et ._doc pour recuperer en brut car c'est un sous document \\\ on recuper clé et valeur ///
+                if (value < 0) {
+                    
+                    const death = await Ending.findOne({ type:key})
+                    
+                    return res.json({ 
+                    result: true, 
+                    gameover: true, 
+                    gauges: game.stateOfGauges,
+                    death: death
+                });
+    }
+}
 
         // ICI push et changement de card selectionner
         game.usedCards.push(game.currentCard)
