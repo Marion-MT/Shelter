@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Gauge from '../components/Gauges';
 import AnimatedCard from '../components/AnimatedCard';
 import { cards } from '../data/cards';
+import { responses } from '../data/responses';
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -61,7 +62,8 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     const [triggerReset, setTriggerReset] = useState<boolean>(false);
 
-    const numberDays: number = 10;
+    const [numberDays, setNumberDays] = useState<number>(1);
+
 
 
     useEffect(() => {
@@ -75,15 +77,34 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const getNextCard = () : void => {
 
         setCurrentSide('center');
+        const nextIndex = (indexCard + 1) % cards.length;
 
-        setTimeout(() => {
-            const nextIndex = (indexCard + 1) % cards.length;
-            setIndexCard(nextIndex);
-            setCurrentCard(cards[nextIndex]);
+        setHunger(responses[nextIndex].gauges.hunger);
+        setSecurity(responses[nextIndex].gauges.security);
+        setHealth(responses[nextIndex].gauges.health);
+        setMoral(responses[nextIndex].gauges.moral);
+        setFood(responses[nextIndex].gauges.food);
 
-        }, 100);
+        setNumberDays(responses[nextIndex].numberDays);
 
-        setTriggerReset(!triggerReset);
+
+        if(!responses[nextIndex].gameover){
+ 
+            setTimeout(() => {
+                setIndexCard(nextIndex);
+                setCurrentCard(cards[nextIndex]);
+    
+
+            }, 100);
+
+            setTriggerReset(!triggerReset);
+        }
+        else{
+            setTimeout(() => {
+                navigation.navigate('EndGame', { screen: 'EndGame' });
+            }, 1000);
+        }
+       
     }
 
     const onSwipeLeft = () : void => {
