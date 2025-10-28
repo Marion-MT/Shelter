@@ -16,7 +16,7 @@ router.post('/new', authenticateToken, async (req, res) => {
 const userId = req.user.userId
 
 const activeGame = await Game.findOne({ player: userId , ended: false });
-const cards = await Card.find();
+const cards = await Card.find({ pool: "general"});
 const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
 
 // verifie si une partie est en court et la transforme en partie terminer
@@ -150,7 +150,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
         const exludedIds =  game.usedCards  
         // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
         //const cardsFiltred = await Card.find({ _id: { $nin: exludedIds } });  
-        const cards = await Card.find()
+        const cards = await Card.find({pool: "general"})
 
        /* if(cardsFiltred.length === 0) {
             return res.json({ result : false, error: 'Aucune carte disponible'})
