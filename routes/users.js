@@ -4,6 +4,7 @@ const User = require ('../models/users');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { checkBody } = require('../modules/checkBody');
+const authenticateToken = require ('../middlewares/authMiddleWare')
 
 
 /////////////////Routes POST////////////////////
@@ -95,5 +96,21 @@ router.get('/', (req, res) => {
     res.json({allUsers: data})
   })
 });
+
+
+///////////////////Route Delete//////////////////////
+    ///////// Delete stats/achievements  /////////
+router.delete
+
+
+    ///////// Delete account  /////////
+                              //↓ middleware//
+router.delete('/delAccount', authenticateToken, (req, res) => {
+
+  const userId=req.user.userId //info provenant du Middleware
+  User.findByIdAndDelete(userId).then(()=>{
+    res.json({result: true, message: 'Compte supprimé'})
+  })
+})
 
 module.exports = router;
