@@ -108,13 +108,15 @@ router.post('/choice', authenticateToken, async (req,res) => {
             return res.json({ result: false, error: 'Missing or empty fields'})
             ;
         }
-        
         const user = await User.findById(userId)
         .populate({
             path: 'currentGame',
             populate: 'currentCard'
         })
         
+        if(!user.currentGame) {
+            return res.json({ result:false , error : 'Aucune partie en cours !'})
+        }
         if(!user.currentGame.currentCard) {
             return res.json({ result:false , error : 'Aucune carte selectionner !'})
         }
@@ -134,8 +136,10 @@ router.post('/choice', authenticateToken, async (req,res) => {
          for (const [key, value] of Object.entries(game.stateOfGauges._doc)) { /// <--- obliger d'utiliser Object. et ._doc pour recuperer en brut car c'est un sous document \\\ on recuper clé et valeur ///
                 if (value < 1) {
                     
-                    user.bestScore = user.bestScore < game.numberDays ? game.numberDays : user.bestScore
-                    user.save()
+                    user.bestScore = Math.max(user.bestScore, game.numberDays)
+                    user.currentGame.ended = true 
+                    user.currentGame = null
+                    await user.save()
                     const death = await Ending.findOne({ type:key})
                     
                     return res.json({ 
@@ -143,7 +147,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
                     gameover: true, 
                     gauges: game.stateOfGauges,
                     death: death,
-                   // bestscore: user.bestScore
+                    bestscore: user.bestScore
                 });
     }
 }
