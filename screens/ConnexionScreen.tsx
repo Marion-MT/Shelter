@@ -1,8 +1,6 @@
 import Constants from 'expo-constants';
 import { View, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
-import { useEffect, useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useState } from "react"; 
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 import { useDispatch } from "react-redux";
@@ -148,10 +146,10 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
 
                                 <View style={styles.modalButtons}>
                                     <TouchableOpacity style={styles.btn} onPress={handleSignup}>
-                                        <Text style={styles.buttonText}>Valider</Text>
+                                        <Text style={styles.buttonTextModal}>Valider</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity style={styles.btn} onPress={()=> setIsSignupVisible(false)}>
-                                        <Text style={styles.buttonText}>Annuler</Text>
+                                        <Text style={styles.buttonTextModal}>Annuler</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -197,10 +195,13 @@ const styles = StyleSheet.create({
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#342C29',
-        width: 200,
-        height: 40,
-        borderRadius: 20,
+        backgroundColor: '#352C2B',
+        width: 235,
+        height: 60,
+        borderWidth: 2.5,
+        borderColor: 'black',
+        borderRadius: 15,
+        margin: 15,
     },
     background:{
         width:'100%',
@@ -273,7 +274,17 @@ const styles = StyleSheet.create({
     },
 
     buttonText: {
-        color: "#FFE7BF",
+        textTransform: 'uppercase',
+        fontSize: 23,
+        fontWeight: 'bold',
+        color: '#EFDAB7',
+    },
+
+    buttonTextModal: {
+        textTransform: 'uppercase',
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#EFDAB7',
     },
 
     error: {
