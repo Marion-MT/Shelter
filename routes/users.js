@@ -157,7 +157,7 @@ router.get('/data', authenticateToken, (req, res) =>{
     const userId = req.user.userId
 
   if (!userId) {
-    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé"})
+    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
   }
   User.findById(userId)
   .then(data => {
@@ -203,8 +203,13 @@ router.post('/givStats', authenticateToken, (req,res) => {
 
     ///////// MAJ paramètres  /////////
 router.put('/settings', authenticateToken, (req, res) => {
-  const {volume, soundOn} = req.body;
+  try{
   const userId= req.user.userId;
+
+  if (!userId){
+    return res.status(401).json({restul: false, error: "Vous n'êtes pas autorisé."})
+  }
+  const {volume, soundOn} = req.body;
   const updateSettings = {};
 
   if(volume !== undefined) updateSettings['settings.volume'] = volume;
@@ -218,21 +223,38 @@ router.put('/settings', authenticateToken, (req, res) => {
   .then(data => {
     res.json({result: true, settings: data.settings})
   })
-  .catch(error => {
-    res.json({result: false, error: error.message || 'Erreur de mise à jour'})
+  .catch(err =>{
+    console.error('Erreur lors du findByID :', err.message)
+    res.status(500).json({result: false, error: 'Erreur serveur lors de la recherche Settings'})
   })
+}catch (error){
+  console.error("Erreur inattendue dans /settings :", error.message)
+  res.status(500).json({result: false, error: "Erreur interne du serveur - settings"})
+}
 })
 
 
 ///////////////////Routes Delete//////////////////////
     ///////// Delete account  /////////
                               //↓ middleware//
-router.delete('/delAccount', authenticateToken, (req, res) => {
+router.delete('/', authenticateToken, (req, res) => {
+try{
+  const userId= req.user.userId; //info provenant du Middleware
 
-  const userId=req.user.userId //info provenant du Middleware
+  if (!userId){
+    return res.status(401).json({restul: false, error: "Vous n'êtes pas autorisé."})
+  }
   User.findByIdAndDelete(userId).then(()=>{
     res.json({result: true, message: 'Compte supprimé'})
   })
+  .catch(err =>{
+    console.error('Erreur lors du findByIDAndDelete :', err.message)
+    res.status(500).json({result: false, error: 'Erreur serveur lors de la recherche delete'})
+  })
+}catch (error){
+  console.error("Erreur inattendue dans /delete :", error.message)
+  res.status(500).json({result: false, error: "Erreur interne du serveur"})
+}
 })
 
 module.exports = router;
