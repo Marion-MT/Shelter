@@ -19,6 +19,7 @@ const SWIPE_THRESHOLD = width * 0.25;
 const SHOW_TEXT_THRESHOLD = 5;
 
 type SwipeCardProps = {
+  isConsequence: boolean;
   leftChoiceText: string;
   rightChoiceText: string
   onSwipeLeft?: () => void;
@@ -28,7 +29,7 @@ type SwipeCardProps = {
 };
 
 
-export default function AnimatedCard({ leftChoiceText, rightChoiceText, onSwipeLeft, onSwipeRight, handleSideChange, triggerReset }: SwipeCardProps) {
+export default function AnimatedCard({ isConsequence, leftChoiceText, rightChoiceText, onSwipeLeft, onSwipeRight, handleSideChange, triggerReset }: SwipeCardProps) {
 
   const [isFlipped, setIsFlipped] = useState(true);     // whether the card is on the front side or the back side
   const flipRotation = useSharedValue(180); // 0 = front, 180 = back
@@ -130,21 +131,29 @@ const [swipeSide, setSwipeSide] = useState<'left' | 'right' | 'center'>('center'
 useAnimatedReaction(
   () => translateX.value,
   (current) => {
-    runOnJS(setSwipeSide)(Math.abs(current) > SHOW_TEXT_THRESHOLD ? (current > 0 ? 'right' : 'left') : 'center');
+    runOnJS(setSwipeSide)(Math.abs(current) > SHOW_TEXT_THRESHOLD || isConsequence? (current > 0 ? 'right' : 'left') : 'center');
     runOnJS(handleSideChange)(swipeSide);
   }
 );
+
 
   return (
     <GestureDetector gesture={panGesture}>
       {/*<TouchableWithoutFeedback onPress={() => {if(flipRotation.value !== 0) flip()}}>*/}
         <View style={styles.container}>
-          <Animated.View style={[styles.card, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
+          {isConsequence ?
+          // Layout for consequences
+          <Animated.View style={[styles.consequence, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
+                  <Text style={styles.textConsequence}>{rightChoiceText}</Text>
+          </Animated.View> :
+          // Normal layout
+<         Animated.View style={[styles.card, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
               <View style={styles.textSection}>
                   {swipeSide !== 'center' && <Text style={[styles.textChoice, {textAlign : swipeSide === 'right' ? 'left' : 'right'}]}>{swipeSide === 'right' ? rightChoiceText : leftChoiceText}</Text>}
               </View>    
           </Animated.View>
-
+          }
+         
           <Animated.View style={[styles.card, styles.back, backAnimatedStyle]}>
           </Animated.View>
         </View>
@@ -169,6 +178,18 @@ const styles = StyleSheet.create({
         borderWidth: 4,
         overflow: 'hidden'
     },
+    consequence:{
+        backgroundColor: '#ffe7bf',
+        width: 240,
+        height: 240,
+        borderRadius: 15,
+        borderColor: '#242120',
+        borderWidth: 4,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
     front: {
         backgroundColor: "#ffe7bf",
     },
@@ -192,6 +213,14 @@ const styles = StyleSheet.create({
     textChoice: {
         fontFamily: 'ArialRounded',
         fontSize : 18,
+        color: '#242120',
+        flexWrap: 'wrap'
+    },
+    textConsequence: {
+        fontFamily: 'ArialRounded',
+        fontSize : 18,
+        textAlign: 'center',
+        fontStyle: 'italic',
         color: '#242120',
         flexWrap: 'wrap'
     },
