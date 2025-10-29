@@ -133,7 +133,10 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
             game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"
             await game.save();
-
+            
+            if(game.stateOfGauges.food <= 0 ) {
+                game.stateOfGauges.hunger -= 10 
+            }
             // verifie si une jauge est a 0 pour mettre fin a la partie
          for (const [key, value] of Object.entries(game.stateOfGauges._doc)) { /// <--- obliger d'utiliser Object. et ._doc pour recuperer en brut car c'est un sous document \\\ on recuper clé et valeur ///
                 if (key != 'food' && value <= 0) {
@@ -164,9 +167,6 @@ router.post('/choice', authenticateToken, async (req,res) => {
         
         
         console.log(game.currentCard)
-        if(game.stateOfGauges.food <= 0 ) {
-            game.stateOfGauges.hunger -= 10 
-        }
 
         /*if(cardsFiltred.length === 0) {
             return res.json({ result : false, error: 'Aucune carte disponible'})
