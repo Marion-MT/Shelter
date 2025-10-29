@@ -50,6 +50,7 @@ export default function AnimatedCard({ isConsequence, leftChoiceText, rightChoic
   }
 
   useEffect(() => {
+    setSwipeSide('center');
     reset();
   }, [triggerReset]);
 

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Dimensions, TouchableOpacity  } from "react-native"
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { useState, useEffect } from 'react';
+import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
+import { useState, useCallback } from 'react';
 import Gauge from '../components/Gauges';
 import AnimatedCard from '../components/AnimatedCard';
 import { cards } from '../data/cards';
@@ -54,18 +54,24 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     const [lastResponse, setLastResponse] = useState<GameResponse|null>(null); //used to store data when there is a consequence to display before displaying the next card (or gameover)
     
-    
-    useEffect(() => {
-        SetLocked(false);
-        setLastResponse(null);
-        setShowConsequence(false);
-        setConsequenceText(null);
+    useFocusEffect(
+        useCallback(() => {
+            SetLocked(false);
+            setLastResponse(null);
+            setShowConsequence(false);
+            setConsequenceText(null);
+            setCurrentSide('center');
+            setTriggerReset(!triggerReset);
 
-        console.log("gauges", user.stateOfGauges);
-        console.log("number days", user.numberDays);
+            console.log("gauges", user.stateOfGauges);
+            console.log("number days", user.numberDays);
 
-    }, []);
+        }, [])
+    );
+
+    console.log("currentSide = " + currentSide);
     
+
     const handleSideChange = (side: string) : void => {
         setCurrentSide(side)
     }
@@ -177,13 +183,17 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     handleChoice();
     };
 
-
+    
 
     const hunger = Math.min(Math.max(user.stateOfGauges.hunger, 0), 100);
     const security = Math.min(Math.max(user.stateOfGauges.security, 0), 100);
     const health = Math.min(Math.max(user.stateOfGauges.health, 0), 100);
     const moral = Math.min(Math.max(user.stateOfGauges.moral, 0), 100);
     const food = Math.min(Math.max(user.stateOfGauges.food, 0), 100);
+
+    const deltaFoodGauge = 5;    // to shift the fill bar to the top and avoid to hide it behind the icon
+    const newPercentFood = food === 0 ? 0 : deltaFoodGauge + food * (100 - deltaFoodGauge) / 100;
+
 
     const hideIndicators = currentSide === 'center' || showConsequence || locked || lastResponse?.gameover;
 
@@ -236,7 +246,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                         <View style={styles.foodGlobalContent}>
                             
                             <View style={[styles.foodBarContainer]}>
-                                <View style={[styles.foodBarFill, { width: `${food}%`}]}>
+                                <View style={[styles.foodBarFill, { width: `${newPercentFood}%`}]}>
 
                                 </View>
                             </View>
