@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, TouchableWithoutFeedback, Dimensions } from "react-native";
+import { StyleSheet, View, Text, Image, ImageBackground, Dimensions } from "react-native";
 import { useState, useEffect  } from 'react';
 import Animated, {
   useSharedValue,
@@ -147,14 +147,15 @@ useAnimatedReaction(
                   <Text style={styles.textConsequence}>{rightChoiceText}</Text>
           </Animated.View> :
           // Normal layout
-<         Animated.View style={[styles.card, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
+          <Animated.View style={[styles.card, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
               <View style={styles.textSection}>
                   {swipeSide !== 'center' && <Text style={[styles.textChoice, {textAlign : swipeSide === 'right' ? 'left' : 'right'}]}>{swipeSide === 'right' ? rightChoiceText : leftChoiceText}</Text>}
-              </View>    
+              </View>
           </Animated.View>
           }
          
           <Animated.View style={[styles.card, styles.back, backAnimatedStyle]}>
+
           </Animated.View>
         </View>
       {/*</TouchableWithoutFeedback>*/}

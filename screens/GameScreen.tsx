@@ -235,7 +235,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                     <View style={styles.foodSection}>
                         <View style={styles.foodGlobalContent}>
                             
-                            <View style={styles.foodBarContainer}>
+                            <View style={[styles.foodBarContainer]}>
                                 <View style={[styles.foodBarFill, { width: `${food}%`}]}>
 
                                 </View>
