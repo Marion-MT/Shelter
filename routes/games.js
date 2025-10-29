@@ -90,7 +90,7 @@ router.get('/current', authenticateToken, async (req,res) => {
     }
 
     currentCard = await user.currentGame.currentCard
-    console.log( 'current card: ' , currentCard)
+    //console.log( 'current card: ' , currentCard)
     return res.json({ result: true , currentGame: user.currentGame})
     } catch (err) {
         return res.json({ result: false, error: err.message})
@@ -101,6 +101,7 @@ router.get('/current', authenticateToken, async (req,res) => {
 
 router.post('/choice', authenticateToken, async (req,res) => {
     try {
+
         const userId = req.user.userId
         const { choice } = req.body;
 
@@ -123,6 +124,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
             const effects = choice === 'right' ? user.currentGame.currentCard.right.effect : user.currentGame.currentCard.left.effect;
 
             const game = await Game.findById(user.currentGame._id)
+            .populate('currentCard')
             
             //console.log(Object.keys(effects))
             Object.keys(effects).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
@@ -154,24 +156,34 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
         // ICI push et changement de card selectionner
         game.usedCards.push(game.currentCard)
-
+        
         const exludedIds =  game.usedCards  
         // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
         //const cardsFiltred = await Card.find({ _id: { $nin: exludedIds } });  
         const cards = await Card.find({pool: "general"})
+        
+        
+        console.log(game.currentCard)
+        if(game.stateOfGauges.food <= 0 ) {
+            game.stateOfGauges.hunger -= 10 
+        }
 
-       /* if(cardsFiltred.length === 0) {
+        /*if(cardsFiltred.length === 0) {
             return res.json({ result : false, error: 'Aucune carte disponible'})
         }*/
+        if(game.currentCard.incrementsDay){
+            game.numberDays += 1
+            game.stateOfGauges.food += -10
+        }
         const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
         game.currentCard = cardSelect._id
-        game.numberDays += 1
         await game.save()
-
+        
+        const famine = game.stateOfGauges.food <= 0 ? true : false ;
         //console.log(' filter card: ',cardsfilter)
         const populatedGame = await Game.findById(game._id).populate('currentCard')
 
-    return res.json({ result : true , gameover: false , gauges: populatedGame.stateOfGauges, card: populatedGame.currentCard, numberDays: populatedGame.numberDays  })
+    return res.json({ result : true , gameover: false , gauges: populatedGame.stateOfGauges, card: populatedGame.currentCard, numberDays: populatedGame.numberDays , famine: famine, })
 
     } catch (err) {
         return res.json({ result: false, error: err.message})

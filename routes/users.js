@@ -88,6 +88,23 @@ router.post('/signin', (req, res) => {
   })
 })
 
+///////// Reset stats/achievements  /////////
+router.post('/reset', authenticateToken, (req,res) => {
+  const userId= req.user.userId
+  User.findByIdAndUpdate(
+    userId,
+    {bestScore : 0, historicGames: [], UnlockedAchievements: [], currentGame : null},
+    {new : true} //permet à la requête de renvoyer les infos du User mis à jours 
+  ).then(data => {
+    if (userId){
+      res.json({result: true, user: data})
+    } else {
+      res.json({result: false, error: "Vous n'êtes pas autorisé"})
+    }
+  })
+})
+
+
 
 ///////////////////Route Get//////////////////////
       ///////// GET ALL users  ///////////
@@ -102,7 +119,6 @@ router.get('/', (req, res) => {
 router.get('/data', authenticateToken, (req, res) =>{
   const userId=req.user.userId
   User.findById(userId)
-  .select('-password')
   .then(data => {
     if (userId){
       res.json({result: true, 
@@ -119,30 +135,45 @@ router.get('/data', authenticateToken, (req, res) =>{
 })
 
 ///////////////////Routes PUT//////////////////////
-///////// Reset stats/achievements  /////////
-router.put('/resStats', authenticateToken, (req,res) => {
-  const userId= req.user.userId
-  User.findByIdAndUpdate(
-    userId,
-    {bestScore : 0, historicGames: [], UnlockedAchievements: [], currentGame : null},
-    {new : true} //permet à la requête de renvoyer les infos du User mis à jours 
-  ).then(data => {
-    res.json({result: true, user: data})
-  })
-})
-
-
 ///////// Give stats/achievements pour faire des tests en dev /////////
-router.put('/givStats', authenticateToken, (req,res) => {
+router.post('/givStats', authenticateToken, (req,res) => {
   const userId= req.user.userId
   User.findByIdAndUpdate(
     userId,
     {bestScore : 105, historicGames: ["68ff940e76f8c00d29c467df"], UnlockedAchievements: [], currentGame : "507f1f77bcf86cd799439011"},
     {new : true} //permet à la requête de renvoyer les infos du User mis à jours 
   ).then(data => {
+    if (userId){
     res.json({result: true, user: data})
+     } else {
+      res.json({result: false, error: "Vous n'êtes pas autorisé"})
+    }
   })
 })
+
+
+    ///////// MAJ paramètres  /////////
+router.put('/settings', authenticateToken, (req, res) => {
+  const {volume, soundOn} = req.body;
+  const userId= req.user.userId
+
+  const updateSettings = {};
+  if(volume !== undefined) updateSettings['settings.volume'] = volume;
+  if(soundOn !== undefined) updateSettings['settings.soundOn'] = soundOn;
+
+  User.findByIdAndUpdate(
+    userId,
+    {$set: updateSettings}, //update seulement les champs settings présents dans la requête
+    {new: true}
+  )
+  .then(data => {
+    res.json({result: true, settings: data.settings})
+  })
+  .catch(error => {
+    res.json({result: false, error: error.message || 'Erreur de mise à jour'})
+  })
+})
+
 
 ///////////////////Routes Delete//////////////////////
     ///////// Delete account  /////////
