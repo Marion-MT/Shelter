@@ -17,6 +17,9 @@ const userId = req.user.userId
 
 const activeGame = await Game.findOne({ player: userId , ended: false });
 const cards = await Card.find({ pool: "general"});
+if (cards.length === 0) {
+    return res.json({ result: false, error: 'Aucune carte de démarrage disponible'})
+}
 const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
 
 // verifie si une partie est en court et la transforme en partie terminer
@@ -25,7 +28,7 @@ const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
         await activeGame.save()
     }
 // crée une nouvelle partie
-    const newGame = await new Game({
+    const newGame = new Game({
 
     player: userId,
     currentCard: cardSelect._id,
@@ -89,7 +92,6 @@ router.get('/current', authenticateToken, async (req,res) => {
         return res.json({ result:false , error: 'Aucune game en cours'})
     }
 
-    const currentCard = await user.currentGame.currentCard
     //console.log( 'current card: ' , currentCard)
     return res.json({ result: true , currentGame: user.currentGame})
     } catch (err) {
@@ -139,12 +141,13 @@ router.post('/choice', authenticateToken, async (req,res) => {
             }
             // verifie si une jauge est a 0 pour mettre fin a la partie
          for (const [key, value] of Object.entries(game.stateOfGauges._doc)) { /// <--- obliger d'utiliser Object. et ._doc pour recuperer en brut car c'est un sous document \\\ on recuper clé et valeur ///
-                if (key != 'food' && value <= 0) {
+                if (key !== 'food' && value <= 0) {
                     
-                    user.bestScore = Math.max(user.bestScore, game.numberDays)
-                    user.currentGame.ended = true 
+                    user.bestScore = Math.max(user.bestScore , game.numberDays)
+                    game.ended = true 
                     user.currentGame = null
                     await user.save()
+                    await game.save()
                     const death = await Ending.findOne({ type:key})
                     
                     return res.json({ 
@@ -159,14 +162,15 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
             if(game.currentCard.incrementsDay){
                 game.numberDays += 1
-                game.stateOfGauges.food += -10
+                game.stateOfGauges.food -= 10
+                game.markModified('stateOfGauges')
                 game.usedCards.forEach(card => {
                     card.cooldownUsed += 1;
                     });
-                    console.log(game.usedCards)
-                const cards = await Card.find()
+                   // console.log(game.usedCards)
+                const allCards = await Card.find()
                 game.usedCards = game.usedCards.filter(cardUsed => {
-                const cardValid = cards.find(laCarte => laCarte._id.toString() === cardUsed.cardId.toString())
+                const cardValid = allCards.find(laCarte => laCarte._id.toString() === cardUsed.cardId.toString())
                 if(!cardValid) return false
                 return cardUsed.cooldownUsed < cardValid.cooldown;
                 })    
@@ -174,7 +178,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
             }
         // ICI push et changement de card selectionner
         game.usedCards.push({cardId:game.currentCard, cooldownUsed : 0})
-        let cardSelect = null
+
         const exludedIds =  game.usedCards.map(card => card.cardId) 
 
         let poolFilter = "general"
@@ -194,17 +198,16 @@ router.post('/choice', authenticateToken, async (req,res) => {
             ...filter
         }
 
-        let cards = [];
 
         // on fait le find avec filtre 
-            cards = await Card.find(combinedFilter)
+          const cards = await Card.find(combinedFilter)
     
 
         if(cards.length === 0) {
             return res.json({ result : false, error: 'Aucune carte disponible'})
         }
 
-        cardSelect = cards[Math.floor(Math.random() * (cards.length))];
+        const cardSelect = cards[Math.floor(Math.random() * cards.length)];
 
         game.currentCard = cardSelect._id
         await game.save()
