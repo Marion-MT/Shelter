@@ -1,17 +1,39 @@
 import { View, Text, StyleSheet, Image, ImageBackground, Dimensions  } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Gauge from '../components/Gauges';
 import AnimatedCard from '../components/AnimatedCard';
 import { cards } from '../data/cards';
 import { responses } from '../data/responses';
 
 import { useSelector, useDispatch } from "react-redux";
-import { setGauges, setCurrentCard, setCurrentNumberDays } from "../reducers/user";
+import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reducers/user";
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
+
+type GameResponse = {
+  result: boolean;
+  gauges: {
+    hunger: number;
+    security: number;
+    health: number;
+    moral: number;
+    food: number;
+  };
+  numberDays: number;
+  gameover?: boolean;
+  card?: Card;
+  death?: {
+    type: string;
+    title: {
+      hook: string;
+      phrase: string;
+    };
+    description: string;
+  };
+};
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
@@ -20,10 +42,15 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const dispatch = useDispatch();
 
     const user = useSelector((state: string) => state.user.value);
+    const currentCard = user.currentCard;
 
     const [currentSide, setCurrentSide] = useState<string>('center');
     const [triggerReset, setTriggerReset] = useState<boolean>(false);
 
+    const [showConsequence, setShowConsequence] = useState<boolean>(false);
+    const [consequenceText, setConsequenceText] = useState<string | null>(null);
+
+    const [lastResponse, setLastResponse] = useState<GameResponse|null>(null); //used to store data when there is a consequence to display before displaying the next card (or gameover)
     
     const handleSideChange = (side: string) : void => {
         setCurrentSide(side)
@@ -35,75 +62,102 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         }, 1000);
     }
 
-    const getNextCard = async () : Promise<void> => {
+  
+
+    const handleChoice  = async () : Promise<void> => {
 
         try{
-            const response = await fetch(`${BACKEND_ADDRESS}/games/choice`, {
+            if(!showConsequence){
+                const response = await fetch(`${BACKEND_ADDRESS}/games/choice`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${user.token}`,
                            'Content-Type': 'application/json' },
                 body: JSON.stringify({ choice:  currentSide}),
-            });
+                } );
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if(!data.result){
-                triggerGameover("","","","");
-                return;
+                if(!data.result){
+                    triggerGameover("","","","");
+                    return;
+                }
+
+                setLastResponse(data);
+
+                dispatch(setGauges(data.gauges));
+
+                // get the consequences of the nextcard to display
+                const cons = currentSide === 'right' ? currentCard?.right?.consequence : currentCard?.left?.consequence;
+
+                if (cons) {
+                    setConsequenceText(cons);
+                    setShowConsequence(true);
+                    setTriggerReset(!triggerReset);
+                    dispatch(setCurrentNumberDays(data.numberDays));
+                    return;
+                }
+
+                if(data.gameover || !data.card){
+                    //console.log(data.death.type + ' ' + data.death.title.hook + ' ' + data.death.title.phrase + ' ' + data.death.description);
+                    triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description);
+                    return;
+                }
+
+                setTimeout(() => {
+                    dispatch(setCurrentCard(data.card));
+                }, 100);
+
+                setTriggerReset(!triggerReset);
             }
-
-            //console.log("Game :", data);
-            //console.log("GameOver :", data.gameover);
-
-            dispatch(setGauges(data.gauges));
-
-            //console.log("Gauge :", data.gauges);
+            else{
+                    setConsequenceText(null);
+                    setShowConsequence(false);
 
 
+                    if(lastResponse && (lastResponse.gameover || !lastResponse.card)){
+                        if(lastResponse.death)
+                            triggerGameover(lastResponse.death.type, lastResponse.death.title.hook, lastResponse.death.title.phrase, lastResponse.death.description);
+                        return;
+                    }
 
-            if(data.gameover || !data.card){
-                console.log(data.death.type + ' ' + data.death.title.hook + ' ' + data.death.title.phrase + ' ' + data.death.description);
-                triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description);
-                return;
+                setTimeout(() => {
+                    if(lastResponse?.card)
+                        dispatch(setCurrentCard(lastResponse.card));
+                }, 100);
+
+                setTriggerReset(!triggerReset);
+
+
             }
-
-
-            setTimeout(() => {
-                dispatch(setCurrentCard(data.card));
-                dispatch(setCurrentNumberDays(data.numberDays));
-    
-
-            }, 100);
-
-            setTriggerReset(!triggerReset);
+            
 
         }catch (err) {
 
         }
     }
 
-    const onSwipeLeft = () : void => {
-        // Send choice to back
-        getNextCard();
-    }
+    const onSwipeLeft = () => {
+    setCurrentSide('left');
+    handleChoice();
+    };
 
-    const onSwipeRight = () : void => {
-        // Send choice to back
-        getNextCard();
-    }
+    const onSwipeRight = () => {
+    setCurrentSide('right');
+    handleChoice();
+    };
 
 
-    const currentCard = user.currentCard;
+
     const hunger = Math.min(Math.max(user.stateOfGauges.hunger, 0), 100);
     const security = Math.min(Math.max(user.stateOfGauges.security, 0), 100);
     const health = Math.min(Math.max(user.stateOfGauges.health, 0), 100);
     const moral = Math.min(Math.max(user.stateOfGauges.moral, 0), 100);
     const food = Math.min(Math.max(user.stateOfGauges.food, 0), 100);
 
-    const hungerIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.hunger || 0) : Math.abs(currentCard?.left?.effect.hunger || 0));
-    const securityIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.security || 0) : Math.abs(currentCard?.left?.effect.security || 0));
-    const healthIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.health || 0) : Math.abs(currentCard?.left?.effect.health || 0));
-    const moralIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.moral || 0) : Math.abs(currentCard?.left?.effect.moral || 0));
+    const hungerIndicator = currentSide === 'center' || showConsequence ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.hunger || 0) : Math.abs(currentCard?.left?.effect.hunger || 0));
+    const securityIndicator = currentSide === 'center' || showConsequence ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.security || 0) : Math.abs(currentCard?.left?.effect.security || 0));
+    const healthIndicator = currentSide === 'center' || showConsequence ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.health || 0) : Math.abs(currentCard?.left?.effect.health || 0));
+    const moralIndicator = currentSide === 'center' || showConsequence ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.moral || 0) : Math.abs(currentCard?.left?.effect.moral || 0));
 
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.backgroundImage}>
@@ -128,8 +182,9 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                             <View style={styles.choiceCardContainer} >
                                 <View style={styles.cardStack}>
                                     <AnimatedCard
-                                    leftChoiceText={currentCard?.left?.text || ""}
-                                    rightChoiceText={currentCard?.right?.text || ""}
+                                    isConsequence={showConsequence}
+                                    leftChoiceText={showConsequence ? consequenceText : (currentCard?.left?.text || "")}
+                                    rightChoiceText={showConsequence ? consequenceText  : (currentCard?.right?.text || "")}
                                     onSwipeLeft={onSwipeLeft}
                                     onSwipeRight={onSwipeRight}
                                     handleSideChange={(side: string) => handleSideChange(side)}
