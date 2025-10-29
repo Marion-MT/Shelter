@@ -1,13 +1,15 @@
-const { engine } = require('json-rules-engine');
+const { Engine } = require('json-rules-engine');
 const Achievement = require('../models/achievements');
-const Succès = require('../models/succès');
 
 async function checkAchievements(user, game) {
-
+    try {
     
     const engine = new Engine();   // <-- ici on creer une instance du moteur qui vas evaluer les régles 
 
-    const achievements = await Achievement.find(); // <-- tu récuperes les régles ici 
+    const unlockedIds = user.unlockedAchievements;
+    const achievements = await Achievement.find({ 
+    _id: { $nin: unlockedIds }  // Ignore ceux déjà débloqués
+    }); // <-- tu récuperes les régles ici 
 
     // le succès dois contenir obligatoirement une conditions (régles)  sous forma JSON
 
@@ -27,16 +29,26 @@ async function checkAchievements(user, game) {
    // le moteur lit les règles , verifie les conditions avec les "facts" et retourne les succès débloquer 
    const { events } = await engine.run(facts) 
 
+   // verif si ya events et renvois false si ya rien 
+    if(events.length === 0) {
+        return { success: false  }
+    }
+
+
    for (const evt of events) {
     const achievementId = evt.params.id;      // recupere id depuis evt.params
     if( !user.unlockedAchievements.includes(achievementId)) {             // verification si il n'a pas etait deja debloquer 
         user.unlockedAchievements.push(achievementId);                       // tu l'ajoute dans user
     }
-   }
+}
 
-   //sauvegarde
-   await user.save()
 
+ 
+    return { success: true, events }
+    } catch (err) {
+        console.error('erreur checkAchivements:', err)
+        throw err
+    }
 }
 
 module.exports = { checkAchievements };
