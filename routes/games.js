@@ -121,14 +121,14 @@ router.post('/choice', authenticateToken, async (req,res) => {
         if(!user.currentGame.currentCard) {
             return res.json({ result:false , error : 'Aucune carte selectionner !'})
         }
-            const effects = choice === 'right' ? user.currentGame.currentCard.right.effect : user.currentGame.currentCard.left.effect;
+            const choiceSimp = choice === 'right' ? user.currentGame.currentCard.right : user.currentGame.currentCard.left;
 
             const game = await Game.findById(user.currentGame._id)
             .populate('currentCard')
             
             //console.log(Object.keys(effects))
-            Object.keys(effects).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
-                game.stateOfGauges[key] += effects[key];        
+            Object.keys(choiceSimp.effect).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
+                game.stateOfGauges[key] += choiceSimp.effect[key];        
             });
 
             game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"
@@ -157,28 +157,46 @@ router.post('/choice', authenticateToken, async (req,res) => {
     }
 }
 
+            if(game.currentCard.incrementsDay){
+                game.numberDays += 1
+                game.stateOfGauges.food += -10
+            }
         // ICI push et changement de card selectionner
         game.usedCards.push(game.currentCard)
-        
+        let cardSelect = null
         const exludedIds =  game.usedCards  
-        // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
-        //const cardsFiltred = await Card.find({ _id: { $nin: exludedIds } });  
-        const cards = await Card.find({pool: "general"})
-        
-        
-        console.log(game.currentCard)
 
-        /*if(cardsFiltred.length === 0) {
-            return res.json({ result : false, error: 'Aucune carte disponible'})
-        }*/
-        if(game.currentCard.incrementsDay){
-            game.numberDays += 1
-            game.stateOfGauges.food += -10
+        let poolFilter = "general"
+        // rajout des filtre si next pool/card
+        if (choiceSimp.nextPool){
+            poolFilter = choiceSimp.nextPool
         }
-        const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
+
+        let filter = { pool: poolFilter};
+
+        if (choiceSimp.nextCard){
+            filter.key = choiceSimp.nextCard
+        }
+        // on combine avec exluded
+        const combinedFilter = {
+            _id: { $nin: exludedIds }, // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
+            ...filter
+        }
+
+        let cards = [];
+
+        // on fait le find avec filtre 
+            cards = await Card.find(combinedFilter)
+    
+
+        if(cards.length === 0) {
+            return res.json({ result : false, error: 'Aucune carte disponible'})
+        }
+
+        cardSelect = cards[Math.floor(Math.random() * (cards.length))];
+
         game.currentCard = cardSelect._id
         await game.save()
-        
         const famine = game.stateOfGauges.food <= 0 ? true : false ;
         //console.log(' filter card: ',cardsfilter)
         const populatedGame = await Game.findById(game._id).populate('currentCard')
