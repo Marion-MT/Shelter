@@ -11,6 +11,7 @@ type HomeScreenProps = {
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
+    const [currentGame, setCurrentGame] = useState(false);
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
 
@@ -23,12 +24,34 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
         .then(data => {
             if (data.error) {
                 console.log('Error:', data.error);
+                setCurrentGame(false);
                 return;
             } else {
                 dispatch(setUserData({ bestScore: data.bestScore, soundOn: data.soundOn, volume: data.volume }));
+                if (data.currentGame) {
+                    setCurrentGame(true);
+                }
             }
         });
     },[]);
+
+    const handleCurrentGame = () => {
+        fetch(`${BACKEND_ADDRESS}/games/current`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.log('Error:', data.error);
+                return;
+            } else {
+                console.log(data);               
+                dispatch(setGameState({ stateOfGauges: data.currentGame.stateOfGauges, numberDays: data.currentGame.numberDays, currentCard: data.currentGame.currentCard }));
+                navigation.navigate('Game', { screen: 'Game' });
+            }
+        });
+    };
      
     const handleNewGame = () => {
         fetch(`${BACKEND_ADDRESS}/games/new`, {
@@ -66,6 +89,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
                 <Text style={styles.title}>shelter</Text>
                 <View>
+                    {currentGame &&<TouchableOpacity onPress={() => handleCurrentGame()} style={styles.button} activeOpacity={0.8}>
+                        <Text style={styles.btnText}>reprendre</Text>
+                    </TouchableOpacity>}
                     <TouchableOpacity onPress={() => handleNewGame()} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.btnText}>nouvelle partie</Text>
                     </TouchableOpacity>

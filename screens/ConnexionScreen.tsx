@@ -37,6 +37,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
     const dispatch = useDispatch();
 
     const handleSignin = () => {
+        console.log("handleSignin");
             SetSigninError('');
             if(!email || !password){
                 SetSigninError('Veuillez remplir tous les champs');
@@ -51,8 +52,9 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                 headers: {'Content-Type' : 'application/json'},
                 body: JSON.stringify({email, password})
             })
-            .then(response => response.json())
+            .then(response => {console.log("response received"); return response.json()})
             .then(data => {
+                console.log("data received");
                 if (data.result){
                     console.log("data signin =>",data)
                     //stokage du token et redirection

@@ -55,7 +55,7 @@ export default function AnimatedCard({ isConsequence, leftChoiceText, rightChoic
 
   // FLIP ANIMATION
   const flip = () => {
-    flipRotation.value = withTiming(flipRotation.value === 0 ? 180 : 0, { duration: 400 }); // Rotation from 0 to 180 in 400ms
+    flipRotation.value = withTiming(flipRotation.value === 0 ? 180 : 0, { duration: 500 }); // Rotation from 0 to 180 in 500ms
   };
 
   const frontAnimatedStyle = useAnimatedStyle((): ViewStyle => {
