@@ -89,7 +89,7 @@ router.get('/current', authenticateToken, async (req,res) => {
         return res.json({ result:false , error: 'Aucune game en cours'})
     }
 
-    currentCard = await user.currentGame.currentCard
+    const currentCard = await user.currentGame.currentCard
     //console.log( 'current card: ' , currentCard)
     return res.json({ result: true , currentGame: user.currentGame})
     } catch (err) {
@@ -160,11 +160,22 @@ router.post('/choice', authenticateToken, async (req,res) => {
             if(game.currentCard.incrementsDay){
                 game.numberDays += 1
                 game.stateOfGauges.food += -10
+                game.usedCards.forEach(card => {
+                    card.cooldownUsed += 1;
+                    });
+                    console.log(game.usedCards)
+                const cards = await Card.find()
+                game.usedCards = game.usedCards.filter(cardUsed => {
+                const cardValid = cards.find(laCarte => laCarte._id.toString() === cardUsed.cardId.toString())
+                if(!cardValid) return false
+                return cardUsed.cooldownUsed < cardValid.cooldown;
+                })    
+                await game.save()
             }
         // ICI push et changement de card selectionner
-        game.usedCards.push(game.currentCard)
+        game.usedCards.push({cardId:game.currentCard, cooldownUsed : 0})
         let cardSelect = null
-        const exludedIds =  game.usedCards  
+        const exludedIds =  game.usedCards.map(card => card.cardId) 
 
         let poolFilter = "general"
         // rajout des filtre si next pool/card
