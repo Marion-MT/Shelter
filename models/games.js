@@ -14,7 +14,7 @@ const gameSchema = mongoose.Schema({
     usedCards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'cards' }],
     ended : {type: Boolean, default: false},
     currentScenarios: [String],
-    numberDays: { type: Number, default : 0 },
+    numberDays: { type: Number, default : 1 },
     createdAt: { type: Date, default : Date.now() },
     lastEventDay: { type: Number, default : 0 },
     stateOfGauges: {

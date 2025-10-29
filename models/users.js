@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema({
     email: {type:String, required:true},
     password: {type:String, required:true},
     token: String,
-    bestScore: Number,
+    bestScore: {type :Number , default: 0},
     currentGame: { type: mongoose.Schema.Types.ObjectId, ref: 'games' },
     settings: {
         type: settingSchema,

@@ -103,18 +103,20 @@ router.post('/choice', authenticateToken, async (req,res) => {
     try {
         const userId = req.user.userId
         const { choice } = req.body;
-        
+
         if (!checkBody(req.body,['choice'])) {
             return res.json({ result: false, error: 'Missing or empty fields'})
             ;
         }
-        
         const user = await User.findById(userId)
         .populate({
             path: 'currentGame',
             populate: 'currentCard'
         })
         
+        if(!user.currentGame) {
+            return res.json({ result:false , error : 'Aucune partie en cours !'})
+        }
         if(!user.currentGame.currentCard) {
             return res.json({ result:false , error : 'Aucune carte selectionner !'})
         }
@@ -130,16 +132,22 @@ router.post('/choice', authenticateToken, async (req,res) => {
             game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"
             await game.save();
 
+            // verifie si une jauge est a 0 pour mettre fin a la partie
          for (const [key, value] of Object.entries(game.stateOfGauges._doc)) { /// <--- obliger d'utiliser Object. et ._doc pour recuperer en brut car c'est un sous document \\\ on recuper clé et valeur ///
-                if (value < 0) {
+                if (key != 'food' && value <= 0) {
                     
+                    user.bestScore = Math.max(user.bestScore, game.numberDays)
+                    user.currentGame.ended = true 
+                    user.currentGame = null
+                    await user.save()
                     const death = await Ending.findOne({ type:key})
                     
                     return res.json({ 
                     result: true, 
                     gameover: true, 
                     gauges: game.stateOfGauges,
-                    death: death
+                    death: death,
+                    bestscore: user.bestScore
                 });
     }
 }
