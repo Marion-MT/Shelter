@@ -8,14 +8,16 @@ type EndGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
-export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
-    const user = useSelector((state: string) => state.user.value);
+type EndGameRouteParams = {
+    type: string;
+    hook: string;
+    phrase: string;
+    description: string;
+}
 
-    const deathData = {
-        cause: 'hunger',
-        title: 'faim',
-        description: `Vos efforts n'ont pas suffi. Les réserves sont vides depuis trop longtemps, et la faim vous a emporté.`,
-    };
+export default function EndGameScreen({ navigation, route }: EndGameScreenProps & { route: { params: EndGameRouteParams } }) {
+    const { type, hook, phrase, description } = route.params;
+    const user = useSelector((state: string) => state.user.value);
 
     const handleNavigate = () => {
         navigation.navigate('RecapGame', { screen: 'RecapGame' });
@@ -49,16 +51,16 @@ export default function EndGameScreen({ navigation }: EndGameScreenProps ) {
                             </View>
                             <View style={styles.deadWhat}>
                                 <Image source={require('../assets/icon-skull.png')} resizeMode="contain" style={styles.skullLogo} />
-                                <Text style={styles.deadText}>vous êtes morts de</Text>
-                                <Text style={[styles.deadCause, {color: changeColor(deathData.cause)}]}>{deathData.title}</Text>
+                                <Text style={styles.deadText}>{phrase}</Text>
+                                <Text style={[styles.deadCause, {color: changeColor(type)}]}>{hook}</Text>
                             </View>
                             <View style={styles.deadResume}>
-                                <Text style={styles.resumeText}>{deathData.description}</Text>
+                                <Text style={styles.resumeText}>{description}</Text>
                             </View>
                         </View>
                     </View>
                 </View>    
-                <TouchableOpacity onPress={() => handleNavigate()} style={[styles.button, {backgroundColor: changeColor(deathData.cause)}]} activeOpacity={0.8}>
+                <TouchableOpacity onPress={() => handleNavigate()} style={[styles.button, {backgroundColor: changeColor(type)}]} activeOpacity={0.8}>
                 <Text style={styles.btnText}>continuer</Text>
                 </TouchableOpacity>
             </ImageBackground>

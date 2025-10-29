@@ -1,24 +1,31 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { useSelector, useDispatch } from "react-redux";
+import { setGameState } from "../reducers/user";
 
 type RecapGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
+const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
+
 export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
+    const user = useSelector((state: string) => state.user.value);
+    const dispatch = useDispatch();
+    
     const gameData = {
         numberDays: 40, 
         bestScore: 35,
     };
    
     const checkScore = () => {
-        if (gameData.numberDays > gameData.bestScore) {
+        if (user.numberDays > user.bestScore) {
             return ( 
                 <View style={styles.darkBackground}>
                     <View style={styles.cardContainer}>
                         <Text style={styles.text}>Vous avez survécu :</Text>
                         <View style={styles.daysContainer}>
-                            <Text style={styles.days}>{gameData.numberDays}</Text>
+                            <Text style={styles.days}>{user.numberDays}</Text>
                         </View>
                         <View style={styles.newBestScore}>
                         <Text style={styles.daysText}>Jours</Text>
@@ -26,7 +33,7 @@ export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
                         </View>
                         <View style={styles.bestScore}>
                             <Image source={require('../assets/icon-star.png')} style={styles.logo} />
-                            <Text style={styles.bestScoreText}>Last Record : {gameData.bestScore} jours</Text>
+                            <Text style={styles.bestScoreText}>Last Record : {user.bestScore} jours</Text>
                         </View>
                     </View>
                 </View>
@@ -36,12 +43,12 @@ export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
                 <View style={styles.cardContainer}>
                     <Text style={styles.text}>Vous avez survécu :</Text>
                     <View style={styles.daysContainer}>
-                        <Text style={styles.days}>{gameData.numberDays}</Text>
+                        <Text style={styles.days}>{user.numberDays}</Text>
                     </View>
                     <Text style={styles.daysText}>Jours</Text>
                     <View style={styles.bestScore}>
                         <Image source={require('../assets/icon-star.png')} style={styles.logo} />
-                        <Text style={styles.bestScoreText}>Record : {gameData.bestScore} jours</Text>
+                        <Text style={styles.bestScoreText}>Record : {user.bestScore} jours</Text>
                     </View>
                 </View>
             </View>
@@ -52,16 +59,31 @@ export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
         navigation.navigate('Home', { screen: 'Home' });
     };
 
-    const handleNavigateGame = () => {
-        navigation.navigate('Game', { screen: 'Game' });
-    };
+    const handleNewPart = () => {
+            fetch(`${BACKEND_ADDRESS}/games/new`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                
+                if (data.error) {
+                    console.log('Error:', data.error);
+                    return;
+                } else {
+                    dispatch(setGameState({ stateOfGauges: data.game.stateOfGauges, numberDays: data.game.numberDays, currentCard: data.game.currentCard }));
+                    navigation.navigate('Game', { screen: 'Game' });
+                };
+            });      
+        };
 
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
             <View style={styles.main}>
                 {checkScore()}
                 <View style={styles.btnContainer}> 
-                    <TouchableOpacity style={styles.leftBtn} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => handleNewPart()} style={styles.leftBtn} activeOpacity={0.8}>
                     <Text style={styles.btnText}>REJOUER</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.rigthBtn} activeOpacity={0.8}>
