@@ -183,7 +183,8 @@ const styles = StyleSheet.create({
     },
     textSection: {
         width: '100%',
-        height: '35%',
+        /*height: '35%',*/
+        flexShrink: 1,
         backgroundColor: '#ae9273',
         padding: 18
 
@@ -191,7 +192,8 @@ const styles = StyleSheet.create({
     textChoice: {
         fontFamily: 'ArialRounded',
         fontSize : 18,
-        color: '#242120'
+        color: '#242120',
+        flexWrap: 'wrap'
     },
     text: {
         fontSize: 22,

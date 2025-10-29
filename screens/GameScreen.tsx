@@ -7,7 +7,7 @@ import { cards } from '../data/cards';
 import { responses } from '../data/responses';
 
 import { useSelector, useDispatch } from "react-redux";
-import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reducers/user";
+import { setGauges, setCurrentCard, setCurrentNumberDays } from "../reducers/user";
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -21,24 +21,17 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     const user = useSelector((state: string) => state.user.value);
 
-   // const [currentCard, setCurrentCard] = useState<Card | null>(user.currentCard);
-
     const [currentSide, setCurrentSide] = useState<string>('center');
-
-    const [indexCard, setIndexCard] = useState<number>(0);
-
     const [triggerReset, setTriggerReset] = useState<boolean>(false);
-
-    const [numberDays, setNumberDays] = useState<number>(1);
 
     
     const handleSideChange = (side: string) : void => {
         setCurrentSide(side)
     }
 
-    const triggerGameover = () => {
+    const triggerGameover = (type: string, hook: string, phrase: string, description: string ) => {
         setTimeout(() => {
-            navigation.navigate('EndGame', { screen: 'EndGame' });
+            navigation.navigate('EndGame', { screen: 'EndGame', type: type, hook: hook, phrase: phrase, description: description  });
         }, 1000);
     }
 
@@ -55,18 +48,22 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
             const data = await response.json();
 
             if(!data.result){
-                triggerGameover();
+                triggerGameover("","","","");
                 return;
             }
 
-            console.log("GameOver :", data.gameover);
+            //console.log("Game :", data);
+            //console.log("GameOver :", data.gameover);
 
             dispatch(setGauges(data.gauges));
 
-            console.log("Gauge :", data.gauges);
+            //console.log("Gauge :", data.gauges);
+
+
 
             if(data.gameover || !data.card){
-                triggerGameover();
+                console.log(data.death.type + ' ' + data.death.title.hook + ' ' + data.death.title.phrase + ' ' + data.death.description);
+                triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description);
                 return;
             }
 
@@ -80,14 +77,9 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
             setTriggerReset(!triggerReset);
 
-
         }catch (err) {
 
         }
-
-        
-        
-       
     }
 
     const onSwipeLeft = () : void => {
@@ -101,13 +93,12 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     }
 
 
-
-   
-    const handleNavigate = () => {
-        navigation.navigate('EndGame', { screen: 'EndGame' });
-    };
-
     const currentCard = user.currentCard;
+    const hunger = Math.min(Math.max(user.stateOfGauges.hunger, 0), 100);
+    const security = Math.min(Math.max(user.stateOfGauges.security, 0), 100);
+    const health = Math.min(Math.max(user.stateOfGauges.health, 0), 100);
+    const moral = Math.min(Math.max(user.stateOfGauges.moral, 0), 100);
+    const food = Math.min(Math.max(user.stateOfGauges.food, 0), 100);
 
     const hungerIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.hunger || 0) : Math.abs(currentCard?.left?.effect.hunger || 0));
     const securityIndicator = currentSide === 'center' ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.security || 0) : Math.abs(currentCard?.left?.effect.security || 0));
@@ -124,10 +115,10 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                     <View style={styles.darkBackground}>
                         <View style={styles.cardContainer}>
                             <View style={styles.gaugesContainer}>
-                                <Gauge icon={require('../assets/icon-hunger.png')} color='#f28f27' percent={user.stateOfGauges.hunger} indicator={hungerIndicator}/>
-                                <Gauge icon={require('../assets/icon-security.png')} color='#378ded' percent={user.stateOfGauges.security} indicator={securityIndicator}/>
-                                <Gauge icon={require('../assets/icon-health.png')} color='#cf5a34' percent={user.stateOfGauges.health} indicator={healthIndicator}/>
-                                <Gauge icon={require('../assets/icon-moral.png')} color='#6b8a48' percent={user.stateOfGauges.moral} indicator={moralIndicator}/>
+                                <Gauge icon={require('../assets/icon-hunger.png')} color='#f28f27' percent={hunger} indicator={hungerIndicator}/>
+                                <Gauge icon={require('../assets/icon-security.png')} color='#378ded' percent={security} indicator={securityIndicator}/>
+                                <Gauge icon={require('../assets/icon-health.png')} color='#cf5a34' percent={health} indicator={healthIndicator}/>
+                                <Gauge icon={require('../assets/icon-moral.png')} color='#6b8a48' percent={moral} indicator={moralIndicator}/>
                             </View>
                             <View style={styles.textContainer}>
                                 <Text style={styles.textEvent}>
@@ -154,7 +145,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                         <View style={styles.foodGlobalContent}>
                             
                             <View style={styles.foodBarContainer}>
-                                <View style={[styles.foodBarFill, { width: `${user.stateOfGauges.food}%`}]}>
+                                <View style={[styles.foodBarFill, { width: `${food}%`}]}>
 
                                 </View>
                             </View>
