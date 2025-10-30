@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from "react-redux";
-import { setGameState, setUserData } from "../reducers/user";
+import { setGameState, setUserData, signout } from "../reducers/user";
 import { useCallback, useState } from "react";
 
 type HomeScreenProps = {
