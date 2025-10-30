@@ -21,9 +21,12 @@ const gameSchema = mongoose.Schema({
        cooldownUsed: { type: Number, default: 0}
     }],
     ended : {type: Boolean, default: false},
-    currentScenarios: [String],
+    currentScenarios: {
+         type: [String], 
+         default : () => ['general']
+        },
     numberDays: { type: Number, default : 1 },
-    createdAt: { type: Date, default : Date.now() },
+    createdAt: { type: Date, default : Date.now },
     lastEventDay: { type: Number, default : 0 },
     stateOfGauges: {
         type: stateOfGaugesSchema,

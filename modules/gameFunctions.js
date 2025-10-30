@@ -19,10 +19,30 @@ choiceSimp = le choix fais (droite ou gauche)
 */
 
 const applyChoiceEffects = (game, choiceSimp) => {
+    
+    // verifie que choiceSimp est definie 
+    if(!choiceSimp.effect) {
+        throw new Error('choiceSimp.effect non défini')
+    }
+
     Object.keys(choiceSimp.effect).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
-            game.stateOfGauges[key] += choiceSimp.effect[key];        
-        });
-    game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"    
+        game.stateOfGauges[key] += choiceSimp.effect[key];        
+    });
+
+        if(choiceSimp.trigger){
+            game.currentScenarios = game.currentScenarios.push(choiceSimp.trigger)
+        }
+
+        else if(choiceSimp.endTrigger){
+
+        // verifie que trigger est bien dans current Scenarios
+        if(!game.currentScenarios.includes(choiceSimp.endTrigger)) {
+            throw new Error(`Le trigger "${choiceSimp.endTrigger}" n'existe pas dans currentScenarios`)
+             }
+
+            game.currentScenarios.filter( e => e !== choiceSimp.endTrigger)
+        }
+    game.markModified('stateOfGauges');             // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"    
 } 
 
 
@@ -110,18 +130,27 @@ const getNextCard = async (game, choiceSimp) => {
     // cartes a exclure
     const exludedIds =  game.usedCards.map(card => card.cardId)
 
-    // pool par defaut
-    let poolFilter = "general"
-        // rajout des filtre si next pool/card
-        if (choiceSimp.nextPool){
-            poolFilter = choiceSimp.nextPool
+
+    let filter = { }
+
+    // rajout des filtre si next pool/card
+
+    // on check si on doit obligatoirement avoir une nextCard si non 
+    if (choiceSimp.nextCard){
+        filter.key = choiceSimp.nextCard
+    }
+    
+    // on passe a nextPool si non
+    else if (choiceSimp.nextPool){
+        filter.pool = choiceSimp.nextPool
+    }
+    // on recupe le pool basique
+    else{
+
+        // on utilise $in parceque c'est un tableau
+            filter.pool = { $in: game.currentScenarios };
         }
 
-        //  le filtre
-        let filter = { pool: poolFilter};
-        if (choiceSimp.nextCard){
-            filter.key = choiceSimp.nextCard
-        }
 
         // on combine exclu et filtre grace a $nin
         const combinedFilter = {
@@ -133,7 +162,7 @@ const getNextCard = async (game, choiceSimp) => {
         const cards = await Card.find(combinedFilter)
 
         if(cards.length === 0) {
-            throw new Error({ result : false, error: 'Aucune carte disponible'})
+            throw new Error('Aucune carte disponible')
         }
 
         // et on récupere une carte aléatoire du find 
