@@ -149,7 +149,7 @@ deathReason= raison de la mort \\exemple: moral//
 return les donnes de fin de partie
 */
 
-const endGame = async (game, user, deathReason) => {
+const endGame = async (game, user, deathReason, achievements) => {
 
     // maj du best score
     user.bestScore = Math.max(user.bestScore , game.numberDays)
@@ -171,7 +171,8 @@ const endGame = async (game, user, deathReason) => {
         gameover: true, 
         gauges: game.stateOfGauges,
         death: death,
-        bestscore: user.bestScore
+        bestscore: user.bestScore,
+        achievements : achievements.length < 0 ? achievements : null ,
     }
 }
 

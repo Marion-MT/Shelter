@@ -109,7 +109,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
         const userId = req.user.userId
         const { choice } = req.body;
-
+        const achievementsCurrentGame = []
         if (!checkBody(req.body,['choice'])) {
             return res.json({ result: false, error: 'Missing or empty fields'})
             ;
@@ -149,7 +149,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
             // verifie si une jauge est a 0 pour mettre fin a la partie
         const gameOverReason = checkGameOver(game)
          if(gameOverReason) {
-            const reponse = await endGame(game, user, gameOverReason)
+            const reponse = await endGame(game, user, gameOverReason, achievementsCurrentGame)
             return res.json(reponse)
          }
 
@@ -165,8 +165,10 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
         // check achievelents
         const Achiev = await checkAchievements(user, game)
+        if(Achiev.success){
+        achievementsCurrentGame.push(...Achiev.events)
         await user.save()
-
+        }
         // ICI push et changement de card selectionner
         game.usedCards.push({cardId:game.currentCard, cooldownUsed : 0})
 
@@ -188,7 +190,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
         gauges: populatedGame.stateOfGauges, 
         card: populatedGame.currentCard, 
         numberDays: populatedGame.numberDays , 
-        achievements: Achiev.events,
+        achievements: Achiev.events ? Achiev : false,
         famine: game.stateOfGauges.food <= 0 ? true : false })
     } catch (err) {
         return res.json({ result: false, error: err.message})
