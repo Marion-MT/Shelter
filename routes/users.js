@@ -257,4 +257,29 @@ try{
 }
 })
 
+
+///////// GET top 3 best score  ///////////
+router.get('/topScores',  authenticateToken, async (req, res) =>{
+  try{
+    const userId = req.user.userId
+
+  if (!userId) {
+    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
+  }
+
+  const topScoresDocs = await User.find()
+      .sort({ bestScore: -1 })
+      .limit(3)
+      .select('bestScore');
+
+    const topScores = topScoresDocs.map(doc => doc.bestScore);
+
+  return res.json({result : true, topScore : topScores});
+
+  }catch (error){
+    console.error("Erreur inattendue dans /delete :", error.message);
+    res.status(500).json({result: false, error: "Erreur interne du serveur"});
+  }
+});
+
 module.exports = router;
