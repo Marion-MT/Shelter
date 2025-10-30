@@ -1,8 +1,8 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
+import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from "react-redux";
-import { setGameState, setUserData, signout } from "../reducers/user";
-import { useEffect, useState } from "react";
+import { setGameState, setUserData } from "../reducers/user";
+import { useCallback, useState } from "react";
 
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -12,28 +12,34 @@ const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
     const [currentGame, setCurrentGame] = useState(false);
+    console.log(currentGame);
+    
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        fetch(`${BACKEND_ADDRESS}/users/data`, {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.log('Error:', data.error);
-                setCurrentGame(false);
-                return;
-            } else {
-                dispatch(setUserData({ bestScore: data.bestScore, soundOn: data.soundOn, volume: data.volume }));
-                if (data.currentGame) {
-                    setCurrentGame(true);
+    useFocusEffect(
+        useCallback(() => {
+            fetch(`${BACKEND_ADDRESS}/users/data`, {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.currentGame) {
+                    console.log('Pas de game en cours');
+                    setCurrentGame(false);
+                    return;
+                } else {
+                    dispatch(setUserData({ bestScore: data.bestScore, soundOn: data.soundOn, volume: data.volume }));
+                    if (data.currentGame) {
+                        setCurrentGame(true);
+                        console.log('Game en cours');
+                        
+                    }
                 }
-            }
-        });
-    },[]);
+            });
+        }, [])
+    );
 
     const handleCurrentGame = () => {
         fetch(`${BACKEND_ADDRESS}/games/current`, {
@@ -42,11 +48,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.error) {
+            if (data.error) {            
                 console.log('Error:', data.error);
                 return;
             } else {
-                console.log(data);               
                 dispatch(setGameState({ stateOfGauges: data.currentGame.stateOfGauges, numberDays: data.currentGame.numberDays, currentCard: data.currentGame.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             }
@@ -60,8 +65,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
-            
+            console.log(data);      
             if (data.error) {
                 console.log('Error:', data.error);
                 return;
