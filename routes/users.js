@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const User = require ('../models/users');
+const Game = require ('../models/games');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { checkBody } = require('../modules/checkBody');
@@ -94,8 +95,7 @@ router.post('/signin', (req, res) => {
           bestScore: data.bestScore,
           currentGame: data.currentGame,
           settings: data.settings,
-          historicGames: data.historicGames,
-          UnlockedAchievements: data.UnlockedAchievements
+          unlockedAchievements: data.unlockedAchievements
         }
       })
     })
@@ -126,17 +126,20 @@ router.post('/reset', authenticateToken, async (req,res) => {
   }
   const updateUser = await User.findByIdAndUpdate(
     userId,
-    {bestScore : 0, historicGames: [], UnlockedAchievements: [], currentGame : null},
+    {bestScore : 0, unlockedAchievements: [], currentGame : null},
     {new : true} //permet à la requête de renvoyer les infos du User mis à jours 
   )
-    if (!updateUser){
-      return res.status(400).json({result: false, error: "Utilisateur non trouvé"})
-    } else {
-      res.json({result: true})
-    }} catch (error){
-      console.error("Erreur dans /reset :", error.message)
-      res.status(500).json({result: false, error: 'Erreur interne du serveur - Reset'})
-    }
+
+  await Game.deleteMany({player : userId});
+
+  if (!updateUser){
+    return res.status(400).json({result: false, error: "Utilisateur non trouvé"})
+  } else {
+    res.json({result: true})
+  }} catch (error){
+    console.error("Erreur dans /reset :", error.message)
+    res.status(500).json({result: false, error: 'Erreur interne du serveur - Reset'})
+  }
   })
 
 
@@ -167,7 +170,7 @@ router.get('/data', authenticateToken, (req, res) =>{
         bestScore: data.bestScore,
         currentGame: data.currentGame,
         settings: data.settings,
-        UnlockedAchievements: data.UnlockedAchievements
+        unlockedAchievements: data.unlockedAchievements
       })
     } else {
       return res.status(404).json({result: false, error : "Vous n'êtes pas autorisé"})
@@ -189,7 +192,7 @@ router.post('/givStats', authenticateToken, (req,res) => {
   const userId= req.user.userId
   User.findByIdAndUpdate(
     userId,
-    {bestScore : 105, historicGames: ["68ff940e76f8c00d29c467df"], UnlockedAchievements: [], currentGame : "507f1f77bcf86cd799439011"},
+    {bestScore : 105, unlockedAchievements: [], currentGame : "507f1f77bcf86cd799439011"},
     {new : true} //permet à la requête de renvoyer les infos du User mis à jours 
   ).then(data => {
     if (userId){
@@ -245,16 +248,46 @@ try{
     return res.status(401).json({restul: false, error: "Vous n'êtes pas autorisé."})
   }
   User.findByIdAndDelete(userId).then(()=>{
-    res.json({result: true, message: 'Compte supprimé'})
+    Game.deleteMany({player : userId}).then(() => {
+      res.json({result: true, message: 'Compte et partie associées supprimées'});
+    });
   })
   .catch(err =>{
     console.error('Erreur lors du findByIDAndDelete :', err.message)
     res.status(500).json({result: false, error: 'Erreur serveur lors de la recherche delete'})
   })
+
+  
+
 }catch (error){
   console.error("Erreur inattendue dans /delete :", error.message)
   res.status(500).json({result: false, error: "Erreur interne du serveur"})
 }
 })
+
+
+///////// GET top 3 best score by player///////////
+router.get('/topScores',  authenticateToken, async (req, res) =>{
+  try{
+    const userId = req.user.userId
+
+  if (!userId) {
+    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
+  }
+
+  const topScoresDocs = await User.find()
+      .sort({ bestScore: -1 })
+      .limit(3)
+      .select('bestScore');
+
+    const topScores = topScoresDocs.map(doc => doc.bestScore);
+
+  return res.json({result : true, topScores : topScores});
+
+  }catch (error){
+    console.error("Erreur inattendue dans /delete :", error.message);
+    res.status(500).json({result: false, error: "Erreur interne du serveur"});
+  }
+});
 
 module.exports = router;
