@@ -5,8 +5,20 @@ const authenticateToken = require('../middlewares/authMiddleWare');;
 const User = require('../models/users')
 const Card = require('../models/cards')
 const { checkBody } = require('../modules/checkBody')
-const { applyEffects } = require('../modules/applyEffects')
-const Ending = require('../models/endings')
+const {
+    getRandomCard,
+    applyChoiceEffects,
+    handleFamine,
+    checkGameOver,
+    incrementDay,
+    manageCardCooldown,
+    getNextCard,
+    endGame,
+    prepareNewGame
+    } = require('../modules/gameFunctions')
+const Ending = require('../models/endings');
+const { checkAchievements } = require('../modules/checkAchievements');
+const Achievement = require('../models/achievements');
 
 
 /* nouvelle games */
@@ -15,19 +27,10 @@ router.post('/new', authenticateToken, async (req, res) => {
     //console.log('User du middleWare: ', req.user)
 const userId = req.user.userId
 
-const activeGame = await Game.findOne({ player: userId , ended: false });
-const cards = await Card.find({ pool: "general"});
-if (cards.length === 0) {
-    return res.json({ result: false, error: 'Aucune carte de démarrage disponible'})
-}
-const cardSelect = cards[Math.floor(Math.random() * (cards.length))];
-
-// verifie si une partie est en court et la transforme en partie terminer
-    if(activeGame) {
-        activeGame.ended = true
-        await activeGame.save()
-    }
-// crée une nouvelle partie
+   // prépare une nouvelle game et la first carte
+   const cardSelect = await prepareNewGame(userId)
+   
+    // crée une nouvelle partie
     const newGame = new Game({
 
     player: userId,
@@ -99,7 +102,7 @@ router.get('/current', authenticateToken, async (req,res) => {
     }
 })
 
-/*  choix du joueur " gauche: non / droite: oui "*/
+/*  choix du joueur " gauche: non / droite: oui "  */
 
 router.post('/choice', authenticateToken, async (req,res) => {
     try {
@@ -111,6 +114,8 @@ router.post('/choice', authenticateToken, async (req,res) => {
             return res.json({ result: false, error: 'Missing or empty fields'})
             ;
         }
+
+        // on récup l'utilisateur et la partie 
         const user = await User.findById(userId)
         .populate({
             path: 'currentGame',
@@ -123,100 +128,68 @@ router.post('/choice', authenticateToken, async (req,res) => {
         if(!user.currentGame.currentCard) {
             return res.json({ result:false , error : 'Aucune carte selectionner !'})
         }
-            const choiceSimp = choice === 'right' ? user.currentGame.currentCard.right : user.currentGame.currentCard.left;
 
-            const game = await Game.findById(user.currentGame._id)
-            .populate('currentCard')
+        // on récup le choix (left ou right)
+            const choiceSimp = choice === 'right'
+            ? user.currentGame.currentCard.right 
+            : user.currentGame.currentCard.left;
+
+        // on récup la game en cours
+            const game = user.currentGame
             
             //console.log(Object.keys(effects))
-            Object.keys(choiceSimp.effect).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
-                game.stateOfGauges[key] += choiceSimp.effect[key];        
-            });
 
-            game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"
+            // on applique les effets
+        applyChoiceEffects(game,choiceSimp)           
             await game.save();
             
-            if(game.stateOfGauges.food <= 0 ) {
-                game.stateOfGauges.hunger -= 10 
-            }
+            // on gere le manque de nourriture
+        handleFamine(game)
+            await game.save()
             // verifie si une jauge est a 0 pour mettre fin a la partie
-         for (const [key, value] of Object.entries(game.stateOfGauges._doc)) { /// <--- obliger d'utiliser Object. et ._doc pour recuperer en brut car c'est un sous document \\\ on recuper clé et valeur ///
-                if (key !== 'food' && value <= 0) {
-                    
-                    user.bestScore = Math.max(user.bestScore , game.numberDays)
-                    game.ended = true 
-                    user.currentGame = null
-                    await user.save()
-                    await game.save()
-                    const death = await Ending.findOne({ type:key})
-                    
-                    return res.json({ 
-                    result: true, 
-                    gameover: true, 
-                    gauges: game.stateOfGauges,
-                    death: death,
-                    bestscore: user.bestScore
-                });
-    }
-}
+        const gameOverReason = checkGameOver(game)
+         if(gameOverReason) {
+            const reponse = await endGame(game, user, gameOverReason)
+            return res.json(reponse)
+         }
 
-            if(game.currentCard.incrementsDay){
-                game.numberDays += 1
-                game.stateOfGauges.food -= 10
-                game.markModified('stateOfGauges')
-                game.usedCards.forEach(card => {
-                    card.cooldownUsed += 1;
-                    });
+         // incrémentation days
+         const dayIncremented = incrementDay(game) 
+            if(dayIncremented){
+                
+                //on incrémente les cooldown
+                await manageCardCooldown(game)
+                    }
+            await game.save()
                    // console.log(game.usedCards)
-                const allCards = await Card.find()
-                game.usedCards = game.usedCards.filter(cardUsed => {
-                const cardValid = allCards.find(laCarte => laCarte._id.toString() === cardUsed.cardId.toString())
-                if(!cardValid) return false
-                return cardUsed.cooldownUsed < cardValid.cooldown;
-                })    
-                await game.save()
-            }
+
+        // check achievelents
+        const Achiev = await checkAchievements(user, game)
+        await user.save()
+
         // ICI push et changement de card selectionner
         game.usedCards.push({cardId:game.currentCard, cooldownUsed : 0})
 
-        const exludedIds =  game.usedCards.map(card => card.cardId) 
 
-        let poolFilter = "general"
-        // rajout des filtre si next pool/card
-        if (choiceSimp.nextPool){
-            poolFilter = choiceSimp.nextPool
-        }
-
-        let filter = { pool: poolFilter};
-
-        if (choiceSimp.nextCard){
-            filter.key = choiceSimp.nextCard
-        }
-        // on combine avec exluded
-        const combinedFilter = {
-            _id: { $nin: exludedIds }, // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
-            ...filter
-        }
-
-
-        // on fait le find avec filtre 
-          const cards = await Card.find(combinedFilter)
-    
-
-        if(cards.length === 0) {
-            return res.json({ result : false, error: 'Aucune carte disponible'})
-        }
-
-        const cardSelect = cards[Math.floor(Math.random() * cards.length)];
-
-        game.currentCard = cardSelect._id
+        // on récup la prochain carte
+        const nextCard = await getNextCard(game, choiceSimp)
+        game.currentCard = nextCard._id
         await game.save()
-        const famine = game.stateOfGauges.food <= 0 ? true : false ;
+
         //console.log(' filter card: ',cardsfilter)
+
+        // on recup game populate pour la reponse
         const populatedGame = await Game.findById(game._id).populate('currentCard')
-
-    return res.json({ result : true , gameover: false , gauges: populatedGame.stateOfGauges, card: populatedGame.currentCard, numberDays: populatedGame.numberDays , famine: famine, })
-
+        
+        console.log(Achiev)
+    return res.json({ 
+        result : true ,
+        gameover: false ,
+        gauges: populatedGame.stateOfGauges, 
+        card: populatedGame.currentCard, 
+        numberDays: populatedGame.numberDays , 
+        achievements: Achiev.events,
+        famine: game.stateOfGauges.food <= 0 ? true : false })
     } catch (err) {
         return res.json({ result: false, error: err.message})
     }
