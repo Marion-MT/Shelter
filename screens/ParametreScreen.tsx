@@ -66,11 +66,11 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 minimumValue={0}
                                 step={2}
                                 allowTouchTrack
-                                trackStyle={{ height: 25,  backgroundColor: '#524743' }}
+                                trackStyle={{ height: 25, borderRadius: 12.5, borderColor: 'black', borderWidth: 2.5, backgroundColor: '#524743' }}
                                 thumbStyle={{ height: 30, width: 30, borderColor: 'black', borderWidth: 2.5, backgroundColor: '#FFE8BF' }}
                                 minimumTrackTintColor="#388FF0"
                                 maximumTrackTintColor="#524743"
-                                
+                                style={styles.volumeSlider}
                             />
                             <Text style={styles.text}>Son</Text>
                             <Switch
