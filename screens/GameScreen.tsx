@@ -103,7 +103,6 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
         try{
             if(!showConsequence){
-                console.log("pas de consequences");
                 const response = await fetch(`${BACKEND_ADDRESS}/games/choice`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${user.token}`,

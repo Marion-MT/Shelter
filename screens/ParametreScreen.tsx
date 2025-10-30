@@ -4,6 +4,7 @@ import { Slider, Switch } from '@rneui/themed';
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateBestScore } from "../reducers/user";
+import { FontAwesome } from "@expo/vector-icons";
 
 type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -78,6 +79,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                             <Switch
                                 value={soundEnabled}
                                 onValueChange={toggleSound}
+                                style={{width : 200, height: 150}}
                                 width={40}
                                 thumbColor={soundEnabled ? '#FFE8BF' : '#FFE8BF'}
                                 trackColor={{ false: '#D05A34', true: '#74954E' }}
@@ -98,8 +100,12 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                             <View style={styles.modalOverlay}>
                                 <View style={styles.modalBackground}>
                                     <View style={styles.modalContainer}>
-                                        <Text style={styles.modalText}>Voulez vous vraiment réinitialisé votre compte ?</Text>
-                                        <Text style={styles.modalText2}>Cette action est irréversible.</Text>
+                                        <View style={styles.textContainer}>
+                                            <Text style={styles.modalText}>Voulez-vous vraiment réinitialiser votre compte ?</Text>
+                                            <FontAwesome name={'warning' as any} size={50} color='#ffe7bf' />
+                                            <Text style={styles.modalText2}>Cette action est irréversible.</Text>
+                                        </View>
+                                        
                                         <View style={styles.modalBtns}>
                                             <TouchableOpacity onPress={() => setModalVisible(false)}>
                                                 <View style={styles.btnContainerNo}>
@@ -206,34 +212,41 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         flexDirection: 'column',
+        justifyContent: 'center',
         alignItems: 'center',
-        justifyContent: 'space-between',
         backgroundColor : '#342c29',
         width: '100%',
         height: '100%',
         borderRadius: 16,
         borderColor: '#554946',
-        borderWidth: 5
+        borderWidth: 5,
+
+    },
+    textContainer:{
+        height: '65%',
+        padding: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap : 20
     },
     modalBtns: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         width: '90%',
-        marginBottom: 20,
+        height: '30%',
     },
     modalText: {
         color: '#FFE8BF',
         fontSize: 20,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 40,
     },
     modalText2: {
         color: '#FFE8BF',
         fontSize: 17,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 60,
     },
     btnContainerYes: {
         width: 130,
@@ -241,10 +254,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#74954E',
-        borderColor: 'black',
-        borderWidth: 1.5,
         borderRadius: 12,
-        marginBottom: 25,
     },
     btnContainerNo: {
         width: 130,
@@ -252,10 +262,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#D05A34',
-        borderColor: 'black',
-        borderWidth: 1.5,
         borderRadius: 12,
-        marginBottom: 25,
     },
     modalBtnText: {
         color: '#FFE8BF',

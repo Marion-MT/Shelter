@@ -3,6 +3,7 @@ import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation
 import { useSelector, useDispatch } from "react-redux";
 import { setGameState, setUserData, signout } from "../reducers/user";
 import { useCallback, useState } from "react";
+import { FontAwesome } from "@expo/vector-icons";
 
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -12,7 +13,7 @@ const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
     const [currentGame, setCurrentGame] = useState(false);
-    console.log(currentGame);
+    //console.log(currentGame);
     
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
@@ -27,13 +28,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
             .then(data => {
                 dispatch(setUserData({ bestScore: data.bestScore, soundOn: data.soundOn, volume: data.volume }));
                 if (!data.currentGame) {
-                    console.log('Pas de game en cours');
+                    //console.log('Pas de game en cours');
                     setCurrentGame(false);
                     return;
                 } else {                
                     if (data.currentGame) {
                         setCurrentGame(true);
-                        console.log('Game en cours');
+                        //console.log('Game en cours');
                         
                     }
                 }
@@ -97,27 +98,32 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-                <Text style={styles.title}>shelter</Text>
-                <View>
-                    {currentGame &&<TouchableOpacity onPress={() => handleCurrentGame()} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.btnText}>reprendre</Text>
-                    </TouchableOpacity>}
-                    <TouchableOpacity onPress={() => handleNewGame()} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.btnText}>nouvelle partie</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.btnText}>paramètres</Text>
-                    </TouchableOpacity>
-                    {/* <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.btnText}>succès</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.btnText}>crédits</Text>
-                    </TouchableOpacity> */}
-                    <TouchableOpacity onPress={() => handleLogout()} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.btnText}>Se deconnecter</Text>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => handleLogout()} activeOpacity={0.8} style={styles.logout}>
+                        <FontAwesome name={'sign-out' as any} size={50} color='#ffe7bf' />
                     </TouchableOpacity>
                 </View>
+                <View style={styles.main}>
+                    <Text style={styles.title}>shelter</Text>
+                    <View style={styles.buttonPanel}>
+                        {currentGame &&<TouchableOpacity onPress={() => handleCurrentGame()} style={styles.button} activeOpacity={0.8}>
+                            <Text style={styles.btnText}>reprendre</Text>
+                        </TouchableOpacity>}
+                        <TouchableOpacity onPress={() => handleNewGame()} style={styles.button} activeOpacity={0.8}>
+                            <Text style={styles.btnText}>nouvelle partie</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
+                            <Text style={styles.btnText}>paramètres</Text>
+                        </TouchableOpacity>
+                        {/* <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
+                            <Text style={styles.btnText}>succès</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
+                            <Text style={styles.btnText}>crédits</Text>
+                        </TouchableOpacity> */}
+                    </View>
+                </View>
+                
             </KeyboardAvoidingView>
         </ImageBackground>
     )
@@ -125,16 +131,41 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
+        flex: 1
+    },
+    header: {
+        width: '100%',
+        height: 80,
+        padding: 30,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    logout:{
+        width: 55,
+        height: 55,
+    },
+    main:{
+       width : '100%',
+       height:'100%',
+       alignItems: 'center',
+       paddingTop: 80
+
     },
     title: {
         fontSize: 70,
         fontWeight: '600',
         fontFamily: 'DaysLater',
         color: '#EFDAB7',
-        marginBottom: 35,     
+        textShadowColor: '#242120',
+        textShadowOffset: { width: 3, height: 3 },
+        textShadowRadius: 2,
+        marginVertical: 60
+    },
+    buttonPanel: {
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 30,
+        paddingTop: 40
     },
     button: {
         alignItems: 'center',
@@ -145,12 +176,11 @@ const styles = StyleSheet.create({
         borderWidth: 2.5,
         borderColor: 'black',
         borderRadius: 15,
-        margin: 15,
     },
     btnText: {
         textTransform: 'uppercase',
         fontSize: 23,
         fontWeight: 'bold',
-        color: '#EFDAB7',
+        color: '#ffe7bf',
     },
 });
