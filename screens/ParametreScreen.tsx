@@ -14,6 +14,7 @@ const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [volume, setVolume] = useState(50);
     const [soundEnabled, setSoundEnabled] = useState(true);
+    const [soundText, setSoundText] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
 
     const user = useSelector((state: string) => state.user.value);
@@ -21,6 +22,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
 
     const toggleSound = () => {
         setSoundEnabled(!soundEnabled);
+        setSoundText(soundEnabled ? 'OFF' : 'ON');
     };
    
     const handleNavigate = () => {
@@ -58,7 +60,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                 <View style={styles.darkBackground}>
                     <View style={styles.cardContainer}>
                         <View style={styles.setupContainer}>
-                            <Text style={styles.text}>Volume: {volume}</Text>
+                            <Text style={styles.text}>Volume : {volume}</Text>
                             <Slider
                                 value={volume}
                                 onValueChange={setVolume}
@@ -72,14 +74,13 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 maximumTrackTintColor="#524743"
                                 style={styles.volumeSlider}
                             />
-                            <Text style={styles.text}>Son</Text>
+                            <Text style={styles.text}>Son : {soundText}</Text>
                             <Switch
                                 value={soundEnabled}
                                 onValueChange={toggleSound}
-                                color="#388FF0"
+                                width={40}
                                 thumbColor={soundEnabled ? '#FFE8BF' : '#FFE8BF'}
                                 trackColor={{ false: '#D05A34', true: '#74954E' }}
-
                             />
                         </View>
                         <TouchableOpacity onPress={() => setModalVisible(true)}>
