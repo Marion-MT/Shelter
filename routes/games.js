@@ -197,6 +197,29 @@ router.post('/choice', authenticateToken, async (req,res) => {
     }
 })
 
+///////// GET top 3 best score all games///////////
+router.get('/topScores',  authenticateToken, async (req, res) =>{
 
+  try{
+    const userId = req.user.userId
+
+    if (!userId) {
+        return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
+    }
+
+    const topScoresDocs = await Game.find({ended: true})
+        .sort({ numberDays: -1 })
+        .limit(3)
+        .select('numberDays');
+
+    const topScores = topScoresDocs.map(doc => doc.numberDays);
+
+  return res.json({result : true, topScores : topScores});
+
+  }catch (error){
+    console.error("Erreur inattendue dans /delete :", error.message);
+    res.status(500).json({result: false, error: "Erreur interne du serveur"});
+  }
+});
 
 module.exports = router;

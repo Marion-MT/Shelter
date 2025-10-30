@@ -17,8 +17,7 @@ const userSchema = mongoose.Schema({
         type: settingSchema,
         default: () => ({})
     },
-    historicGames: [{ type: mongoose.Schema.Types.ObjectId, ref: 'games' }],
-    UnlockedAchievements : [{ type: mongoose.Schema.Types.ObjectId, ref: 'succès' }]
+    unlockedAchievements : [{ type: mongoose.Schema.Types.ObjectId, ref: 'achievements' }]
 })
 
 const User = mongoose.model('users', userSchema);
