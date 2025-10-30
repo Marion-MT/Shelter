@@ -1,24 +1,52 @@
-import { View, Text, StyleSheet, ImageBackground, Image, Pressable } from "react-native"
+import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpacity, Modal } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import Slider from '@react-native-community/slider';
+import { Slider, Switch } from '@rneui/themed';
 import { useState } from "react";
-import SwitchToggle from "react-native-switch-toggle";
+import { useSelector, useDispatch } from "react-redux";
+import { updateBestScore } from "../reducers/user";
 
 type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
+const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
+
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [volume, setVolume] = useState(50);
     const [soundEnabled, setSoundEnabled] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const user = useSelector((state: string) => state.user.value);
+    const dispatch = useDispatch();
 
     const toggleSound = () => {
         setSoundEnabled(!soundEnabled);
-    }
+    };
    
     const handleNavigate = () => {
         navigation.navigate('Home', { screen: 'Home' });
     };
+
+    const handleResetAccount = () => {
+        fetch(`${BACKEND_ADDRESS}/users/reset`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result === true) {
+                dispatch(updateBestScore(data.bestScore));
+                console.log('Compte réinitialisé avec succès');
+                return;
+            } else {
+                console.log('Échec de la réinitialisation du compte');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la réinitialisation du compte :', error);
+        });
+    };
+
 
 
     return (
@@ -30,42 +58,58 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                 <View style={styles.darkBackground}>
                     <View style={styles.cardContainer}>
                         <View style={styles.setupContainer}>
-                            <Text style={styles.text}>Volume</Text>
+                            <Text style={styles.text}>Volume: {volume}</Text>
                             <Slider
-                                style={styles.volumeSlider}
                                 value={volume}
-                                minimumValue={0}
+                                onValueChange={setVolume}
                                 maximumValue={100}
-                                minimumTrackTintColor="#FFFFFF"
-                                maximumTrackTintColor="#000000"
-                                onValueChange={(value) => setVolume(value)}
+                                minimumValue={0}
+                                step={2}
+                                allowTouchTrack
+                                trackStyle={{ height: 25,  backgroundColor: '#524743' }}
+                                thumbStyle={{ height: 30, width: 30, borderColor: 'black', borderWidth: 2.5, backgroundColor: '#FFE8BF' }}
+                                minimumTrackTintColor="#388FF0"
+                                maximumTrackTintColor="#524743"
+                                
                             />
-                        </View>
-                        <View style={styles.setupContainer}>
                             <Text style={styles.text}>Son</Text>
-                            <SwitchToggle
-                                switchOn={soundEnabled}
-                                onPress={toggleSound}
-                                circleColorOff="#FFE8BF"
-                                circleColorOn="#FFE8BF"
-                                backgroundColorOn="#74954E"
-                                backgroundColorOff="#D05A34"
-                                // backTextRight="off"
-                                // backTextLeft="on"
-                                containerStyle={{
-                                    width: 80,
-                                    height: 40,
-                                    borderRadius: 25,
-                                    padding: 5,
-                                    marginTop: 10,
-                                }}
-                                circleStyle={{
-                                    width: 30,
-                                    height: 30,
-                                    borderRadius: 15,
-                                }}
+                            <Switch
+                                value={soundEnabled}
+                                onValueChange={toggleSound}
+                                color="#388FF0"
+                                thumbColor={soundEnabled ? '#FFE8BF' : '#FFE8BF'}
+                                trackColor={{ false: '#D05A34', true: '#74954E' }}
+
                             />
                         </View>
+                        <TouchableOpacity onPress={() => setModalVisible(true)}>
+                            <View style={styles.btnContainer}>
+                                <Text style={styles.btnText}>réinitialisation</Text>
+                                <Text style={styles.btnText}>du compte</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <Modal
+                        visible={modalVisible}
+                        transparent={true}
+                        animationType="slide"
+                        onRequestClose={() => setModalVisible(false)}
+                        >
+                            <View style={styles.modalContainer}>
+                                <Text style={styles.modalText}>Voulez vous vraiment réinitialisé votre compte ?</Text>
+
+                                <TouchableOpacity onPress={() => {handleResetAccount(); setModalVisible(false);}}>
+                                    <View style={styles.btnContainer}>
+                                        <Text style={styles.btnYes}>Oui</Text>
+                                    </View>
+                                </TouchableOpacity>    
+                                <TouchableOpacity onPress={() => {handleResetAccount(); setModalVisible(false);}}>
+                                    <View style={styles.btnContainer}>
+                                        <Text style={styles.btnNo}>Non</Text>
+                                    </View>
+                                </TouchableOpacity>       
+                                
+                            </View>
+                        </Modal>
                     </View>
                 </View>
             </View>    
@@ -100,6 +144,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
+        justifyContent: 'space-between',
         backgroundColor : '#342c29',
         width: '100%',
         height: '100%',
@@ -108,17 +153,35 @@ const styles = StyleSheet.create({
         borderWidth: 5
     },
     setupContainer: {
-        marginTop: 50,
+        justifyContent: 'center',
+        alignItems: 'stretch',
         width: '80%',
     },
     volumeSlider: {
         width: '100%',
-        height: 40,
-        marginTop: 10,
     },
     text: {
-        color: 'white',
-        fontSize: 24,
+        color: '#FFE8BF',
+        fontSize: 25,
         fontWeight: 'bold',
+        marginBottom: 15,
+        marginTop: 25,
+    },
+    btnContainer: {
+        width: 210,
+        height: 80,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#242120',
+        borderColor: 'black',
+        borderWidth: 1.5,
+        borderRadius: 12,
+        marginBottom: 25,
+    },
+    btnText: {
+        color: '#FFE8BF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
     },
 });

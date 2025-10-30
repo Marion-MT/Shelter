@@ -105,10 +105,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                     <TouchableOpacity onPress={() => handleNewGame()} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.btnText}>nouvelle partie</Text>
                     </TouchableOpacity>
-                    {/* <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.btnText}>paramètres</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
+                    {/* <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.btnText}>succès</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
