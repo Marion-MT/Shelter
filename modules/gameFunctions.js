@@ -19,10 +19,30 @@ choiceSimp = le choix fais (droite ou gauche)
 */
 
 const applyChoiceEffects = (game, choiceSimp) => {
+    
+    // verifie que choiceSimp est definie 
+    if(!choiceSimp.effect) {
+        throw new Error('choiceSimp.effect non défini')
+    }
+
     Object.keys(choiceSimp.effect).forEach(key => {        // <--- Object.keys() sert a recuperer les clés de effects
-            game.stateOfGauges[key] += choiceSimp.effect[key];        
-        });
-    game.markModified('stateOfGauges');            // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"    
+        game.stateOfGauges[key] += choiceSimp.effect[key];        
+    });
+
+        if(choiceSimp.trigger){
+            game.currentScenarios = game.currentScenarios.push(choiceSimp.trigger)
+        }
+
+        else if(choiceSimp.endTrigger){
+
+        // verifie que trigger est bien dans current Scenarios
+        if(!game.currentScenarios.includes(choiceSimp.endTrigger)) {
+            throw new Error(`Le trigger "${choiceSimp.endTrigger}" n'existe pas dans currentScenarios`)
+             }
+
+            game.currentScenarios.filter( e => e !== choiceSimp.endTrigger)
+        }
+    game.markModified('stateOfGauges');             // <--- sert marquer le sous-document comme modifier sinon crash "de ce que j'ai compris detecte pas les modif des sous doc imbriqué"    
 } 
 
 
@@ -126,7 +146,9 @@ const getNextCard = async (game, choiceSimp) => {
     }
     // on recupe le pool basique
     else{
-            filter.pool = "general";
+
+        // on utilise $in parceque c'est un tableau
+            filter.pool = { $in: game.currentScenarios };
         }
 
 

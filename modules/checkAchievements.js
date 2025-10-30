@@ -2,7 +2,6 @@ const { Engine } = require('json-rules-engine');
 const Achievement = require('../models/achievements');
 
 async function checkAchievements(user, game) {
-    try {
     
     const engine = new Engine();   // <-- ici on creer une instance du moteur qui vas evaluer les régles 
 
@@ -45,10 +44,6 @@ async function checkAchievements(user, game) {
 
  
     return { success: true, events }
-    } catch (err) {
-        console.error('erreur checkAchivements:', err)
-        throw err
-    }
 }
 
 module.exports = { checkAchievements };
