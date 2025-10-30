@@ -110,18 +110,25 @@ const getNextCard = async (game, choiceSimp) => {
     // cartes a exclure
     const exludedIds =  game.usedCards.map(card => card.cardId)
 
-    // pool par defaut
-    let poolFilter = "general"
-        // rajout des filtre si next pool/card
-        if (choiceSimp.nextPool){
-            poolFilter = choiceSimp.nextPool
+
+    let filter = { }
+
+    // rajout des filtre si next pool/card
+
+    // on check si on doit obligatoirement avoir une nextCard si non 
+    if (choiceSimp.nextCard){
+        filter.key = choiceSimp.nextCard
+    }
+    
+    // on passe a nextPool si non
+    else if (choiceSimp.nextPool){
+        filter.pool = choiceSimp.nextPool
+    }
+    // on recupe le pool basique
+    else{
+            filter.pool = "general";
         }
 
-        //  le filtre
-        let filter = { pool: poolFilter};
-        if (choiceSimp.nextCard){
-            filter.key = choiceSimp.nextCard
-        }
 
         // on combine exclu et filtre grace a $nin
         const combinedFilter = {
@@ -133,7 +140,7 @@ const getNextCard = async (game, choiceSimp) => {
         const cards = await Card.find(combinedFilter)
 
         if(cards.length === 0) {
-            throw new Error({ result : false, error: 'Aucune carte disponible'})
+            throw new Error('Aucune carte disponible')
         }
 
         // et on récupere une carte aléatoire du find 
