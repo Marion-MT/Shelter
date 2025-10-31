@@ -20,6 +20,7 @@ const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
     const [succesData, setSuccesData] = useState<achievements[]>([]);
+    const [unlockedAchievement, setUnlockedAchievement] = useState<achievements[]>([]);
     const [activeTab, setActiveTab] = useState<'personnal'| 'leaderboard'>('personnal');
     const [topPlayers, setTopPlayers] = useState<number[]>([])
 
@@ -45,19 +46,45 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
             //console.log('TopPlayer', topPlayers)
         })
         .catch(err=>console.error('Erreur fetch Top Players', err))
+
+        //fetch unlockedAchievements
+        fetch(`${BACKEND_ADDRESS}/users/unlockedAchievement`, {
+            method: 'GET',
+            headers: {Authorization: `Bearer ${user.token}`}
+        })
+        .then(response => response.json())
+        .then(data=>{
+            //console.log('Data unlockedAchievement====>',data)
+            setUnlockedAchievement(data.unlockedAchievements)
+            //console.log('unlockedAch.', unlockedAchievement)
+        })
+        .catch(err=>console.error('Erreur fetch Top Players', err))
     },[])
 
     const succes = succesData.map((data, i)=> {
-        return(
-            <View key={i} style={styles.succes}>
-                {/* <FontAwesome style={styles.icone} name={data.unlocked ? 'check-square-o' : "square-o"} size={20} color={"#352c2bb0"}/> */}
-                <View>
-                    <Text style={styles.name} >{data.name}</Text>
-                    <Text style={styles.description}>{data.description.endsWith('.') ? data.description : `${data.description}.`}</Text>
-                </View>
-            </View>
+        const isUnlocked = unlockedAchievement.some(
+            (ach) => ach.name === data.name
         )
-    })
+        return(
+            <View
+      key={i}
+      style={isUnlocked ? styles.unlockedAchievement : styles.lockedAchievement}
+    >
+      <FontAwesome
+        style={styles.icone}
+        name={isUnlocked ? 'check-square-o' : 'square-o'}
+        size={20}
+        color={'#352c2bb0'} // vert si débloqué
+      />
+      <View>
+        <Text style={styles.name}>{data.name}</Text>
+        <Text style={styles.description}>
+          {data.description.endsWith('.') ? data.description : `${data.description}.`}
+        </Text>
+      </View>
+    </View>
+  );
+});
 
     const topPlayersList = topPlayers.map((score, i) => {
         const medalColor = i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#554946';
@@ -155,7 +182,7 @@ const styles = StyleSheet.create({
     darkBackground:{
         backgroundColor : '#242120',
         width: '100%',
-        height: 600,
+        height: '90%',
         borderRadius: 20,
         padding: 12,
     },
@@ -200,7 +227,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#EFDAB7',
     },  
-   succes :{
+   lockedAchievement :{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '90%',
+        backgroundColor: '#efdab769',
+        marginTop: 20,
+        marginRight: 10,
+        borderRadius: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+   },
+   unlockedAchievement :{
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',

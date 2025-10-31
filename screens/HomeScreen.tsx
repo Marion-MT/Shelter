@@ -5,12 +5,15 @@ import { setGameState, setUserData, signout } from "../reducers/user";
 import { useCallback, useState } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 
+import { useAudioPlayer } from 'expo-audio';
+
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
+const audioSource = require('../assets/sounds/button-clic-v1.mp3');
 
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
     const [currentGame, setCurrentGame] = useState(false);
@@ -18,6 +21,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
+
+    const player = useAudioPlayer(audioSource);
+    
+    const playSound = () => {
+        player.seekTo(0);
+        player.play();
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -54,6 +64,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                 console.log('Error:', data.error);
                 return;
             } else {
+                playSound();
                 dispatch(setGameState({ stateOfGauges: data.currentGame.stateOfGauges, numberDays: data.currentGame.numberDays, currentCard: data.currentGame.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             }
@@ -72,6 +83,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                 console.log('Error:', data.error);
                 return;
             } else {
+                playSound();
                 dispatch(setGameState({ stateOfGauges: data.game.stateOfGauges, numberDays: data.game.numberDays, currentCard: data.game.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             };
@@ -79,19 +91,23 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     };
 
     const handleNavigateParametres = () => {
+        playSound();
         navigation.navigate('Parametre', { screen: 'Parametre' });
     };
 
     const handleNavigateSucces = () => {
+        playSound();
         navigation.navigate('Succes', { screen: 'Succes' });
     };
 
     const handleNavigateCredit = () => {
+        playSound();
         navigation.navigate('Credit', { screen: 'Credit' });
     };
 
     const handleLogout = () => {
         //console.log("pré-signout", user)
+        playSound();
         dispatch(signout())
         navigation.navigate('Connexion', { screen: 'ConnexionScreen' });
     };
@@ -149,7 +165,7 @@ const styles = StyleSheet.create({
        width : '100%',
        height:'100%',
        alignItems: 'center',
-       paddingTop: 60
+       paddingTop: 80
 
     },
     title: {
@@ -166,7 +182,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         gap: 30,
-        paddingTop: 30
+        paddingTop: 40
     },
     button: {
         alignItems: 'center',
