@@ -112,13 +112,12 @@ router.post('/choice', authenticateToken, async (req,res) => {
 
         const userId = req.user.userId
         const { choice } = req.body;
-        const achievementsCurrentGame = []
-
+        
         if (!checkBody(req.body,['choice'])) {
             return res.json({ result: false, error: 'Missing or empty fields'})
             ;
         }
-
+        
         // on récup l'utilisateur et la partie 
         const user = await User.findById(userId)
         .populate({
@@ -133,15 +132,16 @@ router.post('/choice', authenticateToken, async (req,res) => {
         if(!user.currentGame.currentCard) {
             return res.json({ result:false , error : 'Aucune carte selectionner !'})
         }
-
+        
         // on récup le choix (left ou right)
-            const choiceSimp = choice === 'right'
-            ? user.currentGame.currentCard.right 
-            : user.currentGame.currentCard.left;
-
+        const choiceSimp = choice === 'right'
+        ? user.currentGame.currentCard.right 
+        : user.currentGame.currentCard.left;
+        
         // on récup la game en cours
-            const game = user.currentGame
-            
+        const game = user.currentGame
+        
+        //const achievementsCurrentGame = game.currentAchievements
             //console.log(Object.keys(effects))
 
             // on applique les effets
@@ -154,7 +154,7 @@ router.post('/choice', authenticateToken, async (req,res) => {
             // verifie si une jauge est a 0 pour mettre fin a la partie
         const gameOverReason = checkGameOver(game)
          if(gameOverReason) {
-            const reponse = await endGame(game, user, gameOverReason, achievementsCurrentGame)
+            const reponse = await endGame(game, user, gameOverReason)
             return res.json(reponse)
          }
 
@@ -169,10 +169,17 @@ router.post('/choice', authenticateToken, async (req,res) => {
                    // console.log(game.usedCards)
 
         // check achievelents
+       //console.log(game)
         const Achiev = await checkAchievements(user, game)
+        console.log(Achiev)
         if(Achiev.success){
-        achievementsCurrentGame.push(...Achiev.events)
+            console.log('avant push: ',Achiev)
+        game.currentAchievements.push(Achiev.events[0].params)
+        game.markModified('currentAchievements')
+        console.log('apres push : ',game.currentAchievements)
         await user.save()
+        await game.save()
+
         }
         // ICI push et changement de card selectionner
         game.usedCards.push({cardId:game.currentCard, cooldownUsed : 0})
@@ -202,29 +209,6 @@ router.post('/choice', authenticateToken, async (req,res) => {
     }
 })
 
-///////// GET top 3 best score all games///////////
-router.get('/topScores',  authenticateToken, async (req, res) =>{
 
-  try{
-    const userId = req.user.userId
-
-    if (!userId) {
-        return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
-    }
-
-    const topScoresDocs = await Game.find({ended: true})
-        .sort({ numberDays: -1 })
-        .limit(3)
-        .select('numberDays');
-
-    const topScores = topScoresDocs.map(doc => doc.numberDays);
-
-  return res.json({result : true, topScores : topScores});
-
-  }catch (error){
-    console.error("Erreur inattendue dans /delete :", error.message);
-    res.status(500).json({result: false, error: "Erreur interne du serveur"});
-  }
-});
 
 module.exports = router;

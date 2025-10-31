@@ -157,7 +157,7 @@ choiceSimp = le choix fais (droite ou gauche)
 const getNextCard = async (game, choiceSimp) => {
 
     // cartes a exclure
-    const exludedIds =  game.usedCards.map(card => card.cardId)
+    const exludedIds =  game.usedCards.map(card => card._id)
 
 
     let filter = { }
@@ -182,21 +182,35 @@ const getNextCard = async (game, choiceSimp) => {
 
 
     // on recupe le pool basique
-    else{
-
-        
+    else {
 
         // on utilise $in parceque c'est un tableau
             filter.pool = { $in: game.currentScenarios };
         }
 
-
+        
         // on combine exclu et filtre grace a $nin
         const combinedFilter = {
             _id: { $nin: exludedIds }, // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
             ...filter  
         }
 
+        // on filtre selon conditions 
+/*
+    Object.entries(game.stateOfGauges.toObject()).forEach(([key, value]) => { // Object.entries convertie l objet en tableau de paires ex ['security', 10]
+        //console.log('key: ',key ,' value: ',value)
+        // on transforme key pour qu'il commence par une maj parceque  minSecurity dans conditions 
+        const majKey = key.charAt(0).toUpperCase() + key.slice(1)
+
+        // créer cinditions min max equals si ya des conditions en place dans la cartes
+        combinedFilter[`conditions.min${majKey}`] = { $lt: value} // $lt logique mongoDb "less than strict"  ex = conditions.minSecurity dois etre < 40
+        combinedFilter[`conditions.max${majKey}`] = { $gt: value} // $gt logique mongoDb "greater than strict"  ex = conditions.manSecurity dois etre > 40
+    })
+
+        console.log("exludedIds:", exludedIds);
+console.log("filter:", filter);
+console.log("combinedFilter:", combinedFilter);
+*/
         // on recherche les cartes
         const cards = await Card.find(combinedFilter)
 
@@ -217,7 +231,7 @@ deathReason= raison de la mort \\exemple: moral//
 return les donnes de fin de partie
 */
 
-const endGame = async (game, user, deathReason, achievements) => {
+const endGame = async (game, user, deathReason) => {
 
     // maj du best score
     user.bestScore = Math.max(user.bestScore , game.numberDays)
@@ -240,7 +254,7 @@ const endGame = async (game, user, deathReason, achievements) => {
         gauges: game.stateOfGauges,
         death: death,
         bestscore: user.bestScore,
-        achievements : achievements ? achievements : null ,
+        achievements : game.currentAchievements,
     }
 }
 

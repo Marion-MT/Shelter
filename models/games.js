@@ -31,7 +31,11 @@ const gameSchema = mongoose.Schema({
     stateOfGauges: {
         type: stateOfGaugesSchema,
         default: () => ({})
-    }
+    },
+    currentAchievements: {
+        type: [Object],
+        default : () => []
+    },
 });
 
 const Game = mongoose.model('games', gameSchema);
