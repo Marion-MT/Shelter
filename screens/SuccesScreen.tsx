@@ -126,15 +126,15 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
 
     })
 
-    return (
+        return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
             <View style={styles.main}>
                 <TouchableOpacity style={styles.backButton} onPress={() => {playSound(); navigation.navigate('Home', { screen: 'Menu'})}}>
                     <Image source={require('../assets/icon-arrow.png')} style={styles.leftArrow} />
                 </TouchableOpacity>
                 <View style={styles.darkBackground}>
-                    <View style={styles.cardContainer}>
-                        <View style={styles.tabContainer}>
+                     <View style={styles.cardContainer}>
+                         <View style={styles.tabContainer}>
                             <TouchableOpacity style={[styles.tab, activeTab==='personnal' && styles.activeTab]}
                             onPress={()=>{playSound(); setActiveTab('personnal');}}>
                                 <Text style={[styles.tabText, activeTab === 'personnal' && styles.activeTabText]}>BEST SCORE</Text>
@@ -146,29 +146,25 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
                                 </Text>
                             </TouchableOpacity>
                         </View>
-
                         {activeTab === 'personnal' ? (
-                            
-                                <View style={styles.daysContainer}>
-                                    <Text style={styles.days}>{user.bestScore}</Text>
-                                </View>
-                            
-                        ) : (
-                            
-                                <View style={styles.leaderboardContainer}>
-        <Text style={styles.leaderboardTitle}>Top Scores</Text>
-        <ScrollView style={styles.leaderboardScroll} contentContainerStyle={styles.leaderboardContent}>
-            {topPlayers.length === 0 ? (
-                <View style={styles.emptyLeaderboard}>
-                    <FontAwesome name="users" size={30} color="#8B7355" />
-                    <Text style={styles.emptyText}>Aucun score</Text>
-                </View>
-            ) : (
-                topPlayersList
-            )}
-        </ScrollView>
-    </View>
-)}
+            <View style={styles.daysContainer}>
+                <Text style={styles.days}>{user.bestScore}</Text>
+            </View>
+        ) : (
+            <View style={styles.leaderboardContainer}>
+                <Text style={styles.leaderboardTitle}>Top Scores</Text>
+                <ScrollView style={styles.leaderboardScroll} contentContainerStyle={styles.leaderboardContent}>
+                    {topPlayers.length === 0 ? (
+                    <View style={styles.emptyLeaderboard}>
+                        <FontAwesome name="users" size={30} color="#8B7355" />
+                        <Text style={styles.emptyText}>Aucun score</Text>
+                    </View>
+                    ) : (
+                    topPlayersList
+                    )}
+                </ScrollView>
+            </View>
+         )}
                         <View style={styles.achievement}>
                             <Text style={styles.achievementText}>LISTE DES SUCCES</Text>
                         </View>
