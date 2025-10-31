@@ -66,10 +66,10 @@ export default function App() {
           <GestureHandlerRootView>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name='Parametre' component={ParametreScreen} />
             <Stack.Screen name='Introduction' component={IntroductionScreen} />
             <Stack.Screen name='Connexion' component={ConnexionScreen} />
             <Stack.Screen name='Home' component={HomeScreen}/>
-            <Stack.Screen name='Parametre' component={ParametreScreen} />
             <Stack.Screen name='Credit' component={CreditScreen} />
             <Stack.Screen name='Succes' component={SuccesScreen} />
             <Stack.Screen name='Game' component={GameScreen}/>
