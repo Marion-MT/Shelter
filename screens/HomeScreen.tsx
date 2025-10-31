@@ -119,9 +119,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                          <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
                             <Text style={styles.btnText}>succès</Text>
                         </TouchableOpacity>
-                       {/* <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
+                        <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
                             <Text style={styles.btnText}>crédits</Text>
-                        </TouchableOpacity> */}
+                        </TouchableOpacity>
                     </View>
                 </View>
                 
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
        width : '100%',
        height:'100%',
        alignItems: 'center',
-       paddingTop: 80
+       paddingTop: 60
 
     },
     title: {
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         gap: 30,
-        paddingTop: 40
+        paddingTop: 30
     },
     button: {
         alignItems: 'center',

@@ -76,14 +76,15 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 style={styles.volumeSlider}
                             />
                             <Text style={styles.text}>Son : {soundText}</Text>
-                            <Switch
-                                value={soundEnabled}
-                                onValueChange={toggleSound}
-                                style={{width : 200, height: 150}}
-                                width={40}
-                                thumbColor={soundEnabled ? '#FFE8BF' : '#FFE8BF'}
-                                trackColor={{ false: '#D05A34', true: '#74954E' }}
-                            />
+                            <View style={{transform: 'scale(2)'}}>
+                                <Switch
+                                    value={soundEnabled}
+                                    onValueChange={toggleSound}
+                                    style={{width : 95, height: 45}}
+                                    thumbColor={soundEnabled ? '#FFE8BF' : '#FFE8BF'}
+                                    trackColor={{ false: '#D05A34', true: '#74954E' }}
+                                />
+                            </View>
                         </View>
                         <TouchableOpacity onPress={() => setModalVisible(true)}>
                             <View style={styles.btnContainer}>
