@@ -5,6 +5,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ScrollView } from "react-native-gesture-handler";
 import { useEffect, useState } from "react";
 
+import { useAudioPlayer } from 'expo-audio';
+
 type SuccesScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
@@ -17,12 +19,23 @@ type achievements = {
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
+const audioSource = require('../assets/sounds/button-clic-v1.mp3');
+
 export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
     const [succesData, setSuccesData] = useState<achievements[]>([]);
     const [unlockedAchievement, setUnlockedAchievement] = useState<achievements[]>([]);
     const [activeTab, setActiveTab] = useState<'personnal'| 'leaderboard'>('personnal');
     const [topPlayers, setTopPlayers] = useState<number[]>([])
+
+    // Initialisation du fichier audio
+    const player = useAudioPlayer(audioSource);
+    
+    // Fonction pour que le son puisse être joué à chaque appel
+    const playSound = () => {
+        player.seekTo(0); // Remet le son au début (permet de jouer le son plusieurs fois)
+        player.play();
+    };
 
     useEffect(()=>{
         //fetch des succès
@@ -105,18 +118,18 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
             <View style={styles.main}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Home', { screen: 'Menu'})}>
+                <TouchableOpacity style={styles.backButton} onPress={() => {playSound(); navigation.navigate('Home', { screen: 'Menu'})}}>
                     <Image source={require('../assets/icon-arrow.png')} style={styles.leftArrow} />
                 </TouchableOpacity>
                 <View style={styles.darkBackground}>
                     <View style={styles.cardContainer}>
                         <View style={styles.tabContainer}>
                             <TouchableOpacity style={[styles.tab, activeTab==='personnal' && styles.activeTab]}
-                            onPress={()=>setActiveTab('personnal')}>
+                            onPress={()=>{playSound(); setActiveTab('personnal');}}>
                                 <Text style={[styles.tabText, activeTab === 'personnal' && styles.activeTabText]}>BEST SCORE</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.tab, activeTab === 'leaderboard' && styles.activeTab]}
-                            onPress={()=>setActiveTab('leaderboard')}>
+                            onPress={()=>{playSound(); setActiveTab('leaderboard');}}>
                                 <Text style={[styles.tabText, activeTab === 'leaderboard' && styles.activeTabText]}>
                                     TOP PLAYERS
                                 </Text>

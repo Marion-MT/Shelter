@@ -6,11 +6,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateBestScore } from "../reducers/user";
 import { FontAwesome } from "@expo/vector-icons";
 
+import { useAudioPlayer } from 'expo-audio';
+
 type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
+
+const audioSource = require('../assets/sounds/button-clic-v1.mp3');
 
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [volume, setVolume] = useState(50);
@@ -21,12 +25,22 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
 
+    // Initialisation du fichier audio
+    const player = useAudioPlayer(audioSource);
+    
+    // Fonction pour que le son puisse être joué à chaque appel
+    const playSound = () => {
+        player.seekTo(0); // Remet le son au début (permet de jouer le son plusieurs fois)
+        player.play();
+    };
+
     const toggleSound = () => {
         setSoundEnabled(!soundEnabled);
         setSoundText(soundEnabled ? 'OFF' : 'ON');
     };
    
     const handleNavigate = () => {
+        playSound();
         navigation.navigate('Home', { screen: 'Home' });
     };
 
@@ -86,7 +100,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 />
                             </View>
                         </View>
-                        <TouchableOpacity onPress={() => setModalVisible(true)}>
+                        <TouchableOpacity onPress={() => {playSound(); setModalVisible(true);}}>
                             <View style={styles.btnContainer}>
                                 <Text style={styles.btnText}>réinitialisation</Text>
                                 <Text style={styles.btnText}>du compte</Text>
@@ -108,12 +122,12 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                         </View>
                                         
                                         <View style={styles.modalBtns}>
-                                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                            <TouchableOpacity onPress={() => {playSound(); setModalVisible(false);}}>
                                                 <View style={styles.btnContainerNo}>
                                                     <Text style={styles.modalBtnText}>Non</Text>
                                                 </View>
                                             </TouchableOpacity>   
-                                            <TouchableOpacity onPress={() => {handleResetAccount(); setModalVisible(false);}}>
+                                            <TouchableOpacity onPress={() => {playSound(); handleResetAccount(); setModalVisible(false);}}>
                                                 <View style={styles.btnContainerYes}>
                                                     <Text style={styles.modalBtnText}>Oui</Text>
                                                 </View>
