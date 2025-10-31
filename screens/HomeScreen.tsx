@@ -64,6 +64,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                 console.log('Error:', data.error);
                 return;
             } else {
+                playSound();
                 dispatch(setGameState({ stateOfGauges: data.currentGame.stateOfGauges, numberDays: data.currentGame.numberDays, currentCard: data.currentGame.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             }
@@ -82,6 +83,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                 console.log('Error:', data.error);
                 return;
             } else {
+                playSound();
                 dispatch(setGameState({ stateOfGauges: data.game.stateOfGauges, numberDays: data.game.numberDays, currentCard: data.game.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             };
@@ -89,6 +91,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     };
 
     const handleNavigateParametres = () => {
+        playSound();
         navigation.navigate('Parametre', { screen: 'Parametre' });
     };
 
@@ -98,12 +101,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     };
 
     const handleNavigateCredit = () => {
-        
+        playSound();
         navigation.navigate('Credit', { screen: 'Credit' });
     };
 
     const handleLogout = () => {
-        console.log("pré-signout", user)
+        //console.log("pré-signout", user)
+        playSound();
         dispatch(signout())
         navigation.navigate('Connexion', { screen: 'ConnexionScreen' });
     };
@@ -128,7 +132,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                         <TouchableOpacity onPress={() => handleNavigateParametres()} style={styles.button} activeOpacity={0.8}>
                             <Text style={styles.btnText}>paramètres</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
+                         <TouchableOpacity onPress={() => handleNavigateSucces()} style={styles.button} activeOpacity={0.8}>
                             <Text style={styles.btnText}>succès</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleNavigateCredit()} style={styles.button} activeOpacity={0.8}>
