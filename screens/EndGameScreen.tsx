@@ -13,14 +13,17 @@ type EndGameRouteParams = {
     hook: string;
     phrase: string;
     description: string;
+    achievements : [Object];
 }
 
 export default function EndGameScreen({ navigation, route }: EndGameScreenProps & { route: { params: EndGameRouteParams } }) {
-    const { type, hook, phrase, description } = route.params;
+    const { type, hook, phrase, description, achievements } = route.params;
     const user = useSelector((state: string) => state.user.value);
 
+    console.log("EndGame achievements = ", achievements);
+
     const handleNavigate = () => {
-        navigation.navigate('RecapGame', { screen: 'RecapGame' });
+        navigation.navigate('RecapGame', { screen: 'RecapGame', achievements: achievements });
     };
     
     const changeColor = (cause: string) => {

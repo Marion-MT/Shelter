@@ -40,6 +40,7 @@ type GameResponse = {
     };
     description: string;
   };
+  achievements: [Object];
 };
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
@@ -91,9 +92,9 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         setCurrentSide(side)
     }
 
-    const triggerGameover = (type: string, hook: string, phrase: string, description: string ) => {
+    const triggerGameover = (type: string, hook: string, phrase: string, description: string, achievements: [Object] ) => {
         setTimeout(() => {
-            navigation.navigate('EndGame', { screen: 'EndGame', type: type, hook: hook, phrase: phrase, description: description  });
+            navigation.navigate('EndGame', { screen: 'EndGame', type: type, hook: hook, phrase: phrase, description: description, achievements: achievements  });
         }, 1000);
     }
 
@@ -117,7 +118,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                     return;
                 }
 
-                //console.log(data);
+                console.log(data);
 
                 setLastResponse(data);
 
@@ -136,7 +137,8 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
                 if(data.gameover || !data.card){
                     //console.log(data.death.type + ' ' + data.death.title.hook + ' ' + data.death.title.phrase + ' ' + data.death.description);
-                    triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description);
+                    triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description, data.achievements);
+                    console.log('unlocked achievements = ', data.achievements);
                     return;
                 }
 
@@ -160,7 +162,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
                 if(lastResponse && (lastResponse.gameover || !lastResponse.card)){
                     if(lastResponse.death)
-                        triggerGameover(lastResponse.death.type, lastResponse.death.title.hook, lastResponse.death.title.phrase, lastResponse.death.description);
+                        triggerGameover(lastResponse.death.type, lastResponse.death.title.hook, lastResponse.death.title.phrase, lastResponse.death.description, lastResponse.achievements);
                     return;
                 }
 

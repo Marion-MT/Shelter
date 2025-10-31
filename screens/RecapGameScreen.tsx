@@ -8,12 +8,20 @@ type RecapGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
+type RecapGameRouteParams = {
+    achievements : [Object];
+}
+
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
-export default function RecapGameScreen({ navigation }: RecapGameScreenProps ) {
+export default function RecapGameScreen({ navigation, route }: RecapGameScreenProps & { route: { params: RecapGameRouteParams } }) {
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
     const [newBestScore, setNewBestScore] = useState<Boolean>(false);
+
+    const { achievements } = route.params;
+
+    console.log("RecapGame achievements = ", achievements);
 
     // Update best score in reduce
     useFocusEffect(
