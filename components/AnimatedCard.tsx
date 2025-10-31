@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, View, Text, Image, ImageBackground, Dimensions } from "react-native";
 import { useState, useEffect  } from 'react';
+import { ImageSourcePropType } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,6 +23,7 @@ const SWIPE_THRESHOLD = width * 0.25;
 const SHOW_TEXT_THRESHOLD = 5;
 
 type SwipeCardProps = {
+  image: ImageSourcePropType;
   isConsequence: boolean;
   leftChoiceText: string;
   rightChoiceText: string
@@ -32,7 +34,7 @@ type SwipeCardProps = {
 };
 
 
-export default function AnimatedCard({ isConsequence, leftChoiceText, rightChoiceText, onSwipeLeft, onSwipeRight, handleSideChange, triggerReset }: SwipeCardProps) {
+export default function AnimatedCard({ image, isConsequence, leftChoiceText, rightChoiceText, onSwipeLeft, onSwipeRight, handleSideChange, triggerReset }: SwipeCardProps) {
 
   const [isFlipped, setIsFlipped] = useState(true);     // whether the card is on the front side or the back side
   const flipRotation = useSharedValue(180); // 0 = front, 180 = back
@@ -153,6 +155,13 @@ useAnimatedReaction(
           </Animated.View> :
           // Normal layout
           <Animated.View style={[styles.card, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
+            <View style={styles.imageMask}>
+                <Image
+                source={image}
+                style={styles.illustration}
+                resizeMode="cover"
+                />
+            </View>
 
             <Animated.View
               layout={Layout.duration(100)} // smooth animation of the text section
@@ -180,7 +189,6 @@ useAnimatedReaction(
             <Image source={require('../assets/backcard_v5.png')} style={styles.backImage} />
           </Animated.View>
         </View>
-      {/*</TouchableWithoutFeedback>*/}
     </GestureDetector>
   );
 }
@@ -215,6 +223,16 @@ const styles = StyleSheet.create({
     },
     front: {
         backgroundColor: "#ffe7bf",
+        overflow: 'hidden',
+    },
+    imageMask: {
+    ...StyleSheet.absoluteFillObject,
+    backfaceVisibility: "hidden",
+
+    },
+    illustration: {
+      width: '100%',
+      height: '100%'
     },
     back: {
         backgroundColor: "#242120",
@@ -233,14 +251,16 @@ const styles = StyleSheet.create({
         width: '100%',
         /*height: '35%',*/
         flexShrink: 1,
-        backgroundColor: '#ae9273',
+       /* backgroundColor: '#ae9273',*/
+        backgroundColor: '#2421208e',
         padding: 18
 
     },
     textChoice: {
         fontFamily: 'ArialRounded',
         fontSize : 18,
-        color: '#242120',
+        /*color: '#242120',*/
+        color: '#f1dec8ff',
         flexWrap: 'wrap'
     },
     textConsequence: {
