@@ -20,6 +20,8 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [volume, setVolume] = useState(50);
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [soundText, setSoundText] = useState('');
+    const [soundClicEnabled, setSoundClicEnabled] = useState(true);
+    const [soundClicText, setSoundClicText] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
 
     const user = useSelector((state: string) => state.user.value);
@@ -37,6 +39,11 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const toggleSound = () => {
         setSoundEnabled(!soundEnabled);
         setSoundText(soundEnabled ? 'OFF' : 'ON');
+    };
+
+    const toggleSoundClic = () => {
+        setSoundClicEnabled(!soundClicEnabled);
+        setSoundClicText(soundClicEnabled ? 'OFF' : 'ON');
     };
    
     const handleNavigate = () => {
@@ -89,13 +96,23 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 maximumTrackTintColor="#524743"
                                 style={styles.volumeSlider}
                             />
-                            <Text style={styles.text}>Son : {soundText}</Text>
+                            <Text style={styles.text}>Musique : {soundText}</Text>
                             <View style={{transform: 'scale(2)'}}>
                                 <Switch
                                     value={soundEnabled}
                                     onValueChange={toggleSound}
                                     style={{width : 95, height: 45}}
                                     thumbColor={soundEnabled ? '#FFE8BF' : '#FFE8BF'}
+                                    trackColor={{ false: '#D05A34', true: '#74954E' }}
+                                />
+                            </View>
+                            <Text style={styles.text}>Bruitage : {soundClicText}</Text>
+                            <View style={{transform: 'scale(2)'}}>
+                                <Switch
+                                    value={soundClicEnabled}
+                                    onValueChange={toggleSoundClic}
+                                    style={{width : 95, height: 45}}
+                                    thumbColor={soundClicEnabled ? '#FFE8BF' : '#FFE8BF'}
                                     trackColor={{ false: '#D05A34', true: '#74954E' }}
                                 />
                             </View>
