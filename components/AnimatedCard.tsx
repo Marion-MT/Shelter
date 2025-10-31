@@ -177,7 +177,7 @@ useAnimatedReaction(
           }
          
           <Animated.View style={[styles.card, styles.back, backAnimatedStyle]}>
-            <Image source={require('../assets/backcard_v1.png')} style={styles.backImage} />
+            <Image source={require('../assets/backcard_v5.png')} style={styles.backImage} />
           </Animated.View>
         </View>
       {/*</TouchableWithoutFeedback>*/}

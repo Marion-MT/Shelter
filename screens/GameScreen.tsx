@@ -269,7 +269,13 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                             </View>
                             <View style={styles.choiceCardContainer} >
                                 <View style={styles.cardStack}>
-                                    <ImageBackground source={require('../assets/backcard_v1.png')} style={styles.backImage}>
+                                    <View style={styles.imageMask}>
+                                        <Image
+                                        source={require('../assets/backcard_v5.png')}
+                                        style={styles.backImage}
+                                        />
+                                    </View>
+                                    
                                         <AnimatedCard
                                         isConsequence={showConsequence}
                                         leftChoiceText={showConsequence ? consequenceText : (currentCard?.left?.text || "")}
@@ -279,7 +285,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                                         handleSideChange={(side: string) => handleSideChange(side)}
                                         triggerReset={triggerReset}
                                         />
-                                    </ImageBackground>     
+
                                 </View>
                             </View>
                         </View>
@@ -396,6 +402,13 @@ const styles = StyleSheet.create({
         width: 240,
         height: 240,
         borderRadius: 15,
+    },
+    imageMask: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 15,
+    overflow: 'hidden',
+    borderColor: '#242120',
+    borderWidth: 4,
     },
     backImage: {
       width: '100%',
