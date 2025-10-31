@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, Image } from "react-native"
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from "react-redux";
 import { setGameState, updateBestScore } from "../reducers/user";
@@ -8,9 +8,15 @@ type RecapGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
+type Achievement = {
+  id: string;
+  name: string;
+  description: string;
+};
+
 type RecapGameRouteParams = {
-    achievements : [Object];
-}
+  achievements: Achievement[];
+};
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
@@ -35,7 +41,17 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
             }
         }, [])
     );
-  
+    
+    const succes = achievements.map((data, i)=> {
+    return(
+        <View key={i} style={styles.unlockedAchievement}>
+            <View style={styles.textContainer}>
+                <Text style={styles.name}>{data.name}</Text>
+                <Text style={styles.description}>{data.description.endsWith('.') ? data.description : `${data.description}.`}</Text>
+            </View>
+        </View>
+    )
+})
 
     const checkScore = () => {
         if (newBestScore) {
@@ -54,6 +70,16 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
                             <Image source={require('../assets/icon-star.png')} style={styles.logo} />
                             <Text style={styles.bestScoreText}>Last Record : {user.bestScore} jours</Text>
                         </View>
+                        {succes.length === 0 ? (
+                        <ScrollView contentContainerStyle={styles.scrollView}>
+                            <Text style={styles.text}>Aucun succès dévérouillé</Text>
+                        </ScrollView>
+                    ) : (
+                        <ScrollView contentContainerStyle={styles.scrollView}>
+                            <Text style={styles.text}>Succès dévérouillé(s)</Text>
+                             {succes}
+                        </ScrollView>
+                    )}
                     </View>
                 </View>
             );
@@ -69,6 +95,16 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
                         <Image source={require('../assets/icon-star.png')} style={styles.logo} />
                         <Text style={styles.bestScoreText}>Record : {user.bestScore} jours</Text>
                     </View>
+                    {succes.length === 0 ? (
+                        <ScrollView contentContainerStyle={styles.scrollView}>
+                        <Text style={styles.text}>Aucun succès dévérouillé</Text>
+                    </ScrollView>
+                    ) : (
+                    <ScrollView contentContainerStyle={styles.scrollView}>
+                        <Text style={styles.text}>Succès dévérouillé(s)</Text>
+                        {succes}
+                    </ScrollView>
+                    )}
                 </View>
             </View>
         );
@@ -229,4 +265,41 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#EFDAB7',
     },
+
+    textContainer: {
+        flex: 1,
+    },
+    name:{
+        color:'#554946',
+        fontSize:18,
+        fontWeight: '400',
+        textAlign: 'left', 
+        textTransform: 'capitalize',
+        
+    },
+    description:{
+        color:'#554946',
+        fontSize: 12,
+        alignItems: 'flex-start',
+        width: '100%',
+        textAlign: 'left', 
+
+    },
+    unlockedAchievement :{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '90%',
+        backgroundColor: '#EFDAB7',
+        marginTop: 20,
+        marginRight: 10,
+        borderRadius: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+   },
+     scrollView: {
+        alignItems: 'center',
+        paddingBottom: 20,
+        width: '85%'
+  },
 });
