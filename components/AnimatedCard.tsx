@@ -153,6 +153,12 @@ useAnimatedReaction(
           </Animated.View> :
           // Normal layout
           <Animated.View style={[styles.card, styles.front, frontAnimatedStyle, swipeAnimatedStyle]}>
+            <View style={styles.imageMask}>
+                <Image
+                source={require('../assets/icon-expedition.png')}
+                style={styles.illustration}
+                />
+            </View>
 
             <Animated.View
               layout={Layout.duration(100)} // smooth animation of the text section
@@ -216,6 +222,14 @@ const styles = StyleSheet.create({
     front: {
         backgroundColor: "#ffe7bf",
     },
+    imageMask: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+    },
+    illustration: {
+      width: '100%',
+      height: '100%'
+    },
     back: {
         backgroundColor: "#242120",
         justifyContent: 'center',
@@ -233,14 +247,16 @@ const styles = StyleSheet.create({
         width: '100%',
         /*height: '35%',*/
         flexShrink: 1,
-        backgroundColor: '#ae9273',
+       /* backgroundColor: '#ae9273',*/
+        backgroundColor: '#0000008e',
         padding: 18
 
     },
     textChoice: {
         fontFamily: 'ArialRounded',
         fontSize : 18,
-        color: '#242120',
+        /*color: '#242120',*/
+        color: '#ddcbb6ff',
         flexWrap: 'wrap'
     },
     textConsequence: {
