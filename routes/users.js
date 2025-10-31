@@ -186,6 +186,60 @@ router.get('/data', authenticateToken, (req, res) =>{
 }
 })
 
+///////// GET top 3 best score by player///////////
+router.get('/topScores',  authenticateToken, async (req, res) =>{
+  try{
+    const userId = req.user.userId
+
+  if (!userId) {
+    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
+  }
+
+  const topScoresDocs = await User.find()
+      .sort({ bestScore: -1 })
+      .limit(3)
+      .select('bestScore');
+
+    const topScores = topScoresDocs.map(doc => doc.bestScore);
+
+  return res.json({result : true, topScores : topScores});
+
+  }catch (error){
+    console.error("Erreur inattendue dans /delete :", error.message);
+    res.status(500).json({result: false, error: "Erreur interne du serveur"});
+  }
+});
+
+///////// Get unlockedAchievements /////////
+router.get('/unlockedAchievement', authenticateToken, (req, res) =>{
+  try{
+    const userId = req.user.userId
+
+  if (!userId) {
+    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
+  }
+User.findById(userId)
+.populate('unlockedAchievements','name description')
+.then(data => {
+  if(userId){
+    res.json({result: true,
+      unlockedAchievements: data.unlockedAchievements
+    })
+  } else {
+    return res.status(404).json({result: false, error: "Vous n'êtes pas autorisé"})
+  }
+})
+.catch(err => {
+  console.error('Erreur lors du findByID :', err.message)
+    res.status(500).json({result: false, error: 'Erreur serveur lors de la recherche User'})
+  })
+}catch (error){
+  console.error("Erreur inattendue dans /unlocked achievement :", error.message)
+  res.status(500).json({result: false, error: "Erreur interne du serveur"})
+}
+})
+
+
 ///////////////////Routes PUT//////////////////////
 ///////// Give stats/achievements pour faire des tests en dev /////////
 router.post('/givStats', authenticateToken, (req,res) => {
@@ -266,28 +320,6 @@ try{
 })
 
 
-///////// GET top 3 best score by player///////////
-router.get('/topScores',  authenticateToken, async (req, res) =>{
-  try{
-    const userId = req.user.userId
 
-  if (!userId) {
-    return res.status(401).json({result: false, error:"Vous n'êtes pas autorisé."})
-  }
-
-  const topScoresDocs = await User.find()
-      .sort({ bestScore: -1 })
-      .limit(3)
-      .select('bestScore');
-
-    const topScores = topScoresDocs.map(doc => doc.bestScore);
-
-  return res.json({result : true, topScores : topScores});
-
-  }catch (error){
-    console.error("Erreur inattendue dans /delete :", error.message);
-    res.status(500).json({result: false, error: "Erreur interne du serveur"});
-  }
-});
 
 module.exports = router;
