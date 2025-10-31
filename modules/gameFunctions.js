@@ -2,7 +2,7 @@ const Card = require('../models/cards')
 const User = require('../models/users')
 const Ending = require('../models/endings')
 const Game = require('../models/games')
-
+const fs = require('fs')
 /*
 - sert a selectionner une carte random dans un tableau (collection Card)
 */
@@ -148,6 +148,30 @@ if ( diff < MIN_DAY_EVENT ) // 3 < 5
 
     return false
 }
+
+
+
+const buildConditionFilters = (game) => {
+    const conditionFilters = [];
+
+    Object.entries(game.stateOfGauges.toObject()).forEach(([gauges, value]) => {
+        if (gauges === '_id') return;
+        
+        const majGauges = gauges.charAt(0).toUpperCase() + gauges.slice(1);
+        const minGauge = `conditions.min${majGauges}`;
+        const maxGauge = `conditions.max${majGauges}`;
+
+        conditionFilters.push({
+            $and: [
+                { $or: [{ [minGauge]: { $exists: false } }, { [minGauge]: { $lte: value } }] },
+                { $or: [{ [maxGauge]: { $exists: false } }, { [maxGauge]: { $gte: value } }] }
+            ]
+        });
+    });
+
+    return { $and: conditionFilters};
+};
+
 /*
 - récupere la prochaine carte selon les filtres
 game = la partie en cours
@@ -188,32 +212,22 @@ const getNextCard = async (game, choiceSimp) => {
             filter.pool = { $in: game.currentScenarios };
         }
 
+        const conditionFilters = buildConditionFilters(game)
         
         // on combine exclu et filtre grace a $nin
         const combinedFilter = {
             _id: { $nin: exludedIds }, // <-- Find de card en excluant les IDs regroupés dans "exclude" grâce à $nin JE NE CONNAISSAIS PAS ! -->
-            ...filter  
+            ...filter,
+            ...conditionFilters  
         }
 
         // on filtre selon conditions 
-/*
-    Object.entries(game.stateOfGauges.toObject()).forEach(([key, value]) => { // Object.entries convertie l objet en tableau de paires ex ['security', 10]
-        //console.log('key: ',key ,' value: ',value)
-        // on transforme key pour qu'il commence par une maj parceque  minSecurity dans conditions 
-        const majKey = key.charAt(0).toUpperCase() + key.slice(1)
 
-        // créer cinditions min max equals si ya des conditions en place dans la cartes
-        combinedFilter[`conditions.min${majKey}`] = { $lt: value} // $lt logique mongoDb "less than strict"  ex = conditions.minSecurity dois etre < 40
-        combinedFilter[`conditions.max${majKey}`] = { $gt: value} // $gt logique mongoDb "greater than strict"  ex = conditions.manSecurity dois etre > 40
-    })
 
-        console.log("exludedIds:", exludedIds);
-console.log("filter:", filter);
-console.log("combinedFilter:", combinedFilter);
-*/
+
         // on recherche les cartes
         const cards = await Card.find(combinedFilter)
-
+        console.log('longueur de cards apres conditions : ',cards.length)
         if(cards.length === 0) {
             throw new Error('Aucune carte disponible')
         }
@@ -273,9 +287,22 @@ const prepareNewGame = async (userId) => {
         await activeGame.save()
     }
 
-    // on récup les cartes de démarrage
-    const cards = await Card.find({ pool: "general"});
+    const game = {
+        stateOfGauges:{
+        food: 50,
+        security: 50,
+        hunger: 50,
+        moral: 50,
+        health: 50,
+        toObject: function() { return this; }
+        }
+    };
 
+
+    const conditionFilters = buildConditionFilters(game)
+    // on récup les cartes de démarrage
+    const cards = await Card.find({ pool: "general",...conditionFilters});
+    console.log('nombre de cards au lancement du jeu : ',cards.lenght)
     // verif si ya des carte
         if (cards.length === 0) {
         throw new Error('Aucune carte de démarrage disponible');
@@ -291,6 +318,7 @@ module.exports = {
     checkGameOver,
     incrementDay,
     manageCardCooldown,
+    buildConditionFilters,
     getNextCard,
     endGame,
     prepareNewGame,

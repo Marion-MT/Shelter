@@ -171,12 +171,12 @@ router.post('/choice', authenticateToken, async (req,res) => {
         // check achievelents
        //console.log(game)
         const Achiev = await checkAchievements(user, game)
-        console.log(Achiev)
+        //console.log(Achiev)
         if(Achiev.success){
-            console.log('avant push: ',Achiev)
+          //  console.log('avant push: ',Achiev)
         game.currentAchievements.push(Achiev.events[0].params)
         game.markModified('currentAchievements')
-        console.log('apres push : ',game.currentAchievements)
+        //console.log('apres push : ',game.currentAchievements)
         await user.save()
         await game.save()
 
