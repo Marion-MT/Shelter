@@ -67,18 +67,29 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         })
         .then(response => response.json())
         .then(data=>{
-            //console.log('Data unlockedAchievement====>',data)
+            console.log('Data unlockedAchievement====>',data)
             setUnlockedAchievement(data.unlockedAchievements)
-            //console.log('unlockedAch.', unlockedAchievement)
+            console.log('unlockedAch.', unlockedAchievement)
         })
         .catch(err=>console.error('Erreur fetch Top Players', err))
     },[])
 
-    const succes = succesData.map((data, i)=> {
+    const sortedSuccesData=succesData.sort((a,b)=> {
+        const aUnlocked = unlockedAchievement.some(ach => ach.name === a.name);
+        const bUnlocked = unlockedAchievement.some(ach => ach.name === b.name);
+        // Si a est débloqué et pas b → a avant b
+        if(aUnlocked && !bUnlocked) return -1;
+          // Si b est débloqué et pas a → b avant a
+        if (!aUnlocked && bUnlocked) return 1;
+          // Sinon garder l'ordre initial
+        return 0;
+    })
+
+
+    const succes = sortedSuccesData.map((data, i)=> {
         const isUnlocked = unlockedAchievement.some(
-            (ach) => ach.name === data.name
-        )
-        return(
+            (ach) => ach.name === data.name)
+        return (
             <View
       key={i}
       style={isUnlocked ? styles.unlockedAchievement : styles.lockedAchievement}
@@ -87,9 +98,9 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         style={styles.icone}
         name={isUnlocked ? 'check-square-o' : 'square-o'}
         size={20}
-        color={'#352c2bb0'} // vert si débloqué
+        color={'#352c2bb0'}
       />
-      <View>
+        <View style={styles.textContainer}>
         <Text style={styles.name}>{data.name}</Text>
         <Text style={styles.description}>
           {data.description.endsWith('.') ? data.description : `${data.description}.`}
@@ -268,18 +279,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingBottom: 20,
   },
+
+  textContainer: {
+        flex: 1,
+  },
   name:{
         color:'#554946',
         fontSize:18,
         fontWeight: '400',
-        alignItems: 'flex-start', 
+        textAlign: 'left', 
         textTransform: 'capitalize',
+        
   },
   description:{
         color:'#554946',
         fontSize: 12,
         alignItems: 'flex-start',
         width: '100%',
+        textAlign: 'left', 
+
   },
   icone :{
     paddingRight: 10,
