@@ -38,6 +38,7 @@ const cardSchema = mongoose.Schema({
     text: {type:String, required:true},
     cooldown: { type: Number, default : 15 },
     incrementsDay: Boolean,
+    image: { type: String, default: 'general' },
     right: {
         type: choiceSchema,
         default: () => ({})
