@@ -16,7 +16,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reducers/user";
 
 import { Audio } from 'expo-av';
-import { getImageByType, getImageByPool } from '../modules/imagesSelector';
+import { getImage } from '../modules/imagesSelector';
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -271,9 +271,8 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         pool = currentCard.right.nextPool || currentCard.left.nextPool || 'event';
     }
 
-    //const keyParts = currentCard.key.split('-')
-    const image = getImageByPool(pool);
-
+    // Récupération de l'image à afficher sur la carte
+    const image = currentCard.image ? getImage(currentCard.image) : getImageByPool("");
 
     // Animation de clignotement quand la jauge de nourriture est vide
     useEffect(() => {
