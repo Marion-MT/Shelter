@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, Image, ImageBackground, Dimensions, TouchableOpacity  } from "react-native"
+import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity } from "react-native"
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
-import { useState, useCallback, useEffect, use } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -101,35 +101,35 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
             };
         }, [backgroundMusic])
     );
+
+    const resetGame = () => {
+        SetLocked(false);
+        setLastResponse(null);
+        setShowConsequence(false);
+        setConsequenceText(null);
+        setCurrentSide('center');
+        setTriggerReset(prev => !prev);
+    }
     
     useFocusEffect(
         useCallback(() => {
-            SetLocked(false);
-            setLastResponse(null);
-            setShowConsequence(false);
-            setConsequenceText(null);
-            setCurrentSide('center');
-            setTriggerReset(prev => !prev);
-
-
+            
+            resetGame();
 
              return () => {
-                SetLocked(false);
-                setLastResponse(null);
-                setShowConsequence(false);
-                setConsequenceText(null);
-                setCurrentSide('center');
-                setTriggerReset(prev => !prev);
+                resetGame();
             };
 
         }, [])
     );
     
 
+    // Met à jour le côté où est penchée la carte (right/left/middle)
     const handleSideChange = (side: string) : void => {
         setCurrentSide(side)
     }
 
+    // Déclenche le gameover
     const triggerGameover = (type: string, hook: string, phrase: string, description: string, achievements: [Object] ) => {
         setTimeout(() => {
             navigation.navigate('EndGame', { screen: 'EndGame', type: type, hook: hook, phrase: phrase, description: description, achievements: achievements  });
@@ -137,11 +137,13 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     }
 
   
-
+    // traite de choix une fois que le swipe est validé
     const handleChoice  = async () : Promise<void> => {
 
         try{
-            if(!showConsequence){
+            if(!showConsequence){ // Il n'y pas de conséquence à affichier pour la carte courante
+
+                // On envoie le choix au back
                 const response = await fetch(`${BACKEND_ADDRESS}/games/choice`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${user.token}`,
@@ -151,75 +153,76 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
                 const data = await response.json();
 
-                if(!data.result){
+                if(!data.result){ // Si pas de result, on déclenche le gameover pour ne pas bloquer le joueur dans la partie
                     triggerGameover("","","","",[{}]);
                     return;
                 }
 
-                //console.log(data);
+                console.log(data);
 
-                setLastResponse(data);
+                setLastResponse(data); // On stock la précédente réponse (qui contient la carte ou les infos du gameover, au cas où il y a une conséquence à afficher)
 
-                dispatch(setGauges(data.gauges));
+                dispatch(setGauges(data.gauges)); // Mise à jour des jauges dans le reducer
 
-                // get the consequences of the last Card played
+                // On vérifie s'il y a un texte de conséquence pour le choix validé
                 const cons = currentSide === 'right' ? currentCard?.right?.consequence : currentCard?.left?.consequence;
 
-                if (cons) { // Show the consequence
+                if (cons) { // Si oui, on montre le choix
                     setConsequenceText(cons);
                     setShowConsequence(true);
                     setTriggerReset(!triggerReset);
 
-                    return; // dont display next card !
+                    return; // on interromps le processus (la next card sera affichée au prochain swipe)
                 }
 
+                // Si gameover ets à true, on déclenche le game over et on interrompt le processus
                 if(data.gameover || !data.card){
                     //console.log(data.death.type + ' ' + data.death.title.hook + ' ' + data.death.title.phrase + ' ' + data.death.description);
                     triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description, data.achievements);
                     return;
                 }
 
-                dispatch(setCurrentNumberDays(data.numberDays));
-                SetLocked(true);
+                dispatch(setCurrentNumberDays(data.numberDays)); // Mise à jour du nombre de jours dans le reducer
+                SetLocked(true);    // On bloque les interractions pour le joueur le temps des animations
 
                 setTimeout(() => {
-                    dispatch(setCurrentCard(data.card));
+                    dispatch(setCurrentCard(data.card)); // on affiche la carte suivante après un délais de 100ms (pour éviter qu'on vois le changement de texte)
                 }, 100);
 
-                setTriggerReset(!triggerReset);
+                setTriggerReset(!triggerReset); // on déclenche le retournement de la carte
 
                  setTimeout(() => {
-                    SetLocked(false);
+                    SetLocked(false); // On débloque les interractions pour le joueur
                 }, 200);
             }
-            else{     // After the consequence
+            else{     // Une conséquence a été affiché, après le swipe, on reprend maintenant le cours normal de la partie
 
-                setConsequenceText(null);
+                setConsequenceText(null);  // on remet le text de conséquence à null
                 
 
-                if(lastResponse && (lastResponse.gameover || !lastResponse.card)){
+                if(lastResponse && (lastResponse.gameover || !lastResponse.card)){ // gestion du gameover
                     if(lastResponse.death)
                         triggerGameover(lastResponse.death.type, lastResponse.death.title.hook, lastResponse.death.title.phrase, lastResponse.death.description, lastResponse.achievements);
                     return;
                 }
 
-                SetLocked(true);
+                SetLocked(true); // on bloque les interractions le temps de l'animation
 
                 setTimeout(() => {
 
-                    if(lastResponse?.card){
+                    if(lastResponse?.card){ // on affiche la carte
                         dispatch(setCurrentCard(lastResponse.card));
                         dispatch(setCurrentNumberDays(lastResponse.numberDays));
                     }
 
 
-                    setShowConsequence(false);
+                    setShowConsequence(false); // on desactive le flag 'consequence'
                 }, 100);
 
-                setTriggerReset(!triggerReset);
+                setTriggerReset(!triggerReset); // on déclenche l'animation de la carte
 
                 setTimeout(() => {
-                    SetLocked(false);
+                    SetLocked(false); // on débloque les interractions
                 }, 200);
 
             }
@@ -229,28 +232,31 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         }
     }
 
+    // On valide le swipe à gauche
     const onSwipeLeft = () => {
-    setCurrentSide('left');
-    handleChoice();
+        setCurrentSide('left');
+        handleChoice();
     };
 
+    // On valide le swipe à droite
     const onSwipeRight = () => {
-    setCurrentSide('right');
-    handleChoice();
+        setCurrentSide('right');
+        handleChoice();
     };
 
     
-
+    // GESTION DE L'AFFICHAGE DES JAUGES
+    // On clamp les valeurs entre 0 et 100
     const hunger = Math.min(Math.max(user.stateOfGauges.hunger, 0), 100);
     const security = Math.min(Math.max(user.stateOfGauges.security, 0), 100);
     const health = Math.min(Math.max(user.stateOfGauges.health, 0), 100);
     const moral = Math.min(Math.max(user.stateOfGauges.moral, 0), 100);
     const food = Math.min(Math.max(user.stateOfGauges.food, 0), 100);
 
-    const deltaFoodGauge = 5;    // to shift the fill bar to the top and avoid to hide it behind the icon
+    const deltaFoodGauge = 5;    // on ajoute un petit décalage pour éviter que l'icone maque les valeurs basses de la jauge
     const newPercentFood = food === 0 ? 0 : deltaFoodGauge + food * (100 - deltaFoodGauge) / 100;
 
-
+    // gestion des rond indicateurs
     const hideIndicators = currentSide === 'center' || showConsequence || locked || lastResponse?.gameover;
 
     const hungerIndicator = hideIndicators? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.hunger || 0) : Math.abs(currentCard?.left?.effect.hunger || 0));
@@ -258,33 +264,45 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const healthIndicator = hideIndicators ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.health || 0) : Math.abs(currentCard?.left?.effect.health || 0));
     const moralIndicator = hideIndicators ? 0 : (currentSide === 'right' ?  Math.abs(currentCard?.right?.effect.moral || 0) : Math.abs(currentCard?.left?.effect.moral || 0));
 
-    // Image to display on the card
+    // Image à afficher sur la carte
     let pool = currentCard.right.trigger || currentCard.left.trigger || currentCard.pool;
 
     if(pool === 'event'){
         pool = currentCard.right.nextPool || currentCard.left.nextPool || 'event';
     }
 
-
     //const keyParts = currentCard.key.split('-')
     const image = getImageByPool(pool);
 
 
-    // Blick anim when food is empty
+    // Animation de clignotement quand la jauge de nourriture est vide
     useEffect(() => {
     if (food === 0) {
         foodBlink.value = withRepeat(
-        withTiming(0.5, { duration: 1000 }), // fade to 0 in 500ms
-        -1, // loop infinite
-        true // reverse
+        withTiming(0.5, { duration: 1000 }), //met 1s à jouer l'animation
+        -1, // boucle à l'infini
+        true // mode reverse
         );
     } else {
-        foodBlink.value = withTiming(1, { duration: 300 }); // return to normal
+        foodBlink.value = withTiming(1, { duration: 300 }); // retour à la normale quand la jauge n'est plus vide
     }
     }, [food]);
 
-    const foodBlinkStyle = useAnimatedStyle(() => ({
+    const foodBlinkStyle = useAnimatedStyle(() => ({  // style à appliquer sur la jauge pour afficher le clignotement
         opacity: foodBlink.value
+    }));
+
+    // mise à jour progressive de la jauge de nourriture quand elle est modifiée
+    const foodAnim = useSharedValue(newPercentFood);
+
+    useEffect(() => {
+        foodAnim.value = withTiming(newPercentFood, {
+            duration: 200
+        });
+    }, [newPercentFood]);
+
+    const foodAnimatedStyle = useAnimatedStyle(() => ({
+        width: `${foodAnim.value}%`
     }));
 
     return (
@@ -345,9 +363,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                         <View style={styles.foodGlobalContent}>
                             
                             <View style={[styles.foodBarContainer]}>
-                                <View style={[styles.foodBarFill, { width: `${newPercentFood}%`}]}>
-
-                                </View>
+                                <Animated.View style={[styles.foodBarFill, foodAnimatedStyle]} />
                             </View>
                             <Animated.Image source={require('../assets/icon-food.png')} style={[styles.foodIcon, foodBlinkStyle]} />
                         </View>

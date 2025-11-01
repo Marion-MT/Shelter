@@ -1,7 +1,13 @@
-import { StyleSheet, Image, View, Animated, ViewProps } from 'react-native';
+import { StyleSheet, Image, View } from 'react-native';
 import { FontAwesome } from "@expo/vector-icons";
 import { ImageSourcePropType } from 'react-native';
 import { useEffect, useRef } from 'react';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  interpolateColor,
+} from "react-native-reanimated";
 
 type GaugeProps = {
   icon: ImageSourcePropType;
@@ -16,27 +22,39 @@ export default function Gauge({ icon, color, percent, indicator, decrease } : Ga
     const delta = 5;    // to shift the fill bar to the top and avoid to hide it behind the icon
     const newPercent = percent === 0 ? 0 : delta + percent * (100 - delta) / 100;
 
-    const flashAnim = useRef(new Animated.Value(0)).current;
     const prevPercent = useRef(percent);    // to stock the previous percent (and compare with the current)
+    const gaugeAnim = useSharedValue(newPercent);   // hauteur jauge
+    const flashAnim = useSharedValue(0);            // blink rouge
 
-
-
+    // Animation flash rouge qui se déclenche quand la jauge tombe à zero
     useEffect(() => {
+  
+        // smooth transition hauteur
+        gaugeAnim.value = withTiming(newPercent, {
+            duration: 200,
+        });
 
-        if (percent <= 0 && prevPercent.current > 0) { // current percent just reach 0
-        Animated.sequence([
-            Animated.timing(flashAnim, { toValue: 1, duration: 200, useNativeDriver: false }),
-            Animated.timing(flashAnim, { toValue: 0, duration: 200, useNativeDriver: false })
-        ]).start();
+        // flash rouge si tombe à zéro
+        if (percent <= 0 && prevPercent.current > 0) {
+            flashAnim.value = 1;
+            flashAnim.value = withTiming(0, { duration: 300 });
         }
 
         prevPercent.current = percent;
     }, [percent]);
 
-  const backgroundColor = flashAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#554946', 'darkred'] // normal → red
-  });
+    const barStyle = useAnimatedStyle(() => ({
+        height: `${gaugeAnim.value}%`
+    }));
+
+    const flashStyle = useAnimatedStyle(() => ({
+        backgroundColor: interpolateColor(
+            flashAnim.value,
+            [0, 1],
+            ['#554946', 'darkred']
+        ),
+    }));
+
 
     // indicator
     let sizeIndicator = 0;
@@ -58,11 +76,8 @@ export default function Gauge({ icon, color, percent, indicator, decrease } : Ga
         {indicator > 0 && <FontAwesome name={'circle' as any} size={sizeIndicator} color='#ae9273' />}
         </View>
         <View style={styles.gaugeGlobalContent}>                                          
-            <Animated.View style={[styles.barContainer, { backgroundColor }]}>
-                <View style={[styles.barFill, { height: `${newPercent}%`, backgroundColor : color}]} >
-
-                </View>
-                
+            <Animated.View style={[styles.barContainer, flashStyle]}>
+                <Animated.View style={[styles.barFill, barStyle, { backgroundColor: color }]} />                
             </Animated.View>
             {decrease && <FontAwesome name={'caret-down' as any} style={styles.arrow} size={25} color='#ea4200ff' />}
             <Image source={icon} style={styles.icon} />
