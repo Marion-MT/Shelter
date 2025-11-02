@@ -25,7 +25,7 @@ async function checkAchievements(user, game, triggered) {
             if (ach) {
                 events.push({
                     type: 'achievement',
-                    params: { id: ach._id, name: ach.name, description: ach.description }
+                    params: { id: ach._id, name: ach.name, description: ach.description, image : ach.image }
                 });
             }
         }
