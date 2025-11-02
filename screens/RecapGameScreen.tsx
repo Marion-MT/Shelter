@@ -3,6 +3,7 @@ import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation
 import { useSelector, useDispatch } from "react-redux";
 import { setGameState, updateBestScore } from "../reducers/user";
 import { useCallback, useState } from "react";
+import Achievement from '../components/Achievement'
 
 type RecapGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -12,6 +13,7 @@ type Achievement = {
   id: string;
   name: string;
   description: string;
+  image: string;
 };
 
 type RecapGameRouteParams = {
@@ -28,6 +30,8 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
 
     const { achievements } = route.params;
 
+    console.log("achievements = ", achievements);
+
     // Update best score in reduce
     useFocusEffect(
         useCallback(() => {
@@ -42,15 +46,16 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
     );
     
     const succes = achievements.map((data, i)=> {
-    return(
+        return <Achievement key={i} name={data.name} description={data.description} image={data.image} isUnlocked={true}/>
+   /* return(
         <View key={i} style={styles.unlockedAchievement}>
             <View style={styles.textContainer}>
                 <Text style={styles.name}>{data.name}</Text>
                 <Text style={styles.description}>{data.description.endsWith('.') ? data.description : `${data.description}.`}</Text>
             </View>
         </View>
-    )
-})
+    )*/
+    });
 
     const checkScore = () => {
         if (newBestScore) {
@@ -164,7 +169,7 @@ const styles = StyleSheet.create({
     darkBackground:{
         backgroundColor : '#242120',
         width: '100%',
-        height: 550,
+        height: '85%',
         borderRadius: 20,
         padding: 12,
     },
@@ -268,37 +273,10 @@ const styles = StyleSheet.create({
     textContainer: {
         flex: 1,
     },
-    name:{
-        color:'#554946',
-        fontSize:18,
-        fontWeight: '400',
-        textAlign: 'left', 
-        textTransform: 'capitalize',
-        
-    },
-    description:{
-        color:'#554946',
-        fontSize: 12,
-        alignItems: 'flex-start',
-        width: '100%',
-        textAlign: 'left', 
-
-    },
-    unlockedAchievement :{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '90%',
-        backgroundColor: '#EFDAB7',
-        marginTop: 20,
-        marginRight: 10,
-        borderRadius: 10,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-   },
-     scrollView: {
+   
+    scrollView: {
         alignItems: 'center',
         paddingBottom: 20,
-        width: '85%'
+        width: '100%'
   },
 });

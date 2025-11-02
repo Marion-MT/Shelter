@@ -4,8 +4,11 @@ import { useSelector } from "react-redux";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ScrollView } from "react-native-gesture-handler";
 import { useEffect, useState } from "react";
+import Achievement from '../components/Achievement'
 
 import { useAudioPlayer } from 'expo-audio';
+
+import { getImage } from '../modules/imagesSelector';
 
 type SuccesScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -13,7 +16,8 @@ type SuccesScreenProps = {
 
 type achievements = {
     name: string;
-    description: string
+    description: string;
+    image: string;
 }
 
 
@@ -89,17 +93,28 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
     const succes = sortedSuccesData.map((data, i)=> {
         const isUnlocked = unlockedAchievement.some(
             (ach) => ach.name === data.name)
-        return (
+
+            return <Achievement key={i} name={data.name} description={data.description} image={data.image} isUnlocked={isUnlocked}/>
+       /* return (
             <View
       key={i}
       style={isUnlocked ? styles.unlockedAchievement : styles.lockedAchievement}
     >
-      <FontAwesome
+      {false && <FontAwesome
         style={styles.icone}
         name={isUnlocked ? 'check-square-o' : 'square-o'}
         size={20}
         color={'#352c2bb0'}
-      />
+      />}
+        <View style={styles.imageContainer}>
+            {isUnlocked ? <Image style={styles.image} source={getImage(data.image)}/> : 
+            <FontAwesome
+            style={styles.unlockIcon}
+            name='lock'
+            size={50}
+            color={'#352c2bb0'}
+        />}
+        </View>
         <View style={styles.textContainer}>
         <Text style={styles.name}>{data.name}</Text>
         <Text style={styles.description}>
@@ -107,7 +122,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         </Text>
       </View>
     </View>
-  );
+  );*/
 });
 
     const topPlayersList = topPlayers.map((score, i) => {
@@ -168,7 +183,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
             </View>
          )}
                         <View style={styles.achievement}>
-                            <Text style={styles.achievementText}>LISTE DES SUCCES</Text>
+                            <Text style={styles.achievementText}>LISTE DES SUCCÈS</Text>
                         </View>
                         <ScrollView contentContainerStyle={styles.scrollView}>
                         {succes}
@@ -211,7 +226,7 @@ const styles = StyleSheet.create({
     darkBackground:{
         backgroundColor : '#242120',
         width: '100%',
-        height: '90%',
+        height: '94%',
         borderRadius: 20,
         padding: 12,
     },
@@ -240,7 +255,7 @@ const styles = StyleSheet.create({
     days: {
         color: 'black',
         fontSize: 35,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
     },
     achievement: {
         marginTop: 20,
@@ -253,60 +268,14 @@ const styles = StyleSheet.create({
     },
     achievementText: {
         fontSize: 20,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
         color: '#EFDAB7',
     },  
-   lockedAchievement :{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '90%',
-        backgroundColor: '#efdab769',
-        marginTop: 20,
-        marginRight: 10,
-        borderRadius: 10,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-   },
-   unlockedAchievement :{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '90%',
-        backgroundColor: '#EFDAB7',
-        marginTop: 20,
-        marginRight: 10,
-        borderRadius: 10,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-   },
    scrollView: {
         alignItems: 'center',
         paddingBottom: 20,
-  },
-
-  textContainer: {
-        flex: 1,
-  },
-  name:{
-        color:'#554946',
-        fontSize:18,
-        fontWeight: '400',
-        textAlign: 'left', 
-        textTransform: 'capitalize',
-        
-  },
-  description:{
-        color:'#554946',
-        fontSize: 12,
-        alignItems: 'flex-start',
-        width: '100%',
-        textAlign: 'left', 
-
-  },
-  icone :{
-    paddingRight: 10,
-  },
+        width: '100%'
+    },
     tabContainer: {
         flexDirection: 'row',
         width: '100%',
@@ -328,12 +297,12 @@ const styles = StyleSheet.create({
     },
     tabText: {
         fontSize: 16,
-        fontWeight: '600',
+        fontFamily: 'ArialRounded',
         color: '#8B7355',
     },
     activeTabText: {
         color: '#EFDAB7',
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
     },
      
     
@@ -356,12 +325,12 @@ const styles = StyleSheet.create({
     rankNumber: {
         color: 'white',
         fontSize: 14,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
     },
     playerScore: {
         color: '#554946',
         fontSize: 24,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
     },
     emptyLeaderboard: {
         alignItems: 'center',
@@ -383,7 +352,7 @@ const styles = StyleSheet.create({
 leaderboardTitle: {
     color: '#EFDAB7',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'ArialRounded',
     textAlign: 'center',
     marginBottom: 10,
 },

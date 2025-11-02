@@ -60,10 +60,12 @@ export default function EndGameScreen({ navigation, route }: EndGameScreenProps 
                             </View>
                         </View>
                     </View>
-                </View>    
+
+                </View> 
                 <TouchableOpacity onPress={() => handleNavigate()} style={[styles.button, {backgroundColor: changeColor(type)}]} activeOpacity={0.8}>
-                <Text style={styles.btnText}>continuer</Text>
+                    <Text style={styles.btnText}>continuer</Text>
                 </TouchableOpacity>
+
             </ImageBackground>
         );
     };
@@ -76,15 +78,20 @@ export default function EndGameScreen({ navigation, route }: EndGameScreenProps 
         },
         main: {
             width: '100%',
+            height: '75%',
+            alignItems: 'center',
+            justifyContent: 'center',
             paddingHorizontal: 36,
-            paddingVertical: 30
+            paddingVertical: 30,
+            gap : 20
         },
         darkBackground:{
             backgroundColor : '#242120',
             width: '100%',
-            height: 600,
+            height: '100%',
             borderRadius: 20,
             padding: 12,
+
         },
         cardContainer: {
             flexDirection: 'column',

@@ -272,7 +272,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     }
 
     // Récupération de l'image à afficher sur la carte
-    const image = currentCard.image ? getImage(currentCard.image) : getImageByPool("");
+    const image = currentCard.image ? getImage(currentCard.image) : getImage("");
 
     // Animation de clignotement quand la jauge de nourriture est vide
     useEffect(() => {

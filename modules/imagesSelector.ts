@@ -1,6 +1,8 @@
-export function getImage(type : string){
+export function getImage(type : String){
 
     switch(type) {
+
+        // CARDS
         case 'alcool' :
             return require('../assets/pictures/icon-alcool.png');
         case 'attack' :
@@ -38,7 +40,7 @@ export function getImage(type : string){
         case 'night' :
             return require('../assets/pictures/icon-night.png');
         case 'outside' :
-            return require('../assets/pictures/icon-night.png');
+            return require('../assets/pictures/icon-outside.png');
         case 'radio' :
             return require('../assets/pictures/icon-radio.png');
         case 'radioactive' :
@@ -61,6 +63,21 @@ export function getImage(type : string){
             return require('../assets/pictures/icon-weapon.png');
         case 'drugs' :
             return require('../assets/pictures/icon-drugs.png');
+
+
+        // ACHIEVEMENT
+        case "survival-10": 
+            return require('../assets/pictures/icon-survival-10.png');
+        case "survival-20": 
+            return require('../assets/pictures/icon-survival-20.png');
+        case "survival-30": 
+            return require('../assets/pictures/icon-survival-30.png');
+        case "survival-50": 
+            return require('../assets/pictures/icon-survival-50.png');
+        case "survival-100": 
+            return require('../assets/pictures/icon-survival-100.png');
+        case "heart": 
+            return require('../assets/pictures/icon-heart.png');
         default:
             return require('../assets/pictures/icon-general.png');
             

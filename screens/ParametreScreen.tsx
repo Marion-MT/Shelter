@@ -235,9 +235,9 @@ const styles = StyleSheet.create({
     text: {
         color: '#FFE8BF',
         fontSize: 22,
-        fontWeight: 'bold',
         marginBottom: 15,
         marginTop: 25,
+        fontFamily: 'ArialRounded',
     },
     btnContainer: {
         width: 210,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     btnText: {
         color: '#FFE8BF',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
         textTransform: 'uppercase',
     },
     modalOverlay: {
@@ -299,13 +299,13 @@ const styles = StyleSheet.create({
     modalText: {
         color: '#FFE8BF',
         fontSize: 20,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
         textAlign: 'center',
     },
     modalText2: {
         color: '#FFE8BF',
         fontSize: 17,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
         textAlign: 'center',
     },
     btnContainerYes: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     modalBtnText: {
         color: '#FFE8BF',
         fontSize: 20,
-        fontWeight: 'bold',
         textTransform: 'uppercase',
+        fontFamily: 'ArialRounded',
     },
 });

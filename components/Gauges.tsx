@@ -1,6 +1,5 @@
-import { StyleSheet, Image, View } from 'react-native';
+import { StyleSheet, Image, View, ImageSourcePropType } from 'react-native';
 import { FontAwesome } from "@expo/vector-icons";
-import { ImageSourcePropType } from 'react-native';
 import { useEffect, useRef } from 'react';
 import Animated, {
   useAnimatedStyle,
