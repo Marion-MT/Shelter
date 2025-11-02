@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const achievementSchema = mongoose.Schema({
     name: String,
     description: String,
+    image: { type: String, default: '' },
     type: {
         type: String,
         enum: ['card', 'function', 'trigger'],
