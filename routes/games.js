@@ -168,9 +168,12 @@ router.post('/choice', authenticateToken, async (req,res) => {
             await game.save()
                    // console.log(game.usedCards)
 
+        // on récup les succès débloqué par trigger de carte
+        const triggeredAchievements = choiceSimp.triggerAchievement || []
+
         // check achievelents
        //console.log(game)
-        const Achiev = await checkAchievements(user, game)
+        const Achiev = await checkAchievements(user, game,triggeredAchievements)
         //console.log(Achiev)
         if(Achiev.success){
           //  console.log('avant push: ',Achiev)

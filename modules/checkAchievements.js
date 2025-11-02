@@ -1,7 +1,7 @@
 const { Engine } = require('json-rules-engine');
 const Achievement = require('../models/achievements');
 
-async function checkAchievements(user, game) {
+async function checkAchievements(user, game, triggered) {
     
     const engine = new Engine();   // <-- ici on creer une instance du moteur qui vas evaluer les régles 
 
@@ -15,6 +15,21 @@ async function checkAchievements(user, game) {
     _id: { $nin: unlockedIds }  // Ignore ceux déjà débloqués
     }); // <-- tu récuperes les régles ici 
 
+    const events = [];
+    
+    if (triggered && triggered.length > 0) {
+        for (const nameAchiv of triggered) {
+            console.log('Triggered Achievement Name:', nameAchiv);
+            const ach = achievements.find(a => a.cardKey === nameAchiv);
+            console.log('Triggered Achievement Found:', ach);
+            if (ach) {
+                events.push({
+                    type: 'achievement',
+                    params: { id: ach._id, name: ach.name, description: ach.description, image : ach.image }
+                });
+            }
+        }
+    }
 
     // le succès dois contenir obligatoirement une conditions (régles)  sous forma JSON
 
@@ -28,7 +43,7 @@ async function checkAchievements(user, game) {
 
     engine.addRule({
         conditions: ach.conditions,                 // tu ajoutes la regles dans le moteur 
-        event: {type: 'achievement', params: { id: ach._id , name : ach.name , description: ach.description} }       // tu lui dis quoi faire  quand la condition est vrai exemple "quand les conditions sont vrai, previens moi que le succès 'machin' est débloqué" 
+        event: {type: 'achievement', params: { id: ach._id , name : ach.name , description: ach.description, image : ach.image} }       // tu lui dis quoi faire  quand la condition est vrai exemple "quand les conditions sont vrai, previens moi que le succès 'machin' est débloqué" 
             })    
        
 }
@@ -39,8 +54,11 @@ async function checkAchievements(user, game) {
     stateOfGauges: game.stateOfGauges
    }
 
+   
    // le moteur lit les règles , verifie les conditions avec les "facts" et retourne les succès débloquer 
-   const { events } = await engine.run(facts) 
+   const { events: conditionEvents } = await engine.run(facts) 
+   
+   events.push(...conditionEvents);
 
    // verif si ya events et renvois false si ya rien 
     if(events.length === 0) {

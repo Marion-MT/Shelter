@@ -52,7 +52,7 @@ game = la partie en cours
 */
 
 const handleFamine = (game) => {
-    if(game.stateOfGauges.food <= 0 ) {
+    if(game.currentCard.incrementsDay && game.stateOfGauges.food <= 0 ) {
         game.stateOfGauges.hunger -= 10 
         game.markModified('stateOfGauges');
     }
@@ -155,7 +155,7 @@ const buildConditionFilters = (game) => {
     const conditionFilters = [];
 
     Object.entries(game.stateOfGauges.toObject()).forEach(([gauges, value]) => {
-        if (gauges === '_id') return;
+        if (gauges === '_id' || typeof value !== 'number') return
         
         const majGauges = gauges.charAt(0).toUpperCase() + gauges.slice(1);
         const minGauge = `conditions.min${majGauges}`;
@@ -181,9 +181,9 @@ choiceSimp = le choix fais (droite ou gauche)
 const getNextCard = async (game, choiceSimp) => {
 
     // cartes a exclure
-    const exludedIds =  game.usedCards.map(card => card._id)
+    const exludedIds =  game.usedCards.map(card => card.cardId)
 
-
+   // console.log('exludedIds: ',exludedIds)
     let filter = { }
 
     // rajout des filtre si event si non nextCard si non nextPool
@@ -227,7 +227,8 @@ const getNextCard = async (game, choiceSimp) => {
 
         // on recherche les cartes
         const cards = await Card.find(combinedFilter)
-        console.log('longueur de cards apres conditions : ',cards.length)
+       // console.log('id des carte:', cards.map(card => card._id))
+       // console.log('Nombres de cartes trouvées:', cards.length)
         if(cards.length === 0) {
             throw new Error('Aucune carte disponible')
         }
@@ -298,7 +299,7 @@ const prepareNewGame = async (userId) => {
         }
     };
 
-
+  console.log('1. Game créé');
     const conditionFilters = buildConditionFilters(game)
     // on récup les cartes de démarrage
     const cards = await Card.find({ pool: "general",...conditionFilters});
