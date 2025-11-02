@@ -25,6 +25,8 @@ export function getImage(type : String){
             return require('../assets/pictures/icon-fight.png');
         case 'foraging' :    
             return require('../assets/pictures/icon-foraging.png');
+        case 'garden' :    
+            return require('../assets/pictures/icon-garden.png');
         case 'general' :
             return require('../assets/pictures/icon-general.png');
         case 'gift' :

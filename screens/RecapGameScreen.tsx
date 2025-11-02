@@ -276,7 +276,9 @@ const styles = StyleSheet.create({
    
     scrollView: {
         alignItems: 'center',
-        paddingBottom: 20,
-        width: '100%'
-  },
+        justifyContent: 'center',
+        width: '100%',
+        gap: 10,
+        paddingTop : 10
+    },
 });

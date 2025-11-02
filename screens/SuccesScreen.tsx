@@ -170,7 +170,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         ) : (
             <View style={styles.leaderboardContainer}>
                 <Text style={styles.leaderboardTitle}>Top Scores</Text>
-                <ScrollView style={styles.leaderboardScroll} contentContainerStyle={styles.leaderboardContent}>
+                <ScrollView style={styles.leaderboardScroll} contentContainerStyle={styles.leaderboardContent} showsHorizontalScrollIndicator={false}>
                     {topPlayers.length === 0 ? (
                     <View style={styles.emptyLeaderboard}>
                         <FontAwesome name="users" size={30} color="#8B7355" />
@@ -273,8 +273,10 @@ const styles = StyleSheet.create({
     },  
    scrollView: {
         alignItems: 'center',
-        paddingBottom: 20,
-        width: '100%'
+        justifyContent: 'center',
+        width: '100%',
+        gap: 10,
+        paddingTop : 10
     },
     tabContainer: {
         flexDirection: 'row',

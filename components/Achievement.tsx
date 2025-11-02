@@ -26,7 +26,7 @@ export default function Achievement({ image, name, description, isUnlocked } : A
             </View>
             <View style={styles.textContainer}>
                 <Text style={styles.name}>{name}</Text>
-                <Text style={styles.description}> {description}</Text>
+                <Text style={styles.description}>{description}</Text>
           </View>
         </View>
       );
@@ -38,8 +38,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         width: '90%',
-        marginTop: 20,
-        marginRight: 10,
         borderRadius: 10,
         paddingVertical: 15,
         paddingRight: 5,
