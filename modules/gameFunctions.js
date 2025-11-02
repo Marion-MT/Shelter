@@ -52,7 +52,7 @@ game = la partie en cours
 */
 
 const handleFamine = (game) => {
-    if(game.stateOfGauges.food <= 0 ) {
+    if(game.currentCard.incrementsDay && game.stateOfGauges.food <= 0 ) {
         game.stateOfGauges.hunger -= 10 
         game.markModified('stateOfGauges');
     }
