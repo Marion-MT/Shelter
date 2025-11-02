@@ -28,7 +28,7 @@ async function checkAchievements(user, game) {
 
     engine.addRule({
         conditions: ach.conditions,                 // tu ajoutes la regles dans le moteur 
-        event: {type: 'achievement', params: { id: ach._id , name : ach.name , description: ach.description} }       // tu lui dis quoi faire  quand la condition est vrai exemple "quand les conditions sont vrai, previens moi que le succès 'machin' est débloqué" 
+        event: {type: 'achievement', params: { id: ach._id , name : ach.name , description: ach.description, image : ach.image} }       // tu lui dis quoi faire  quand la condition est vrai exemple "quand les conditions sont vrai, previens moi que le succès 'machin' est débloqué" 
             })    
        
 }
