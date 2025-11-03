@@ -12,20 +12,21 @@ const authenticateToken = require ('../middlewares/authMiddleWare')
       ////////Route Inscription////////
       router.post('/signup', (req, res) => {
         // Check si tous les champs sont copmplétés
-  if (!checkBody(req.body,['email','password'])) {
+  if (!checkBody(req.body,['email','password','username'])) {
     res.json({result: false, error:'Missing or empty fields'});
     return;
   }
   try {
-  const {email, password} = req.body;
+  const {email, username, password} = req.body;
     // Check si utilisateur déjà inscrit avant de créer un nouvel utilisateur
-  User.findOne({email})
+  User.findOne({username})
   .then(data =>{
     if (data === null) {
       // si l'utilisateur n'existe pas créationb nouvel utilisateur
       const hash = bcrypt.hashSync(password, 10);
       const newUser = new User({
         email,
+        username,
         password: hash, 
       })
       newUser.save()
@@ -42,7 +43,8 @@ const authenticateToken = require ('../middlewares/authMiddleWare')
         res.json({result: true, 
           token,
           user: {
-          email: data.email}
+          email: data.email,
+          username: data.username }
         })
       })
       .catch(err => {
@@ -51,7 +53,7 @@ const authenticateToken = require ('../middlewares/authMiddleWare')
       })
     } else {
       //si l'utilisateur existe déjà
-      res.json({result: false, error : 'User already exists'})
+      res.json({result: false, error : 'Username already exists'})
     }
   })
   .catch(err => {
@@ -69,13 +71,13 @@ const authenticateToken = require ('../middlewares/authMiddleWare')
       ////////Route Connexion////////
 
 router.post('/signin', (req, res) => {
-  if(!checkBody(req.body, ['email', 'password'])){
+  if(!checkBody(req.body, ['username', 'password'])){
     res.json({result: false, error : 'Missing or empty fields'});
     return;
   }
   try {
-  const {email, password} = req.body;
-  User.findOne({email}).then(data=>{
+  const {username, password} = req.body;
+  User.findOne({username}).then(data=>{
     if (data && bcrypt.compareSync(password, data.password)){
       //génération du token JWT
       const token= jwt.sign( 
@@ -92,6 +94,7 @@ router.post('/signin', (req, res) => {
         message: 'you are connected',
         user: {
           email: data.email,
+          username: data.username,
           bestScore: data.bestScore,
           currentGame: data.currentGame,
           settings: data.settings,
@@ -167,6 +170,7 @@ router.get('/data', authenticateToken, (req, res) =>{
     if (userId){
       res.json({result: true, 
         email: data.email,
+        username: data.username,
         bestScore: data.bestScore,
         currentGame: data.currentGame,
         settings: data.settings,
@@ -198,14 +202,18 @@ router.get('/topScores',  authenticateToken, async (req, res) =>{
   const topScoresDocs = await User.find()
       .sort({ bestScore: -1 })
       .limit(3)
-      .select('bestScore');
+      .select('username bestScore');
 
-    const topScores = topScoresDocs.map(doc => doc.bestScore);
+      const topScores = topScoresDocs.map((user, index) => ({
+      rank: index + 1,
+      username: user.username,
+      bestScore: user.bestScore
+    }));
 
   return res.json({result : true, topScores : topScores});
 
   }catch (error){
-    console.error("Erreur inattendue dans /delete :", error.message);
+    console.error("Erreur inattendue dans /topScores :", error.message);
     res.status(500).json({result: false, error: "Erreur interne du serveur"});
   }
 });

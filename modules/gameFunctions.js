@@ -149,26 +149,41 @@ if ( diff < MIN_DAY_EVENT ) // 3 < 5
     return false
 }
 
+/*
+- construit les filtres de conditions pour la recherche de carte
+game = la partie en cours
+renvoie un objet de filtre mongoose
+*/
 
 
 const buildConditionFilters = (game) => {
     const conditionFilters = [];
 
+    // pour chaque jauge du jeu créer avec Object.entries un tableau key value
     Object.entries(game.stateOfGauges.toObject()).forEach(([gauges, value]) => {
         if (gauges === '_id' || typeof value !== 'number') return
         
+        // Formate le gauges ex: "food" => "Food"
         const majGauges = gauges.charAt(0).toUpperCase() + gauges.slice(1);
-        const minGauge = `conditions.min${majGauges}`;
-        const maxGauge = `conditions.max${majGauges}`;
 
+        const minGauge = `conditions.min${majGauges}`; // ex: conditions.minFood
+        const maxGauge = `conditions.max${majGauges}`; // ex: conditions.maxFood
+
+        // construit le filtre pour chaque jauge
         conditionFilters.push({
-            $and: [
+            $and: [ // $and pour que les 2 conditions soient respectées
+                
+                // min: si pas de min défini ou si la valeur de la jauge est >= min
                 { $or: [{ [minGauge]: { $exists: false } }, { [minGauge]: { $lte: value } }] },
+
+                // max: si pas de max défini ou si la valeur de la jauge est <= max
                 { $or: [{ [maxGauge]: { $exists: false } }, { [maxGauge]: { $gte: value } }] }
+
             ]
         });
     });
 
+    // combine tous les filtres avec $and
     return { $and: conditionFilters};
 };
 
@@ -183,7 +198,7 @@ const getNextCard = async (game, choiceSimp) => {
     // cartes a exclure
     const exludedIds =  game.usedCards.map(card => card.cardId)
 
-   // console.log('exludedIds: ',exludedIds)
+
     let filter = { }
 
     // rajout des filtre si event si non nextCard si non nextPool
@@ -227,8 +242,7 @@ const getNextCard = async (game, choiceSimp) => {
 
         // on recherche les cartes
         const cards = await Card.find(combinedFilter)
-       // console.log('id des carte:', cards.map(card => card._id))
-       // console.log('Nombres de cartes trouvées:', cards.length)
+
         if(cards.length === 0) {
             throw new Error('Aucune carte disponible')
         }
@@ -299,11 +313,11 @@ const prepareNewGame = async (userId) => {
         }
     };
 
-  console.log('1. Game créé');
+
     const conditionFilters = buildConditionFilters(game)
     // on récup les cartes de démarrage
     const cards = await Card.find({ pool: "general",...conditionFilters});
-    console.log('nombre de cards au lancement du jeu : ',cards.lenght)
+
     // verif si ya des carte
         if (cards.length === 0) {
         throw new Error('Aucune carte de démarrage disponible');
