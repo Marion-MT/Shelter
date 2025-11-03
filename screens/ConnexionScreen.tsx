@@ -8,6 +8,8 @@ import { signin } from "../reducers/user";
 
 import Entypo from '@expo/vector-icons/Entypo';
 
+import AudioManager from '../modules/audioManager';
+
 
 type ConnexionScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -72,6 +74,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
         }
 
         const handleSignup = () => {
+            AudioManager.playEffect('click');
             setEmailError(false);
             setPasswordError('');
             setSignupError('');
@@ -133,7 +136,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                         autoCapitalize="none"
                         keyboardType='default'
                         autoComplete="username"
-                        onChangeText={(value) => {setUsername(value); SetSigninError('')}}
+                        onChangeText={(value) => {AudioManager.playEffect('click'); setUsername(value); SetSigninError('')}}
                         value={username}
                     />
 
@@ -146,7 +149,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                             autoCorrect = {false}
                             keyboardType="default"
                             secureTextEntry={!isPWDVisible}
-                            onChangeText={(value) => {setPassword(value); SetSigninError('')}}
+                            onChangeText={(value) => {AudioManager.playEffect('click'); setPassword(value); SetSigninError('')}}
                             value={password}
                         />
                         <TouchableOpacity style={styles.eyeButton} onPress={()=>setIsPWDvisible(!isPWDVisible)}>
@@ -155,11 +158,11 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                     </View>
                     {signinError && <Text style={styles.error}>{signinError}</Text>}
 
-                    <TouchableOpacity onPress={() => handleSignin()} style={styles.button} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); handleSignin()}} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.buttonText}>Go</Text>
                     </TouchableOpacity>
                     <Text style={styles.title2}>Pas encore de compte ?</Text>
-                    <TouchableOpacity onPress={() => {setIsSignupVisible(true); setUsername(''); setPassword('')}} style={styles.button} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); setIsSignupVisible(true); setUsername(''); setPassword('')}} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.buttonText}>Créer un compte</Text>
                     </TouchableOpacity>
                     <Modal
@@ -213,7 +216,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                     <TouchableOpacity style={styles.btn} onPress={handleSignup}>
                                         <Text style={styles.buttonTextModal}>Valider</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.btn} onPress={()=> {setIsSignupVisible(false); setEmailSignup(''); setUsernameSignup(''); setPasswordSignup('')}}>
+                                    <TouchableOpacity style={styles.btn} onPress={()=> {AudioManager.playEffect('click'); setIsSignupVisible(false); setEmailSignup(''); setUsernameSignup(''); setPasswordSignup('')}}>
                                         <Text style={styles.buttonTextModal}>Annuler</Text>
                                     </TouchableOpacity>
                                 </View>

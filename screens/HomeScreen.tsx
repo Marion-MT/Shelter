@@ -5,7 +5,7 @@ import { setGameState, setUserData, signout } from "../reducers/user";
 import { useCallback, useState } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 
-import { useAudioPlayer } from 'expo-audio';
+import AudioManager from '../modules/audioManager';
 
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -13,23 +13,11 @@ type HomeScreenProps = {
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
-// Importation du fichier audio
-const audioSource = require('../assets/sounds/button-clic-v1.mp3');
-
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
     const [currentGame, setCurrentGame] = useState(false);
     
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
-
-    // Initialisation du fichier audio
-    const player = useAudioPlayer(audioSource);
-    
-    // Fonction pour que le son puisse être joué à chaque appel
-    const playSound = () => {
-        player.seekTo(0); // Remet le son au début (permet de jouer le son plusieurs fois)
-        player.play();
-    };
 
     useFocusEffect(
         useCallback(() => {
@@ -66,7 +54,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                 console.log('Error:', data.error);
                 return;
             } else {
-                playSound();
+                AudioManager.playEffect('click');
                 dispatch(setGameState({ stateOfGauges: data.currentGame.stateOfGauges, numberDays: data.currentGame.numberDays, currentCard: data.currentGame.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             }
@@ -85,7 +73,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
                 console.log('Error:', data.error);
                 return;
             } else {
-                playSound();
+                AudioManager.playEffect('click');
                 dispatch(setGameState({ stateOfGauges: data.game.stateOfGauges, numberDays: data.game.numberDays, currentCard: data.game.currentCard }));
                 navigation.navigate('Game', { screen: 'Game' });
             };
@@ -93,23 +81,23 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     };
 
     const handleNavigateParametres = () => {
-        playSound();
+        AudioManager.playEffect('click');
         navigation.navigate('Parametre', { screen: 'Parametre' });
     };
 
     const handleNavigateSucces = () => {
-        playSound();
+        AudioManager.playEffect('click');
         navigation.navigate('Succes', { screen: 'Succes' });
     };
 
     const handleNavigateCredit = () => {
-        playSound();
+        AudioManager.playEffect('click');
         navigation.navigate('Credit', { screen: 'Credit' });
     };
 
     const handleLogout = () => {
         //console.log("pré-signout", user)
-        playSound();
+        AudioManager.playEffect('click');
         dispatch(signout())
         navigation.navigate('Connexion', { screen: 'ConnexionScreen' });
     };

@@ -4,6 +4,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { useEffect } from 'react';
+import AudioManager from './modules/audioManager';
+
 import ConnexionScreen from './screens/ConnexionScreen';
 import CreditScreen from './screens/CreditScreen';
 import EndGameScreen from './screens/EndGameScreen';
@@ -50,6 +53,11 @@ import { useFonts } from 'expo-font';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
+  useEffect(() => {
+    AudioManager.preloadAll(); // charge la musique + effets
+    return () => AudioManager.unloadAll();
+  }, []);
 
   const [loaded, error] = useFonts({
     DaysLater: require('./assets/fonts/28 Days Later.ttf'),

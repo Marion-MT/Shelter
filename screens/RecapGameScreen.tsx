@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setGameState, updateBestScore } from "../reducers/user";
 import { useCallback, useState } from "react";
 import Achievement from '../components/Achievement'
+import AudioManager from '../modules/audioManager';
 
 type RecapGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -115,6 +116,7 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
     };
 
     const handleNavigateHome = () => {
+        AudioManager.playEffect('click');
         navigation.navigate('Home', { screen: 'Home' });
     };
 
@@ -131,6 +133,7 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
                     console.log('Error:', data.error);
                     return;
                 } else {
+                    AudioManager.playEffect('click');
                     dispatch(setGameState({ stateOfGauges: data.game.stateOfGauges, numberDays: data.game.numberDays, currentCard: data.game.currentCard }));
                     navigation.navigate('Game', { screen: 'Game' });
                 };

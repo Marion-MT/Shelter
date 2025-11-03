@@ -15,7 +15,7 @@ import AnimatedCard from '../components/AnimatedCard';
 import { useSelector, useDispatch } from "react-redux";
 import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reducers/user";
 
-import { Audio } from 'expo-av';
+import AudioManager from "../modules/audioManager";
 import { getImage } from '../modules/imagesSelector';
 
 type GameScreenProps = {
@@ -66,40 +66,16 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         
     const foodBlink = useSharedValue(1);
 
-    const [backgroundMusic, setBackgroundMusic] = useState<Audio.Sound | null>(null);
-
-    // Fonction pour charger et jouer la musique de fond
-  const loadBackgroundMusic = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/inhuman-post-apocalyptic-dark-ambient.mp3'),
-        { isLooping: true, volume: 0.25 }
-        );
-        setBackgroundMusic(sound);
-        console.log(backgroundMusic);
-        
-        await sound.playAsync();
-    };
-
-    // Charge et lance la musique au montage du composant
-    useEffect(() => {
-        loadBackgroundMusic();
-        
-        return () => {
-            if (backgroundMusic) {
-                backgroundMusic.unloadAsync();
-            }
-        };
-    }, []);
-
-    // Arrêter la musique lorsque l'utilisateur change d'écran
     useFocusEffect(
         useCallback(() => {
+            
+            AudioManager.playBackground();
+
             return () => {
-                if (backgroundMusic) {
-                    backgroundMusic.stopAsync();
-                }
-            };
-        }, [backgroundMusic])
+                AudioManager.pauseBackground();
+            }
+
+        }, [])
     );
 
     const resetGame = () => {

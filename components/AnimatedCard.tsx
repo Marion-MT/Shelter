@@ -17,6 +17,14 @@ import Animated, {
 import { ViewStyle } from 'react-native';
 
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import AudioManager from '../modules/audioManager';
+
+// a voir avec marion ou les placés
+// au scroll
+AudioManager.playEffect('scroll');
+// à la validation
+AudioManager.playEffect('validate');
+
 
 const { width } = Dimensions.get("window");
 const SWIPE_THRESHOLD = width * 0.25;

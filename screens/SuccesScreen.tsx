@@ -6,7 +6,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useEffect, useState } from "react";
 import Achievement from '../components/Achievement'
 
-import { useAudioPlayer } from 'expo-audio';
+import AudioManager from '../modules/audioManager';
 
 import { getImage } from '../modules/imagesSelector';
 
@@ -27,8 +27,6 @@ type TopPlayer = {
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
-const audioSource = require('../assets/sounds/button-clic-v1.mp3');
-
 export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
     const [succesData, setSuccesData] = useState<achievements[]>([]);
@@ -36,14 +34,6 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
     const [activeTab, setActiveTab] = useState<'personnal'| 'leaderboard'>('leaderboard');
     const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([])
 
-    // Initialisation du fichier audio
-    const player = useAudioPlayer(audioSource);
-    
-    // Fonction pour que le son puisse être joué à chaque appel
-    const playSound = () => {
-        player.seekTo(0); // Remet le son au début (permet de jouer le son plusieurs fois)
-        player.play();
-    };
 
     useEffect(()=>{
         //fetch des succès
@@ -157,7 +147,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => {
-          playSound();
+          AudioManager.playEffect('click');
           navigation.navigate('Home', { screen: 'Menu' });
         }}
       >
@@ -172,7 +162,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
             <TouchableOpacity
               style={[styles.tab, activeTab === 'personnal' && styles.activeTab]}
               onPress={() => {
-                playSound();
+                AudioManager.playEffect('click');
                 setActiveTab('personnal');
               }}
             >
@@ -184,7 +174,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
             <TouchableOpacity
               style={[styles.tab, activeTab === 'leaderboard' && styles.activeTab]}
               onPress={() => {
-                playSound();
+                AudioManager.playEffect('click');
                 setActiveTab('leaderboard');
               }}
             >

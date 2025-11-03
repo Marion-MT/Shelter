@@ -4,6 +4,8 @@ import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import Gauge from "../components/Gauges";
 import { useSelector } from "react-redux";
 
+import AudioManager from '../modules/audioManager';
+
 type EndGameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
@@ -21,6 +23,7 @@ export default function EndGameScreen({ navigation, route }: EndGameScreenProps 
     const user = useSelector((state: string) => state.user.value);
 
     const handleNavigate = () => {
+        AudioManager.playEffect('click');
         navigation.navigate('RecapGame', { screen: 'RecapGame', achievements: achievements });
     };
     

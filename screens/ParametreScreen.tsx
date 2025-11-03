@@ -6,15 +6,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateBestScore } from "../reducers/user";
 import { FontAwesome } from "@expo/vector-icons";
 
-import { useAudioPlayer } from 'expo-audio';
+import AudioManager from '../modules/audioManager';
 
 type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
-
-const audioSource = require('../assets/sounds/button-clic-v1.mp3');
 
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [volume, setVolume] = useState(50);
@@ -27,15 +25,6 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
 
-    // Initialisation du fichier audio
-    const player = useAudioPlayer(audioSource);
-    
-    // Fonction pour que le son puisse être joué à chaque appel
-    const playSound = () => {
-        player.seekTo(0); // Remet le son au début (permet de jouer le son plusieurs fois)
-        player.play();
-    };
-
     const toggleSound = () => {
         setSoundEnabled(!soundEnabled);
         setSoundText(soundEnabled ? 'OFF' : 'ON');
@@ -47,7 +36,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     };
    
     const handleNavigate = () => {
-        playSound();
+        AudioManager.playEffect('click');
         navigation.navigate('Home', { screen: 'Home' });
     };
 
@@ -76,7 +65,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => {playSound(); handleNavigate();}}>
+                <TouchableOpacity style={styles.backButton} onPress={() => {AudioManager.playEffect('click'); handleNavigate();}}>
                     <Image source={require('../assets/icon-arrow.png')} style={styles.leftArrow} />
                 </TouchableOpacity>
             </View>
@@ -120,7 +109,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 />
                             </View>
                         </View>
-                        <TouchableOpacity onPress={() => {playSound(); setModalVisible(true);}}>
+                        <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); setModalVisible(true);}}>
                             <View style={styles.btnContainer}>
                                 <Text style={styles.btnText}>réinitialisation</Text>
                                 <Text style={styles.btnText}>du compte</Text>
@@ -142,12 +131,12 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                         </View>
                                         
                                         <View style={styles.modalBtns}>
-                                            <TouchableOpacity onPress={() => {playSound(); setModalVisible(false);}}>
+                                            <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); setModalVisible(false);}}>
                                                 <View style={styles.btnContainerNo}>
                                                     <Text style={styles.modalBtnText}>Non</Text>
                                                 </View>
                                             </TouchableOpacity>   
-                                            <TouchableOpacity onPress={() => {playSound(); handleResetAccount(); setModalVisible(false);}}>
+                                            <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); handleResetAccount(); setModalVisible(false);}}>
                                                 <View style={styles.btnContainerYes}>
                                                     <Text style={styles.modalBtnText}>Oui</Text>
                                                 </View>

@@ -1,33 +1,23 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Image } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
-import { useAudioPlayer } from 'expo-audio';
+import AudioManager from '../modules/audioManager';
 
 type CreditScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
-const audioSource = require('../assets/sounds/button-clic-v1.mp3');
-
 export default function CreditScreen({ navigation }: CreditScreenProps ) {
-
-    // Initialisation du fichier audio
-    const player = useAudioPlayer(audioSource);
-    
-    // Fonction pour que le son puisse être joué à chaque appel
-    const playSound = () => {
-        player.seekTo(0); // Remet le son au début (permet de jouer le son plusieurs fois)
-        player.play();
-    };
    
     const handleNavigate = () => {
-        navigation.navigate('Home', { screen: 'Home' });
+        AudioManager.playEffect('click')
+        navigation.navigate('Home', { screen: 'Menu' });
     };
 
     return (
         <ImageBackground source={require('../assets/background.jpg')} resizeMode="cover" style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => {playSound(); navigation.navigate('Home', { screen: 'Menu'});}}>
+                <TouchableOpacity style={styles.backButton} onPress={() => handleNavigate()}>
                     <Image source={require('../assets/icon-arrow.png')} style={styles.leftArrow} />
                 </TouchableOpacity>
             </View>
