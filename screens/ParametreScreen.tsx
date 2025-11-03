@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         height: undefined,
         width : '100%',
         paddingHorizontal: 40,
-        paddingTop: 30,
+        paddingTop: 40,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 36,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        marginTop: 50
+        marginTop: 40
     },
     arrow: {
         width: 75,
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     darkBackground:{
         backgroundColor : '#242120',
         width: '100%',
-        height: '82%',
+        height: '88%',
         borderRadius: 20,
         padding: 12,
     },

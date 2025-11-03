@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
         height: undefined,
         width : '100%',
         paddingHorizontal: 40,
-        paddingTop: 30,
+        paddingTop: 40,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
@@ -306,8 +306,6 @@ const styles = StyleSheet.create({
         color: '#EFDAB7',
         fontFamily: 'ArialRounded',
     },
-     
-    
     podiumItem: {
         borderWidth: 2,
         borderColor: '#FFD700',

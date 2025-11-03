@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     darkBackground:{
         backgroundColor : '#242120',
         width: '100%',
-        height: '85%',
+        height: '90%',
         borderRadius: 20,
         padding: 12,
     },
@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '100%',
         gap: 10,
-        paddingTop : 10
+        paddingTop : 10,
+        paddingBottom: 1
     },
 });
