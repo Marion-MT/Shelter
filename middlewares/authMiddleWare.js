@@ -12,8 +12,7 @@ const authenticateToken = (req, res, next) => {
 
     // Vérifier et décoder le token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    //le console.log devoded donne : l'userId + iat (stampmark du début du token) + exp (date expiraion du token) => valeur numérique UNIX (nb de secondes écoulées depuis le 01/01/1970)
-    console.log('JWT decode payload: ', decoded)
+   
     // Ajouter les infos du user à la requête pour les routes suivantes
     req.user = {
       userId: decoded.id
@@ -23,7 +22,7 @@ const authenticateToken = (req, res, next) => {
     next();
     
   } catch (error) {
-    console.error('JWT error:', error)
+
     return res.json({ result: false, error: 'Token invalide ou expiré' });
   }
 };

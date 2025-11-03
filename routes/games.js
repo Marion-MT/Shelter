@@ -24,7 +24,7 @@ const Achievement = require('../models/achievements');
 /* nouvelle games */
 router.post('/new', authenticateToken, async (req, res) => {
  try {
-    //console.log('User du middleWare: ', req.user)
+
 const userId = req.user.userId
 
    // prépare une nouvelle game et la first carte
@@ -43,12 +43,12 @@ const userId = req.user.userId
     // MAJ historique avec verif de doublon + currentGame
     const user = await User.findById(userId)
 
-   //console.log('User de la bd : ' ,user)
-   /*
+   
         if(!user) {
             return res.json({ result : false , error: ' Utilisateur non trouvé'})
         }
-        if(!user.historicGames.includes(newGame._id)){
+        
+       /* if(!user.historicGames.includes(newGame._id)){
             user.historicGames.push(newGame._id)
         }
 */
@@ -98,7 +98,6 @@ router.get('/current', authenticateToken, async (req,res) => {
         return res.json({ result:false , error: 'Aucune game en cours'})
     }
 
-    //console.log( 'current card: ' , currentCard)
     return res.json({ result: true , currentGame: user.currentGame})
     } catch (err) {
         return res.json({ result: false, error: err.message})
@@ -140,9 +139,6 @@ router.post('/choice', authenticateToken, async (req,res) => {
         
         // on récup la game en cours
         const game = user.currentGame
-        
-        //const achievementsCurrentGame = game.currentAchievements
-            //console.log(Object.keys(effects))
 
             // on applique les effets
         applyChoiceEffects(game,choiceSimp)           
@@ -166,20 +162,18 @@ router.post('/choice', authenticateToken, async (req,res) => {
                 await manageCardCooldown(game)
                     }
             await game.save()
-                   // console.log(game.usedCards)
 
         // on récup les succès débloqué par trigger de carte
         const triggeredAchievements = choiceSimp.triggerAchievement || []
 
         // check achievelents
-       //console.log(game)
         const Achiev = await checkAchievements(user, game,triggeredAchievements)
-        //console.log(Achiev)
+
         if(Achiev.success){
-          //  console.log('avant push: ',Achiev)
+
         game.currentAchievements.push(Achiev.events[0].params)
         game.markModified('currentAchievements')
-        //console.log('apres push : ',game.currentAchievements)
+
         await user.save()
         await game.save()
 
@@ -193,12 +187,9 @@ router.post('/choice', authenticateToken, async (req,res) => {
         game.currentCard = nextCard._id
         await game.save()
 
-        //console.log(' filter card: ',cardsfilter)
-
         // on recup game populate pour la reponse
         const populatedGame = await Game.findById(game._id).populate('currentCard')
         
-        //console.log(Achiev)
     return res.json({ 
         result : true ,
         gameover: false ,
