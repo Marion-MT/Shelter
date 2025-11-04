@@ -12,7 +12,8 @@ import Animated, {
   runOnJS,
   Layout,
   FadeIn,
-  FadeOut
+  FadeOut,
+  LinearTransition
 } from "react-native-reanimated";
 import { ViewStyle } from 'react-native';
 
@@ -139,7 +140,6 @@ export default function AnimatedCard({ image, isConsequence, leftChoiceText, rig
   }));
 
 
-
 // get the information of the swipe side
 const [swipeSide, setSwipeSide] = useState<'left' | 'right' | 'center'>('center');
 
@@ -172,8 +172,8 @@ useAnimatedReaction(
             </View>
 
             <Animated.View
-              layout={Layout.duration(100)} // smooth animation of the text section
-              style={styles.textSection}
+              layout={LinearTransition.duration(100)} // smooth animation of the text section
+              style={[styles.textSection, {paddingVertical : swipeSide === 'center' ? 0 : 16}]}
             >
               {swipeSide !== 'center' &&
                 <Animated.Text  // smooth fade on the text

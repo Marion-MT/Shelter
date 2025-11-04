@@ -48,10 +48,7 @@ const store = configureStore({
 
 const persistor = persistStore(store);
 
-export { store }
-
 import { useFonts } from 'expo-font';
-
 
 
 const Stack = createNativeStackNavigator();
@@ -59,9 +56,29 @@ const Stack = createNativeStackNavigator();
 export default function App() {
 
 
+  // Charge les sons + synchronise avec Redux
   useEffect(() => {
-    AudioManager.preloadAll(); // charge la musique + effets
-    return () => AudioManager.unloadAll();
+    (async () => {
+      await AudioManager.preloadAll();
+
+      const state = store.getState().user.value;
+      AudioManager.setMusicMuted(!state.soundOn);
+      AudioManager.setEffectsMuted(!state.btnSoundOn);
+      AudioManager.setMusicVolume(state.volume);
+    })();
+
+    // Écoute automatique des changements Redux
+    const unsubscribe = store.subscribe(() => {
+      const { soundOn, btnSoundOn, volume } = store.getState().user.value;
+      AudioManager.setMusicMuted(!soundOn);
+      AudioManager.setEffectsMuted(!btnSoundOn);
+      AudioManager.setMusicVolume(volume);
+    });
+
+    return () => {
+      unsubscribe();
+      AudioManager.unloadAll();
+    };
   }, []);
 
   const [loaded, error] = useFonts({

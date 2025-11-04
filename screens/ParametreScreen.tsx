@@ -1,13 +1,18 @@
-import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpacity, Modal } from "react-native"
+import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpacity, Modal, Alert } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Slider, Switch } from '@rneui/themed';
+<<<<<<< HEAD
 import { fetchWithAuth } from "../components/fetchWithAuth";
 import { useState } from "react";
+=======
+import { useState, useEffect } from "react";
+>>>>>>> 9796f720b164e7e93133b976905a7b2fef20fb82
 import { useSelector, useDispatch } from "react-redux";
 import { updateBestScore } from "../reducers/user";
 import { FontAwesome } from "@expo/vector-icons";
 
 import AudioManager from '../modules/audioManager';
+import { updateSettings } from "../reducers/user";
 
 type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -15,25 +20,89 @@ type ParametreScreenProps = {
 
 
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
-    const [volume, setVolume] = useState(50);
-    const [soundEnabled, setSoundEnabled] = useState(true);
+    const user = useSelector((state: string) => state.user.value);
+
+    const [volume, setVolume] = useState(user.volume);
+    const [soundEnabled, setSoundEnabled] = useState(user.soundOn);
     const [soundText, setSoundText] = useState('');
-    const [soundClicEnabled, setSoundClicEnabled] = useState(true);
+    const [soundClicEnabled, setSoundClicEnabled] = useState(user.btnSoundOn);
     const [soundClicText, setSoundClicText] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
 
-    const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
 
+    // vérifie l'envoie des donnée dans la console
+    useEffect(() => {
+     console.log("user store update =>", 'Volume:',user.volume, 'Musique:',user.soundOn, 'Bruitage:',user.btnSoundOn);
+    }, [user]);
+
+    useEffect(() => {
+        setVolume(user.volume);
+        setSoundEnabled(user.soundOn);
+        setSoundClicEnabled(user.btnSoundOn);
+        setSoundText(user.soundOn ? 'ON' : 'OFF');
+        setSoundClicText(user.btnSoundOn ? 'ON' : 'OFF');
+    }, [user]);
+
+
+    const handleVolumeChange = (value: number) => {
+        setVolume(value);
+        AudioManager.setMusicVolume(value); // modifie le volume de la musique
+        dispatch(updateSettings({ volume: value }));
+    };
+
     const toggleSound = () => {
-        setSoundEnabled(!soundEnabled);
-        setSoundText(soundEnabled ? 'OFF' : 'ON');
+        const newState = !soundEnabled;
+        setSoundEnabled(newState);
+        setSoundText(newState ? 'ON' : 'OFF');
+        AudioManager.setMusicMuted(!newState); // mute/démute la musique
+        dispatch(updateSettings({ soundOn: newState }));
     };
 
     const toggleSoundClic = () => {
-        setSoundClicEnabled(!soundClicEnabled);
-        setSoundClicText(soundClicEnabled ? 'OFF' : 'ON');
+        const newState = !soundClicEnabled;
+        setSoundClicEnabled(newState);
+        setSoundClicText(newState ? 'ON' : 'OFF');
+        AudioManager.setEffectsMuted(!newState); // mute/démute les bruitages
+        dispatch(updateSettings({ btnSoundOn: newState }));
     };
+
+    const handleSaveSettings = async () => {
+    try {
+        const response = await fetch(`${BACKEND_ADDRESS}/users/settings`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+            volume,
+            soundOn: soundEnabled,
+            btnSoundOn: soundClicEnabled,
+        }),
+        });
+
+        const data = await response.json();
+
+        if (data.result) {
+        dispatch(updateSettings({
+            volume: data.settings.volume,
+            soundOn: data.settings.soundOn,
+            btnSoundOn: data.settings.btnSoundOn,
+        }));
+        AudioManager.setMusicMuted(!data.settings.soundOn);
+        AudioManager.setEffectsMuted(!data.settings.btnSoundOn);
+        AudioManager.setMusicVolume(data.settings.volume);
+
+        Alert.alert('Paramètres sauvegardés')
+            } else {
+            console.log('Erreur côté serveur :', data.error);
+            }
+        } catch (error) {
+            console.error('Erreur de requête PUT /settings :', error);
+        }
+    };
+
    
     const handleNavigate = () => {
         AudioManager.playEffect('click');
@@ -48,7 +117,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
         .then(data => {
             if (data.result === true) {
                 dispatch(updateBestScore(data.bestScore));
-                console.log('Compte réinitialisé avec succès');
+                Alert.alert('Compte réinitialisé avec succès')
                 return;
             } else {
                 console.log('Échec de la réinitialisation du compte');
@@ -76,7 +145,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                             <Text style={styles.text}>Volume : {volume}</Text>
                             <Slider
                                 value={volume}
-                                onValueChange={setVolume}
+                                onValueChange={handleVolumeChange}
                                 maximumValue={100}
                                 minimumValue={0}
                                 step={2}
@@ -108,6 +177,12 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                 />
                             </View>
                         </View>
+                        <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); handleSaveSettings()}}>
+                            <View style={styles.btnContainerSave}>
+                                <Text style={styles.btnText}>Sauvegarder</Text>
+                                <Text style={styles.btnText}>les paramètres</Text>
+                            </View>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); setModalVisible(true);}}>
                             <View style={styles.btnContainer}>
                                 <Text style={styles.btnText}>réinitialisation</Text>
@@ -215,7 +290,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'stretch',
         width: '80%',
-        paddingTop :30
+        paddingTop :20
     },
     volumeSlider: {
         width: '100%',
@@ -232,11 +307,23 @@ const styles = StyleSheet.create({
         height: 80,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#242120',
+        backgroundColor: '#D05A34',
         borderColor: 'black',
         borderWidth: 1.5,
         borderRadius: 12,
-        marginBottom: 25,
+        marginBottom: 15,
+    },
+    btnContainerSave: {
+        width: 210,
+        height: 80,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#74954E',
+        borderColor: 'black',
+        borderWidth: 1.5,
+        borderRadius: 12,
+        marginBottom: 5,
+        marginTop: 15,
     },
     btnText: {
         color: '#FFE8BF',
