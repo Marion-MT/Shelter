@@ -213,7 +213,7 @@ useEffect(() => {
                     <Text style={styles.text}>Des corps.</Text>
                 </Animated.View>
                 <Animated.View entering={FadeIn.duration(500).delay(9000)} style={styles.textContainer3}>
-                    <Text style={styles.text}>Des arbres calcinés...</Text>
+                    <Text style={styles.text}>Des arbres calcinés.</Text>
                 </Animated.View>
             </View>
 
