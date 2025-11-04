@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { View, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
+import { View, Alert, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { useState } from "react"; 
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
@@ -32,10 +32,13 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
     const [passwordSignup, setPasswordSignup] = useState('');
     const [emailError, setEmailError] = useState(false);
     const [isPWDVisible, setIsPWDvisible] = useState(false); //pour que le MDP soit caché
-    const [isSignupVisible, setIsSignupVisible] = useState(false); //état de la modal
+    const [isSignupVisible, setIsSignupVisible] = useState(false); //état de la modal signup
+    const [isResetPWDVisible, setIsResetPWDVisible] = useState(false); //état de la modal reset pwd
+    const [emailReset, setEmailReset] = useState('');
     const [signinError, SetSigninError] = useState('')
     const [signupError, setSignupError] = useState('')
-    const [passwordError, setPasswordError] = useState('')    
+    const [passwordError, setPasswordError] = useState('')
+    const [loading, setLoading] = useState(false);    
 
     const dispatch = useDispatch();
 
@@ -123,7 +126,44 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
             });
         };
         
-    
+    const handleResetPassword = async () => {
+         setEmailError(false);
+
+            if (!EMAIL_REGEX.test(emailReset)){
+                setEmailError(true);
+                return;
+            }
+
+            setLoading(true);
+
+            try{
+                const response = await fetch(`${BACKEND_ADDRESS}/users/forgot-password`, {
+                    method: "POST",
+                    headers: {"Content-Type" : 'application/json',
+                    },
+                    body: JSON.stringify({email : emailReset})
+                });
+                const data = await response.json()
+                if (response.ok){
+                    Alert.alert('Email envoyé', data.message || 'Si cet email existe, un lien de réinitialisation a été envoyé.',
+                        [
+            {
+              text: 'OK',
+              onPress: () => setIsResetPWDVisible(false)
+            }
+          ]
+                    )
+                } else {
+                    Alert.alert ('Erreur', data.error || 'Une erreur est survenue')
+                }
+            } catch (error) {
+                Alert.alert('Erreur', 'Impossible de contacter le serveur')
+                console.error(error);
+                
+            } finally {
+                setLoading(false);
+            }
+    };
 
     return (
         <ImageBackground source={require('../assets/background.jpg')} style={styles.background}>
@@ -161,6 +201,45 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                     <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); handleSignin()}} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.buttonText}>Go</Text>
                     </TouchableOpacity>
+
+
+
+                    <TouchableOpacity onPress={() => {setIsResetPWDVisible(true); setUsername(''); setPassword('')}} style={styles.buttonReset} activeOpacity={0.8}>
+                        <Text style={styles.buttonTextResetPwd}>Mot de passe oublié ?</Text>
+                    </TouchableOpacity>
+                    <Modal
+                    visible = {isResetPWDVisible}
+                    animationType='slide'
+                    transparent={true}
+                    onRequestClose={()=> {setIsResetPWDVisible(false); setEmailError(false); setPasswordError(''); setSignupError('')}}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalTitle}>Demande de réinitialisation de mot de passe</Text>
+                                <TextInput
+                                    style={styles.inputModal}
+                                    placeholder="Email"
+                                    onChangeText={(value) => {setEmailReset(value);setEmailError(false)}}
+                                    value={emailReset}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                    autoComplete="email"
+                                />
+                                {emailError && <Text style={styles.error}>Email invalide</Text>}
+                                <View style={styles.modalButtons}>
+                                    <TouchableOpacity style={styles.btn} onPress={handleResetPassword}>
+                                        <Text style={styles.buttonTextModal}>Valider</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.btn} onPress={()=> {setIsResetPWDVisible(false); setEmailReset(''); setEmailError(false)}}>
+                                        <Text style={styles.buttonTextModal}>Annuler</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View> 
+                            </View>                      
+                    </Modal>
+                    
+
+
                     <Text style={styles.title2}>Pas encore de compte ?</Text>
                     <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); setIsSignupVisible(true); setUsername(''); setPassword('')}} style={styles.button} activeOpacity={0.8}>
                         <Text style={styles.buttonText}>Créer un compte</Text>
@@ -404,5 +483,22 @@ passwordInputModal: {
     height: '100%',
     color: '#342C29',
     fontSize: 16,
+},
+buttonTextResetPwd: {
+    textTransform: 'uppercase',
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#EFDAB7',
+},
+buttonReset: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#352C2B',
+    width: 200,
+    height: 40,
+    borderWidth: 2.5,
+    borderColor: 'black',
+    borderRadius: 15,
+    margin: 15,
 },
 });
