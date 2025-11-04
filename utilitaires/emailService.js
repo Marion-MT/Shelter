@@ -14,26 +14,45 @@ async function sendResetEmail(email, resetLink) {
     const mailOptions = {
         from: process.env.SMTP_FROM,
         to: email,
-        subject: 'Shelter - Réinitialisation de votre mot de passe',
+        subject: 'Réinitialisation de votre mot de passe - Shelter',
         html: `
-            <h2>Réinitialisation de mot de passe</h2>
-            <p>Survivant!</p>
-            <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
-            <p>Cliquez sur le lien ci-dessous :</p>
-            <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-                Réinitialiser mon mot de passe
-            </a>
-            <p>Ou copiez ce lien : ${resetLink}</p>
-            <p><strong>Ce lien expire dans 1 heure.</strong></p>
-            <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #342C29; padding: 20px; border-radius: 12px;">
+                <h2 style="color: #FFE7BF; text-align: center;">🔐 Réinitialisation de mot de passe</h2>
+                <p style="color: #FFE7BF;">Survivant ! </p>
+                <p style="color: #FFE7BF;">Vous avez demandé à réinitialiser votre mot de passe.</p>
+                <p style="color: #FFE7BF;">Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
+                
+                <!-- ✅ Lien texte simple sans bouton pour éviter le tracking -->
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${resetLink}" 
+                       style="color: #FFE7BF; font-size: 16px; word-break: break-all; text-decoration: underline;">
+                        ${resetLink}
+                    </a>
+                </div>
+                
+                <p style="color: #FFE7BF80; font-size: 14px; text-align: center;">
+                    Copiez et collez ce lien dans votre navigateur si le lien ne fonctionne pas :
+                </p>
+                <p style="color: #FFE7BF80; word-break: break-all; font-size: 12px; text-align: center; background-color: #1a1614; padding: 10px; border-radius: 5px;">
+                    ${resetLink}
+                </p>
+                
+                <p style="color: #ff4444; font-weight: bold; text-align: center;">
+                    ⏰ Ce lien expire dans 1 heure.
+                </p>
+                <p style="color: #FFE7BF80; font-size: 12px; text-align: center;">
+                    Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
+                </p>
+            </div>
         `
     };
     
     try {
         await transporter.sendMail(mailOptions);
-        console.log('Email envoyé à:', email);
+        console.log('✅ Email envoyé à:', email);
+        console.log('🔗 Reset link:', resetLink);
     } catch (error) {
-        console.error('Erreur envoi email:', error);
+        console.error('❌ Erreur envoi email:', error);
         throw error;
     }
 }
