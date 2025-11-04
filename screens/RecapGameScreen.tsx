@@ -1,6 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, Image } from "react-native"
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from "react-redux";
+import { fetchWithAuth } from "../components/fetchWithAuth";
 import { setGameState, updateBestScore } from "../reducers/user";
 import { useCallback, useState } from "react";
 import Achievement from '../components/Achievement'
@@ -21,7 +22,6 @@ type RecapGameRouteParams = {
   achievements: Achievement[];
 };
 
-const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function RecapGameScreen({ navigation, route }: RecapGameScreenProps & { route: { params: RecapGameRouteParams } }) {
     const user = useSelector((state: string) => state.user.value);
@@ -121,9 +121,9 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
     };
 
     const handleNewPart = () => {
-            fetch(`${BACKEND_ADDRESS}/games/new`, {
+            fetchWithAuth(`/games/new`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${user.token}` }
+                headers: { 'Content-Type': 'application/json' },
             })
             .then(response => response.json())
             .then(data => {

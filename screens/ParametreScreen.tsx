@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpacity, Modal } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Slider, Switch } from '@rneui/themed';
+import { fetchWithAuth } from "../components/fetchWithAuth";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateBestScore } from "../reducers/user";
@@ -12,7 +13,6 @@ type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
-const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [volume, setVolume] = useState(50);
@@ -41,9 +41,8 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     };
 
     const handleResetAccount = () => {
-        fetch(`${BACKEND_ADDRESS}/users/reset`, {
+        fetchWithAuth(`/users/reset`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(response => response.json())
         .then(data => {

@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet,Image, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useSelector } from "react-redux";
+import { fetchWithAuth } from "../components/fetchWithAuth";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ScrollView } from "react-native-gesture-handler";
 import { useEffect, useState } from "react";
@@ -46,9 +47,8 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         .catch(err => console.error('Erreur fetch succes', err))
 
         //fetch top players
-        fetch(`${BACKEND_ADDRESS}/users/topScores`, {
+        fetchWithAuth(`/users/topScores`, {
             method: 'GET',
-            headers: {Authorization: `Bearer ${user.token}`}
         })
         .then(response => response.json())
         .then(data=>{
@@ -59,9 +59,8 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         .catch(err=>console.error('Erreur fetch Top Players', err))
 
         //fetch unlockedAchievements
-        fetch(`${BACKEND_ADDRESS}/users/unlockedAchievement`, {
+        fetchWithAuth(`/users/unlockedAchievement`, {
             method: 'GET',
-            headers: {Authorization: `Bearer ${user.token}`}
         })
         .then(response => response.json())
         .then(data=>{

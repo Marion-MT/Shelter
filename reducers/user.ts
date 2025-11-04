@@ -51,6 +51,7 @@ export type UserState= {
         email: string | null;
         username: string | null;
         token: string | null;
+        refreshToken: string | null;
         stateOfGauges: Gauge | null;
         numberDays: number | null;
         bestScore: number | null;
@@ -61,17 +62,21 @@ export type UserState= {
 }
 
 const initialState: UserState = {
-    value : {email: null, username: null, token: null, stateOfGauges: null, numberDays: null, bestScore: null, currentCard: null, soundOn: true, volume: 50},
+    value : {email: null, username: null, token: null, refreshToken: null, stateOfGauges: null, numberDays: null, bestScore: null, currentCard: null, soundOn: true, volume: 50},
 };
 
 export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        signin:(state, action: PayloadAction<{token:string; username: string; email: string}>) => {
+        signin:(state, action: PayloadAction<{token:string; refreshToken:string; username: string; email: string}>) => {
             state.value.token = action.payload.token;
+            state.value.refreshToken = action.payload.refreshToken;
             state.value.email = action.payload.email;
             state.value.username = action.payload.username;
+        },
+        updateAccestoken:(state, action: PayloadAction<string>) => {
+            state.value.token = action.payload;
         },
         setGameState:(state, action: PayloadAction<{stateOfGauges: Gauge; numberDays: number; currentCard: Card}>) => {
             state.value.stateOfGauges = action.payload.stateOfGauges;
@@ -102,5 +107,5 @@ export const userSlice = createSlice({
     }
 });
 
-export const { signin, setGameState, setGauges, setCurrentCard, setCurrentNumberDays, setUserData, signout, updateBestScore } = userSlice.actions;
+export const { signin, setGameState, setGauges, setCurrentCard, setCurrentNumberDays, setUserData, signout, updateBestScore, updateAccestoken } = userSlice.actions;
 export default userSlice.reducer;

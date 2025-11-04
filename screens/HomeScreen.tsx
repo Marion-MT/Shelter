@@ -7,11 +7,12 @@ import { FontAwesome } from "@expo/vector-icons";
 
 import AudioManager from '../modules/audioManager';
 
+import { fetchWithAuth } from '../components/fetchWithAuth';
+
 type HomeScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
-const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function HomeScreen({ navigation }: HomeScreenProps ) {
     const [currentGame, setCurrentGame] = useState(false);
@@ -19,11 +20,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
     const dispatch = useDispatch();
 
+    // les fetch doivent se faire avec fetchWithAuth pour gérer le refresh token 
+
     useFocusEffect(
         useCallback(() => {
-            fetch(`${BACKEND_ADDRESS}/users/data`, {
+            fetchWithAuth(`/users/data`, {
                 method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` }
             })
             .then(response => response.json())
             .then(data => {
@@ -44,9 +46,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     );
 
     const handleCurrentGame = () => {
-        fetch(`${BACKEND_ADDRESS}/games/current`, {
+        fetchWithAuth(`/games/current`, {
             method: 'GET',
-            headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(response => response.json())
         .then(data => {
@@ -62,11 +63,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
     };
      
     const handleNewGame = () => {
-        fetch(`${BACKEND_ADDRESS}/games/new`, {
+        fetchWithAuth(`/games/new`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${user.token}` }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status)
+            return response.json()})
         .then(data => {
             console.log(data);      
             if (data.error) {

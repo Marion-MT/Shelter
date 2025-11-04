@@ -2,6 +2,7 @@ import { Dimensions, ImageBackground, Text, StyleSheet, View, Pressable } from '
 import { useEffect, useState, useRef } from 'react';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, FadeIn } from 'react-native-reanimated';
+import { useSelector } from 'react-redux';
 
 const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground);
 
@@ -18,6 +19,8 @@ const cinematicTimeline = [
 
 export default function IntroductionScreen({ navigation } : IntoductionScreenProps) {
 
+    const token = useSelector((state: any) => state.user.value.token);
+
     const [cinematicPhase, setcinematicPhase] = useState<string>('first');
     const indexRef = useRef(0);
 
@@ -32,8 +35,13 @@ export default function IntroductionScreen({ navigation } : IntoductionScreenPro
         const now = Date.now();
 
         if (lastTap.current && now - lastTap.current < 250) {
-            // Double tap detected → skip
-            navigation.navigate('Connexion', { screen: 'ConnexionScreen' });
+            // Double tap detected → skip 
+            // redirige selon la présence du token
+                   if (token) {
+            navigation.navigate('Home', { screen: 'Home' });
+              } else {
+                  navigation.navigate('Connexion', { screen: 'ConnexionScreen' });
+              }
             return;
         }
 
@@ -91,7 +99,13 @@ useEffect(() => {
         setTimeout(nextPhase, phaseData.duration); // on lance la phase en renseignant sa durée
         } else {
         setTimeout(() => {
-            navigation.navigate('Connexion', { screen: 'ConnexionScreen' }); // toutes les phases sont passées, on est envoyé vers l'écran connexion
+
+          // verifie le token a la fin de l'intro
+                      if (token) {
+              navigation.navigate('Home', { screen: 'Home' });
+            } else {
+            navigation.navigate('Connexion', { screen: 'ConnexionScreen' }); // toutes les phases sont passées, on est envoyé vers l'écran connexion ou home si token existant
+            }
         }, phaseData.duration);
         }
     }

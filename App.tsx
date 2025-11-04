@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+
 import { useEffect } from 'react';
 import AudioManager from './modules/audioManager';
 
@@ -23,17 +24,18 @@ import { Provider } from 'react-redux';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import user from './reducers/user'
 
-const store= configureStore({
+/*const store= configureStore({
   reducer: {user},
 })
+  */
 
-/*
+
 //redux-presist imports
 import { persistStore, persistReducer } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const reducers = combineReducers({users})
+const reducers = combineReducers({user})
 const persistConfig = {
   key: 'shelter',
   storage: AsyncStorage
@@ -45,7 +47,9 @@ const store = configureStore({
 })
 
 const persistor = persistStore(store);
-*/
+
+export { store }
+
 import { useFonts } from 'expo-font';
 
 
@@ -53,6 +57,7 @@ import { useFonts } from 'expo-font';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
 
   useEffect(() => {
     AudioManager.preloadAll(); // charge la musique + effets
@@ -71,6 +76,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
           <GestureHandlerRootView>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -88,6 +94,7 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
         </GestureHandlerRootView>
+        </PersistGate>
     </Provider>
 
   );
