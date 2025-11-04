@@ -13,7 +13,7 @@ class AudioManager {
   private static sounds: Partial<Record<SoundKey, Audio.Sound>> = {};
   private static musicMuted = false;
   private static effectsMuted = false;
-  private static volume = 0.5;
+  private static volume = 0.2;
 
   // Chargement initial
   static async preloadAll() {
@@ -37,6 +37,7 @@ class AudioManager {
     if (sound) {
       const status = await sound.getStatusAsync();
       if (status.isPlaying) return;
+      await sound.setPositionAsync(0);
       await sound.setVolumeAsync(this.volume);
       await sound.playAsync();
     }

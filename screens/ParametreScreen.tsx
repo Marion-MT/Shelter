@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpacity, Modal } from "react-native"
+import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpacity, Modal, Alert } from "react-native"
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Slider, Switch } from '@rneui/themed';
 import { useState, useEffect } from "react";
@@ -63,22 +63,43 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
         dispatch(updateSettings({ btnSoundOn: newState }));
     };
 
-    const handleSaveSettings = () => {
-        dispatch(updateSettings({
+    const handleSaveSettings = async () => {
+    try {
+        const response = await fetch(`${BACKEND_ADDRESS}/users/settings`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+            volume,
             soundOn: soundEnabled,
             btnSoundOn: soundClicEnabled,
-            volume,
-        }));
-        AudioManager.setMusicMuted(!soundEnabled);
-        AudioManager.setEffectsMuted(!soundClicEnabled);
-        AudioManager.setMusicVolume(volume);
-
-        console.log('Paramètres sauvegardés :', {
-            soundOn: soundEnabled,
-            btnSoundOn: soundClicEnabled,
-            volume,
+        }),
         });
+
+        const data = await response.json();
+
+        if (data.result) {
+        dispatch(updateSettings({
+            volume: data.settings.volume,
+            soundOn: data.settings.soundOn,
+            btnSoundOn: data.settings.btnSoundOn,
+        }));
+        AudioManager.setMusicMuted(!data.settings.soundOn);
+        AudioManager.setEffectsMuted(!data.settings.btnSoundOn);
+        AudioManager.setMusicVolume(data.settings.volume);
+
+        console.log('Paramètres sauvegardés avec succès sur le serveur :', data.settings);
+        Alert.alert('Paramètres sauvegardés')
+            } else {
+            console.log('Erreur côté serveur :', data.error);
+            }
+        } catch (error) {
+            console.error('Erreur de requête PUT /settings :', error);
+        }
     };
+
    
     const handleNavigate = () => {
         AudioManager.playEffect('click');
@@ -95,6 +116,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
             if (data.result === true) {
                 dispatch(updateBestScore(data.bestScore));
                 console.log('Compte réinitialisé avec succès');
+                Alert.alert('Compte réinitialisé avec succès')
                 return;
             } else {
                 console.log('Échec de la réinitialisation du compte');

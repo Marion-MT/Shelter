@@ -66,15 +66,15 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         
     const foodBlink = useSharedValue(1);
 
-    useEffect(() => {
-        if (user.soundOn) {
-            AudioManager.playBackground();
-        } else {
-            AudioManager.pauseBackground();
-        }
-        AudioManager.pauseBackground();
-        
-    }, [user.soundOn]);
+    useFocusEffect(
+        useCallback(() => {
+            if (user.soundOn) {
+                AudioManager.playBackground();
+            } else {
+                AudioManager.pauseBackground();
+            }
+        }, [])
+    );
 
     const resetGame = () => {
         SetLocked(false);
