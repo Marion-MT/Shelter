@@ -6,7 +6,7 @@ const limitTo100 = v => {
 };
 
 const stateOfGaugesSchema = mongoose.Schema({
-    food: { type: Number, default: 50, set: limitTo100 },
+    food: { type: Number, default: 30, set: limitTo100 },
     moral: { type: Number, default: 50, set: limitTo100 },
     health: { type: Number, default: 50, set: limitTo100 },
     security: { type: Number, default: 50, set: limitTo100 },

@@ -6,7 +6,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { checkBody } = require('../modules/checkBody');
 const authenticateToken = require ('../middlewares/authMiddleWare')
-
+const nodemailer = require('nodemailer');
+const crypto = require('crypto')
+const { sendResetEmail } = require('../utilitaires/emailService');
 
 /////////////////Routes POST////////////////////
       ////////Route Inscription////////
@@ -17,7 +19,10 @@ const authenticateToken = require ('../middlewares/authMiddleWare')
     return;
   }
   try {
-  const {email, username, password} = req.body;
+    const {email, username, password} = req.body;
+    if(!username.trim()) {
+      return res.json({result: false, error: "Le nom d'utilisateur ne peut pas être vide"})
+    }
     // Check si utilisateur déjà inscrit avant de créer un nouvel utilisateur
   User.findOne({username})
   .then(data =>{
@@ -186,10 +191,89 @@ router.post('/reset', authenticateToken, async (req,res) => {
   }
   })
 
+///////// POST Reset Password : demande de réinitialisation  ///////////
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    
+    try {
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            // Ne pas révéler si l'email existe (sécurité)
+            return res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+        }
+        
+        // Générer un token unique
+        const token = crypto.randomBytes(32).toString('hex');
+        
+        // Sauvegarder le token et l'expiration dans l'utilisateur
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 heure
+        await user.save();
+        
+        // Envoyer l'email
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+        await sendResetEmail(user.email, resetLink);
+        
+        res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
 
-
+///////// POST Reset Password : Réinitialiser le mot de passe  ///////////
+router.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    
+    try {
+        // Trouver l'utilisateur avec un token valide
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        
+        if (!user) {
+            return res.status(400).json({ error: 'Token invalide ou expiré' });
+        }
+        
+        // Hasher le nouveau mot de passe
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        // Mettre à jour le mot de passe et supprimer les champs de reset
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        
+        res.json({ message: 'Mot de passe réinitialisé avec succès' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
 
 ///////////////////Route Get//////////////////////
+      ///////// GET Reset Password : Vérifier le token  ///////////
+router.get('/verify-reset-token/:token', async (req, res) => {
+    const { token } = req.params;
+    
+    try {
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() } // Token non expiré
+        });
+        
+        if (!user) {
+            return res.status(400).json({ valid: false, message: 'Token invalide ou expiré' });
+        }
+        
+        res.json({ valid: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
       ///////// GET ALL users  ///////////
 router.get('/', (req, res) => {
   User.find().then(data =>{
@@ -315,11 +399,12 @@ router.put('/settings', authenticateToken, (req, res) => {
   if (!userId){
     return res.status(401).json({restul: false, error: "Vous n'êtes pas autorisé."})
   }
-  const {volume, soundOn} = req.body;
+  const {volume, soundOn, btnSoundOn} = req.body;
   const updateSettings = {};
 
   if(volume !== undefined) updateSettings['settings.volume'] = volume;
   if(soundOn !== undefined) updateSettings['settings.soundOn'] = soundOn;
+  if(btnSoundOn !== undefined) updateSettings['settings.btnSoundOn'] = btnSoundOn;
 
   User.findByIdAndUpdate(
     userId,
