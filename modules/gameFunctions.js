@@ -304,7 +304,7 @@ const prepareNewGame = async (userId) => {
 
     const game = {
         stateOfGauges:{
-        food: 50,
+        food: 30,
         security: 50,
         hunger: 50,
         moral: 50,
@@ -316,10 +316,16 @@ const prepareNewGame = async (userId) => {
 
     const conditionFilters = buildConditionFilters(game)
     // on récup les cartes de démarrage
-    const cards = await Card.find({ pool: "general",...conditionFilters});
+    //const cards = await Card.find({ pool: "general",...conditionFilters});
+    const cards = await Card.find({ pool : 'firstCard'});
+
+     // verif si aucune carte intro, on commence avec une carte normale
+    if (cards.length === 0){
+        cards = await Card.find({ pool: "general",...conditionFilters});
+    }
 
     // verif si ya des carte
-        if (cards.length === 0) {
+    if (cards.length === 0) {
         throw new Error('Aucune carte de démarrage disponible');
     }
 

@@ -358,11 +358,12 @@ router.put('/settings', authenticateToken, (req, res) => {
   if (!userId){
     return res.status(401).json({restul: false, error: "Vous n'êtes pas autorisé."})
   }
-  const {volume, soundOn} = req.body;
+  const {volume, soundOn, btnSoundOn} = req.body;
   const updateSettings = {};
 
   if(volume !== undefined) updateSettings['settings.volume'] = volume;
   if(soundOn !== undefined) updateSettings['settings.soundOn'] = soundOn;
+  if(btnSoundOn !== undefined) updateSettings['settings.btnSoundOn'] = btnSoundOn;
 
   User.findByIdAndUpdate(
     userId,
