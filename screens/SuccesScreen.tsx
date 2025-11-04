@@ -119,20 +119,27 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
   );*/
 });
 
+  const medalsImages = [
+    require('../assets/top1.png'),
+    require('../assets/top2.png'),
+    require('../assets/top3.png')
+  ];
+
+
     const topPlayersList = topPlayers.map((player, i) => {
-        const medalColor = i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#554946';
+        //const medalColor = i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#554946';
         return (
     <View key={i} style={[styles.playerItem, i < 3 && styles.podiumItem]}>
       <View style={styles.playerRank}>
-        <View style={[styles.rankBadge, { backgroundColor: medalColor }]}>
-          <Text style={styles.rankNumber}>{i + 1}</Text>
-        </View>
-
+        <Image source={medalsImages[i]} style={styles.medal}/>
+        <View style={styles.line}></View>
         <View style={styles.playerTextContainer}>
           <Text style={styles.playerUsername}>{player.username}</Text>
           <Text style={styles.playerScore}>{player.bestScore} <Text style={styles.jours}>jours</Text></Text>
         </View>
       </View>
+      {player.username === user.username && <FontAwesome name='user' size={25} color='#554946'/>}
+      
     </View>
   );
 });
@@ -160,6 +167,17 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
         <View style={styles.cardContainer}>
           <View style={styles.tabContainer}>
             <TouchableOpacity
+              style={[styles.tab, activeTab === 'leaderboard' && styles.activeTab]}
+              onPress={() => {
+                AudioManager.playEffect('click');
+                setActiveTab('leaderboard');
+              }}
+            >
+              <Text style={[styles.tabText, activeTab === 'leaderboard' && styles.activeTabText]}>
+                SUCCÈS
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[styles.tab, activeTab === 'personnal' && styles.activeTab]}
               onPress={() => {
                 AudioManager.playEffect('click');
@@ -171,17 +189,7 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'leaderboard' && styles.activeTab]}
-              onPress={() => {
-                AudioManager.playEffect('click');
-                setActiveTab('leaderboard');
-              }}
-            >
-              <Text style={[styles.tabText, activeTab === 'leaderboard' && styles.activeTabText]}>
-                SUCCÈS
-              </Text>
-            </TouchableOpacity>
+            
           </View>
 
           {activeTab === 'personnal' && (
@@ -191,12 +199,9 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
               </View>
 
               <View style={styles.daysContainer}>
-                {user.bestScore === 0 ? (
-                    <Text style={styles.days}>{user.bestScore}</Text>
-                ) : (
-                    <Text style={styles.days}>{user.bestScore} <Text style={styles.jours}>jours</Text></Text>
-                )}
+                <Text style={styles.days}>{user.bestScore}</Text>
               </View>
+              <Text style={styles.myDays}>jour{user.bestScore === 0 ? '' : 's'} de survie</Text>
 
               <View style={styles.achievement}>
                 <Text style={styles.achievementText}>Top Players</Text>
@@ -340,9 +345,17 @@ const styles = StyleSheet.create({
         fontFamily: 'ArialRounded',
     },
     podiumItem: {
-        borderWidth: 2,
-        borderColor: '#FFD700',
+      paddingRight : 25
         
+    },
+    medal:{
+      width: 50,
+      height: 50
+    },
+    line: {
+      height: 50,
+      width: 1,
+      backgroundColor: "#8B7355"
     },
     playerRank: {
         flexDirection: 'row',
@@ -411,16 +424,23 @@ playerItem: {
 
 },
 playerUsername:{
- color: '#554946',
-  fontSize: 12, 
+  fontFamily: 'ArialRounded',
+  color: '#554946',
+  fontSize: 14, 
   opacity: 0.8,
 },
 jours:{
-    color: 'black',
+    color: '#554946',
     fontSize: 15,
     fontFamily: 'ArialRounded',
-    fontWeight: 'light'
-}, 
+    fontWeight: 'light',
+},
+myDays:{
+    color: '#EFDAB7',
+    fontSize: 18,
+    fontFamily: 'ArialRounded',
+    marginTop : 10
+},
 playerTextContainer: {
   flexDirection: 'column', 
   alignItems: 'flex-start',
