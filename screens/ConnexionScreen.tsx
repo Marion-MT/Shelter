@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { View, Alert, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
+import { View, ActivityIndicator, Alert, Modal, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { useState } from "react"; 
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
@@ -227,8 +227,12 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                 />
                                 {emailError && <Text style={styles.error}>Email invalide</Text>}
                                 <View style={styles.modalButtons}>
-                                    <TouchableOpacity style={styles.btn} onPress={handleResetPassword}>
+                                    <TouchableOpacity style={styles.btn} onPress={handleResetPassword} disabled={loading}>
+                                        {loading ? (
+                                        <ActivityIndicator color="#FFE7BF" size="small" />
+                                    ) : (
                                         <Text style={styles.buttonTextModal}>Valider</Text>
+                                    )}
                                     </TouchableOpacity>
                                     <TouchableOpacity style={styles.btn} onPress={()=> {setIsResetPWDVisible(false); setEmailReset(''); setEmailError(false)}}>
                                         <Text style={styles.buttonTextModal}>Annuler</Text>
