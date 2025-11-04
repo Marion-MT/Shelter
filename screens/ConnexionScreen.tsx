@@ -110,7 +110,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                         navigation.navigate('Home', { screen: 'Home' });
                     } else {
                         //console.error('Erreur de connexion:', data.error)
-                        setSignupError('Username déjà utilisé')
+                        setSignupError('Email/Username déjà utilisé')
                         setPassword('')
                     }
                 })
@@ -129,7 +129,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                     <Text style={styles.title}>Connexion</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Username"
+                        placeholder="Peudo"
                         autoCapitalize="none"
                         keyboardType='default'
                         autoComplete="username"
@@ -182,7 +182,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                 />
                                 <TextInput
                                     style={styles.inputModal}
-                                    placeholder="Username"
+                                    placeholder="Pseudo"
                                     autoCapitalize="none"
                                     keyboardType='default'
                                     autoComplete="username"
