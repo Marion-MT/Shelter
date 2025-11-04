@@ -317,7 +317,7 @@ const prepareNewGame = async (userId) => {
     const conditionFilters = buildConditionFilters(game)
     // on récup les cartes de démarrage
     //const cards = await Card.find({ pool: "general",...conditionFilters});
-    const cards = await Card.find({ pool : 'firstCard'});
+    let cards = await Card.find({ pool : 'firstCard'});
 
      // verif si aucune carte intro, on commence avec une carte normale
     if (cards.length === 0){

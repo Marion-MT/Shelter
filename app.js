@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var gamesRouter = require('./routes/games');
 var achievementsRouter = require('./routes/achievements');
+var authRouter = require('./routes/auth');
 
 var app = express();
 require('./models/connection')
@@ -26,5 +27,6 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/games', gamesRouter);
 app.use('/achievements', achievementsRouter);
+app.use('/auth', authRouter);
 
 module.exports = app;

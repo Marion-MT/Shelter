@@ -10,6 +10,8 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto')
 const { sendResetEmail } = require('../utilitaires/emailService');
 
+const FRONT_END_RESET = process.env.FRONT_END_RESET
+
 /////////////////Routes POST////////////////////
       ////////Route Inscription////////
       router.post('/signup', (req, res) => {
@@ -33,28 +35,54 @@ const { sendResetEmail } = require('../utilitaires/emailService');
         email,
         username,
         password: hash, 
+        refreshToken: [],
       })
       newUser.save()
       .then(data => {
         //création du token
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
           {id: data._id},
           process.env.JWT_SECRET,
-          {expiresIn: '24h'}
+          {expiresIn: '1m'}
         );
-        data.token = token;
-        data.save();
 
-        res.json({result: true, 
-          token,
+        //création du refresh token
+        const refreshToken = jwt.sign(
+          {id: data._id},
+          process.env.REFRESH_SECRET,
+          {expiresIn: '7d'}
+        );
+
+
+        data.refreshToken.push({
+          token: refreshToken,
+          expiresAt: new Date(Date.now() + 7*24*60*60*1000) // date d'expiration dans 7 jours
+        });
+
+        //sauvegarde le token en BDD
+    
+        data.save()
+        .then(() => {
+
+          //renvoyer le token au client)
+        res.json({
+          result: true, 
+          token: accessToken,    // token court pour accès aux routes protégées
+          refreshToken,  // token long pour renouveler le token d'accès
           user: {
           email: data.email,
-          username: data.username }
+          username: data.username 
+        }
         })
       })
       .catch(err => {
+        console.error('Erreur sauvegarde tokens :', err.message)
+        res.status(500).json({result: false, error: 'Erreur serveur' })
+      })
+      })
+      .catch(err => {
         console.error('Erreur lors du .save :', err.message)
-        res.status(500).json({result: false, error: 'Erreur serveur lors de la sauvegarde' })
+        res.status(500).json({result: false, error: 'Erreur serveur lors de la sauvegarde'})
       })
     } else {
       //si l'utilisateur existe déjà
@@ -85,17 +113,32 @@ router.post('/signin', (req, res) => {
   User.findOne({username}).then(data=>{
     if (data && bcrypt.compareSync(password, data.password)){
       //génération du token JWT
-      const token= jwt.sign( 
+      const accesToken= jwt.sign( 
         {id: data._id}, //payload (données encodées dans le token)
         process.env.JWT_SECRET, // clé secrète dans le .env
-        {expiresIn:'24h'}) //délai de validité du jeton
+        {expiresIn:'1m'}) //délai de validité du jeton
+
+        //création du refresh token
+        const refreshToken = jwt.sign(
+          {id: data._id},
+          process.env.REFRESH_SECRET,
+          {expiresIn: '7d'}
+        );
+
+        data.refreshToken.push({
+          token: refreshToken,
+          expiresAt: new Date(Date.now() + 7*24*60*60*1000) // date d'expiration dans 7 jours
+        });
+        
+        // Génération du token JWT
 
         //sauvegarde le token en BDD
-        data.token = token;
         data.save().then(() =>{
-        //Renvoyer le token au client
+
+        //Renvoyer les token au client
       res.json({result: true, 
-        token, 
+        token: accesToken,   // token court pour accès aux routes protégées
+        refreshToken,  // token long pour renouveler le token d'accès
         message: 'you are connected',
         user: {
           email: data.email,
@@ -171,7 +214,7 @@ router.post('/forgot-password', async (req, res) => {
         await user.save();
         
         // Envoyer l'email
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+        const resetLink = `${FRONT_END_RESET}/reset-password?token=${token}`;
         await sendResetEmail(user.email, resetLink);
         
         res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });

@@ -23,7 +23,24 @@ const authenticateToken = (req, res, next) => {
     
   } catch (error) {
 
-    return res.json({ result: false, error: 'Token invalide ou expiré' });
+        if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        result: false, 
+        error: 'Token expired',
+        code: 'TOKEN_EXPIRED'  // Code pour le frontend
+      });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        result: false, 
+        error: 'Invalid token',
+        code: 'INVALID_TOKEN'
+      });
+    } else {
+      return res.status(401).json({ 
+        result: false, 
+        error: 'Token verification failed'
+      });
+    }
   }
 };
 

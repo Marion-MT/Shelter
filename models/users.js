@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { token } = require('morgan');
 
 const settingSchema = mongoose.Schema({
  volume: {type: Number, default: 50},
@@ -21,7 +22,13 @@ const userSchema = mongoose.Schema({
         type: settingSchema,
         default: () => ({})
     },
-    unlockedAchievements : [{ type: mongoose.Schema.Types.ObjectId, ref: 'achievements' }]
+    unlockedAchievements : [{ type: mongoose.Schema.Types.ObjectId, ref: 'achievements' }],
+    refreshToken: [
+        { 
+        token: String, 
+        expiresAt: Date
+        }
+    ]
 })
 //userSchema.index({ resetPasswordExpires: 1 }, { expireAfterSeconds: 0 });
 const User = mongoose.model('users', userSchema);
