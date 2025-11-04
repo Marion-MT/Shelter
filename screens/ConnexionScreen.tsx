@@ -60,7 +60,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                 if (data.result){
                     console.log("data signin =>",data)
                     //stokage du token et redirection
-                    dispatch(signin({token : data.token, username, email: data.email}))
+                    dispatch(signin({token : data.token, refreshToken: data.refreshToken, username, email: data.email}))
                     setUsername('')
                     setPassword('')
                     SetSigninError('')
@@ -105,7 +105,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                 .then(data => {
                     console.log("création de compte", data.result);
                     if (data.result === true){
-                        dispatch(signin({token : data.token, username : usernameSignup, email: emailSignup}))
+                        dispatch(signin({token : data.token, refreshToken: data.refreshToken, username : usernameSignup, email: emailSignup}))
                         setEmailSignup('')
                         setUsername('')
                         setPasswordSignup('')

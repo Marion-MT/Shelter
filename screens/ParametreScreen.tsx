@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ImageBackground, Image, Pressable, TouchableOpa
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Slider, Switch } from '@rneui/themed';
 import { useState, useEffect } from "react";
+import { fetchWithAuth } from "../components/fetchWithAuth";
 import { useSelector, useDispatch } from "react-redux";
 import { updateBestScore } from "../reducers/user";
 import { FontAwesome } from "@expo/vector-icons";
@@ -13,7 +14,6 @@ type ParametreScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
 
-const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const user = useSelector((state: string) => state.user.value);
@@ -65,11 +65,10 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
 
     const handleSaveSettings = async () => {
     try {
-        const response = await fetch(`${BACKEND_ADDRESS}/users/settings`, {
+        const response = await fetchWithAuth(`/users/settings`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({
             volume,
@@ -99,9 +98,8 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     };
 
     const handleResetAccount = () => {
-        fetch(`${BACKEND_ADDRESS}/users/reset`, {
+        fetchWithAuth(`/users/reset`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(response => response.json())
         .then(data => {

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity } from "react-native"
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { fetchWithAuth } from '../components/fetchWithAuth';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,6 +18,7 @@ import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reduce
 
 import AudioManager from "../modules/audioManager";
 import { getImage } from '../modules/imagesSelector';
+
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -45,7 +47,6 @@ type GameResponse = {
   achievements: [Object];
 };
 
-const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function GameScreen({ navigation }: GameScreenProps ) {
 
@@ -121,15 +122,14 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
             if(!showConsequence){ // Il n'y pas de conséquence à affichier pour la carte courante
 
                 // On envoie le choix au back
-                const response = await fetch(`${BACKEND_ADDRESS}/games/choice`, {
+                const response = await fetchWithAuth(`/games/choice`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${user.token}`,
-                           'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ choice:  currentSide}),
                 } );
 
                 const data = await response.json();
-
+                console.log('console log de data : ',data)
                 if(!data.result){ // Si pas de result, on déclenche le gameover pour ne pas bloquer le joueur dans la partie
                     triggerGameover("","","","",[{}]);
                     return;
