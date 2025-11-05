@@ -145,7 +145,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                 });
                 const data = await response.json()
                 if (response.ok){
-                    Alert.alert('Email envoyé', data.message || 'Si cet email existe, un lien de réinitialisation a été envoyé.',
+                    Alert.alert('Email envoyé', data.message || 'Si cet email existe, un lien de réinitialisation a été envoyé. Pensez à vérifier dans les spams.',
                         [
             {
               text: 'OK',
