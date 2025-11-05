@@ -191,10 +191,8 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                 } );
 
                 const data = await response.json();
-                console.log('console log de data : ',data)
                 if(!data.result){ // Si pas de result, on déclenche le gameover pour ne pas bloquer le joueur dans la partie
-                    //triggerGameover("","","","",[]);
-                    console.log("gameover because there is not other cards");
+                    //console.log("gameover because there is not other cards");
                     handleGameover([]);
                     return;
                 }
