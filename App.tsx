@@ -45,14 +45,10 @@ export default function App() {
       const inGame = state.game?.inGame;
 
       if (inGame !== lastInGame) {
-        console.log(`🎮 Transition: ${lastInGame} → ${inGame}`);
-
         if (inGame) {
-          console.log('🎵 Passage à la musique de jeu');
           await AudioManager.pauseBackground();
           await AudioManager.playBackgroundGame();
         } else {
-          console.log('🎵 Retour à la musique du menu');
           await AudioManager.pauseBackgroundGame();
           await AudioManager.playBackground();
         }

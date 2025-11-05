@@ -107,7 +107,6 @@ export const userSlice = createSlice({
         },
         signout:(state) => {
             state.value = initialState.value;
-            console.log("dispatch signout=>",initialState)
         },
         updateSettings: (state, action: PayloadAction<{soundOn: boolean; btnSoundOn: boolean; volume: number}>) => {
             if (action.payload.soundOn !== undefined) {
@@ -121,7 +120,6 @@ export const userSlice = createSlice({
             }
         },
         setFirstGame : (state, action: PayloadAction<boolean>) =>{
-            console.log("setFirstGame " + action.payload);
             state.value.firstGame = action.payload
         }
     }
