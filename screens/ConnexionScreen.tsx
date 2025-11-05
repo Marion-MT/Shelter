@@ -328,8 +328,7 @@ const styles = StyleSheet.create({
 
     title: {
         fontSize: 40,
-        fontWeight: '600',
-        fontFamily: 'Futura',
+        fontFamily: 'ArialRounded',
         paddingBottom: 30,
         alignItems: 'center',
         justifyContent: 'center',
@@ -337,9 +336,9 @@ const styles = StyleSheet.create({
     },
 
     title2:{
-        fontSize: 30,
+        fontSize: 28,
         fontWeight: '600',
-        fontFamily: 'Futura',
+        fontFamily: 'ArialRounded',
         paddingBottom: 30,
         justifyContent: 'center',
         alignItems: 'center',
@@ -383,7 +382,9 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         marginBottom: 15,
         textAlign: "center",
-        color: "#FFE7BF"
+        color: "#FFE7BF",
+        fontFamily: 'ArialRounded',
+
     },
 
     input:{
@@ -430,16 +431,17 @@ const styles = StyleSheet.create({
 
     buttonText: {
         textTransform: 'uppercase',
-        fontSize: 23,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontFamily: 'ArialRounded',
         color: '#EFDAB7',
     },
 
     buttonTextModal: {
         textTransform: 'uppercase',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontFamily: 'ArialRounded',
         color: '#EFDAB7',
+        
     },
 
     error: {
@@ -493,9 +495,11 @@ passwordInputModal: {
     fontSize: 16,
 },
 buttonTextResetPwd: {
-    fontSize: 11,
-    fontWeight: 'bold',
+    fontSize: 13,
     color: '#EFDAB7',
+    fontFamily: 'ArialRounded',
+
+
 },
 buttonReset: {
     alignItems: 'center',
