@@ -43,7 +43,7 @@ const FRONT_END_RESET = process.env.FRONT_END_RESET
         const accessToken = jwt.sign(
           {id: data._id},
           process.env.JWT_SECRET,
-          {expiresIn: '1m'}
+          {expiresIn: '15m'}
         );
 
         //création du refresh token
@@ -54,10 +54,10 @@ const FRONT_END_RESET = process.env.FRONT_END_RESET
         );
 
 
-        data.refreshToken.push({
+        data.refreshToken = [{
           token: refreshToken,
           expiresAt: new Date(Date.now() + 7*24*60*60*1000) // date d'expiration dans 7 jours
-        });
+        }];
 
         //sauvegarde le token en BDD
     
@@ -116,7 +116,7 @@ router.post('/signin', (req, res) => {
       const accesToken= jwt.sign( 
         {id: data._id}, //payload (données encodées dans le token)
         process.env.JWT_SECRET, // clé secrète dans le .env
-        {expiresIn:'1m'}) //délai de validité du jeton
+        {expiresIn:'15m'}) //délai de validité du jeton
 
         //création du refresh token
         const refreshToken = jwt.sign(
@@ -125,10 +125,10 @@ router.post('/signin', (req, res) => {
           {expiresIn: '7d'}
         );
 
-        data.refreshToken.push({
+        data.refreshToken = [{
           token: refreshToken,
           expiresAt: new Date(Date.now() + 7*24*60*60*1000) // date d'expiration dans 7 jours
-        });
+        }];
         
         // Génération du token JWT
 
