@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView, ImageBackground } from "react-native"
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from "react-redux";
-import { setGameState, setUserData, signout } from "../reducers/user";
-import { useCallback, useState } from "react";
+import { setGameState, setUserData, signout, setFirstGame } from "../reducers/user";
+import { useCallback, useState, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 
 import AudioManager from '../modules/audioManager';
@@ -51,6 +51,26 @@ export default function HomeScreen({ navigation }: HomeScreenProps ) {
         }, [])
     );
 
+    useFocusEffect(
+        useCallback(() => {
+            fetchWithAuth(`/games`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("GET games : ", data);
+                if (data.result && data.games && data.games.length > 0) {
+                    dispatch(setFirstGame(false)); // il y a des partie dans l'historique du joueur, on affihe pas le tuto
+                    console.log("on affiche pas le tuto");
+                    return;
+                } else {              
+                    dispatch(setFirstGame(true));   // pas de partie dans l'historique du joueur, on affihe le tuto
+                    console.log("on affiche le tuto");
+                }
+            });
+        }, [])
+    );
+    
     const handleCurrentGame = () => {
         fetchWithAuth(`/games/current`, {
             method: 'GET',
