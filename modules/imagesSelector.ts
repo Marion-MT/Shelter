@@ -11,8 +11,12 @@ export function getImage(type : String){
             return require('../assets/pictures/icon-bag.png');
         case 'badguy' :
             return require('../assets/pictures/icon-badguy.png');
+        case 'box' :
+            return require('../assets/pictures/icon-box.png');
         case 'cans' :
             return require('../assets/pictures/icon-cans.png');
+        case 'car' :
+            return require('../assets/pictures/icon-car.png');
         case 'city' :
             return require('../assets/pictures/icon-city.png');
         case 'depress' :
@@ -55,6 +59,8 @@ export function getImage(type : String){
             return require('../assets/pictures/icon-shadow.png');
         case 'tools' :
             return require('../assets/pictures/icon-tools.png');
+        case 'trap' :
+            return require('../assets/pictures/icon-trap.png');
         case 'man' :
             return require('../assets/pictures/icon-man.png');
         case 'visit' :
@@ -82,6 +88,11 @@ export function getImage(type : String){
             return require('../assets/pictures/icon-survival-100.png');
         case "heart": 
             return require('../assets/pictures/icon-heart.png');
+
+        // TUTO
+        case "swipe": 
+            return require('../assets/pictures/icon-swipe.png');
+
         default:
             return require('../assets/pictures/icon-general.png');
             

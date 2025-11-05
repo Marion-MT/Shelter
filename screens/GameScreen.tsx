@@ -8,13 +8,15 @@ import Animated, {
   withTiming,
   withRepeat,
   FadeIn,
-  FadeOut
+  FadeOut,
+  cancelAnimation
 } from "react-native-reanimated";
 import Gauge from '../components/Gauges';
 import AnimatedCard from '../components/AnimatedCard';
+import { tutoCards } from "../data/tuto";
 
 import { useSelector, useDispatch } from "react-redux";
-import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reducers/user";
+import { setGauges, setCurrentCard, setCurrentNumberDays, Card, setFirstGame } from "../reducers/user";
 
 import AudioManager from "../modules/audioManager";
 import { getImage } from '../modules/imagesSelector';
@@ -55,7 +57,18 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const dispatch = useDispatch();
 
     const user = useSelector((state: string) => state.user.value);
-    const currentCard = user.currentCard;
+
+
+    // Tuto
+    const tuto : boolean = user.firstGame;
+    const [indexCardTuto, setIndexCardTuto] = useState<number>(0);
+    const [tutoHunger, setTutoHunger] = useState<number>(50);
+    const [tutoSecurity, setTutoSecurity] = useState<number>(50);
+    const [tutoHealth, setTutoHealth] = useState<number>(50);
+    const [tutoMoral, setTutoMoral] = useState<number>(50);
+    const [tutoFood, setTutoFood] = useState<number>(30);
+
+    const currentCard = user.firstGame ? tutoCards[indexCardTuto] : user.currentCard ;
 
     const [currentSide, setCurrentSide] = useState<string>('center');
     const [triggerReset, setTriggerReset] = useState<boolean>(false);
@@ -69,6 +82,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const [lastResponse, setLastResponse] = useState<GameResponse|null>(null); //used to store data when there is a consequence to display before displaying the next card (or gameover)
         
     const foodBlink = useSharedValue(1);
+    const barBlink = useSharedValue(1);
     const shakeOffset = useSharedValue(0); // pour seccouer la carte quand gameover
 
     // Necessaire pour gérer la transition de musique
@@ -91,6 +105,14 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         }, [])
     );
 
+    const resetTuto = () => {
+        setIndexCardTuto(0);
+        setTutoHunger(50);
+        setTutoSecurity(50);
+        setTutoHealth(50);
+        setTutoMoral(50);
+        setTutoFood(30);
+    }
 
     const resetGame = () => {
         SetLocked(false);
@@ -100,15 +122,18 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         setCurrentSide('center');
         setGameover(false);
         setTriggerReset(prev => !prev);
+        setIndexCardTuto(0);
     }
     
     useFocusEffect(
         useCallback(() => {
             
             resetGame();
+            resetTuto();
 
              return () => {
                 resetGame();
+                resetTuto();
             };
 
         }, [])
@@ -141,14 +166,6 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         }, 350);
     };
 
-
-    // Déclenche le gameover
-    const triggerGameover = (type: string, hook: string, phrase: string, description: string, achievements: [] ) => {
-        setTimeout(() => {
-            AudioManager.pauseBackgroundGame();
-            navigation.navigate('EndGame', { screen: 'EndGame', type: type, hook: hook, phrase: phrase, description: description, achievements: achievements  });
-        }, 1000);
-    }
 
     // Déclenche le gameover
     const handleGameover = (achievements: [] ) => {
@@ -190,14 +207,6 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
                  // Si gameover ets à true, on déclenche le game over et on interrompt le processus
                 if(data.gameover || !data.card){
-                    //console.log(data.death.type + ' ' + data.death.title.hook + ' ' + data.death.title.phrase + ' ' + data.death.description);
-                    //triggerGameover(data.death.type, data.death.title.hook, data.death.title.phrase, data.death.description, data.achievements);
-                   /* setGameover(true);
-                    setConsequenceText(data.death.description);
-                    setShowConsequence(true);
-                    setTriggerReset(!triggerReset);
-                    console.log("gameover 1");*/
-
                     triggerShake(); // tremblement de la carte
 
                     setTimeout(() => {
@@ -242,11 +251,6 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
                 if(lastResponse && (lastResponse.gameover || !lastResponse.card)){ // gestion du gameover
                     if(lastResponse.death){
-                        /*setGameover(true);
-                        setConsequenceText(lastResponse.death.description);
-                        setShowConsequence(true);
-                        setTriggerReset(!triggerReset);
-                        console.log("gameover 2");*/
 
                         triggerShake(); // tremblement de la carte
 
@@ -288,15 +292,71 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         }
     }
 
+    // Gère l'enchainement du tutoriel - enchainement scripté pour qu'on gère précisément l'affichage
+    const handleNextTutoCard = (choice : string) => {
+
+            SetLocked(true);    // On bloque les interractions pour le joueur le temps des animations
+
+            if(indexCardTuto === 0){
+                if(choice === 'left'){
+                    dispatch(setFirstGame(false)); // on skip le tuto et on enchaine directement sur la partie
+                }
+                else{
+                    setTimeout(() => {
+                        setIndexCardTuto(prev => prev + 1); // on passe à la carte tuto suivante
+                    }, 100);
+                }
+            }
+            else if(indexCardTuto === 1){
+
+                const hungerDelta = choice === 'left' ? currentCard.left.effect.hunger : currentCard.right.effect.hunger;
+                const securityDelta = choice === 'left' ? currentCard.left.effect.security : currentCard.right.effect.security;
+                const healthDelta = choice === 'left' ? currentCard.left.effect.health : currentCard.right.effect.health;
+                const moralDelta = choice === 'left' ? currentCard.left.effect.moral : currentCard.right.effect.moral;
+                const foodDelta = choice === 'left' ? currentCard.left.effect.food : currentCard.right.effect.food;
+
+                setTutoHunger(tutoFood - hungerDelta);
+                setTutoSecurity(tutoSecurity - securityDelta);
+                setTutoHealth(tutoHealth - healthDelta);
+                setTutoMoral(tutoMoral - moralDelta);
+                setTutoFood(tutoFood - foodDelta);
+  
+                setTimeout(() => {
+                    setIndexCardTuto(prev => prev + 1); // on passe à la carte tuto suivante
+                }, 100);
+
+            }
+            else{
+                cancelAnimation(barBlink);
+                barBlink.value = 1;
+                resetTuto();
+                dispatch(setFirstGame(false)); // fin du tuto
+            }
+            
+            setTriggerReset(!triggerReset); // on déclenche le retournement de la carte
+
+            setTimeout(() => {
+                SetLocked(false); // On débloque les interractions pour le joueur
+            }, 200);
+
+
+    }
+
     // On valide le swipe à gauche
     const onSwipeLeft = () => {
         setCurrentSide('left');
-        if(!gameover){
-            AudioManager.playEffect('validate');
-            handleChoice();
+
+        if(!tuto){
+            if(!gameover){
+                AudioManager.playEffect('validate');
+                handleChoice();
+            }
+            else{
+                handleGameover(lastResponse?.achievements || []);
+            }
         }
         else{
-            handleGameover(lastResponse?.achievements || []);
+            handleNextTutoCard('left');
         }
 
     };
@@ -305,23 +365,27 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const onSwipeRight = () => {
         setCurrentSide('right');
 
-        if(!gameover){
-            AudioManager.playEffect('validate');
-            handleChoice();
-        }
-        else{
-            handleGameover(lastResponse?.achievements || []);
+        if(!tuto){
+            if(!gameover){
+                AudioManager.playEffect('validate');
+                handleChoice();
+            }
+            else{
+                handleGameover(lastResponse?.achievements || []);
+            }
+        }else{
+            handleNextTutoCard('right');
         }
     };
 
     
     // GESTION DE L'AFFICHAGE DES JAUGES
-    // On clamp les valeurs entre 0 et 100
-    const hunger = Math.min(Math.max(user.stateOfGauges.hunger, 0), 100);
-    const security = Math.min(Math.max(user.stateOfGauges.security, 0), 100);
-    const health = Math.min(Math.max(user.stateOfGauges.health, 0), 100);
-    const moral = Math.min(Math.max(user.stateOfGauges.moral, 0), 100);
-    const food = Math.min(Math.max(user.stateOfGauges.food, 0), 100);
+    // On clamp les valeurs entre 0 et 100, et si on est en phase de tuto, on affiche la valeur du tuto
+    const hunger = tuto ? tutoHunger : Math.min(Math.max(user.stateOfGauges.hunger, 0), 100);
+    const security = tuto ? tutoSecurity : Math.min(Math.max(user.stateOfGauges.security, 0), 100);
+    const health = tuto ? tutoHealth : Math.min(Math.max(user.stateOfGauges.health, 0), 100);
+    const moral = tuto ? tutoMoral : Math.min(Math.max(user.stateOfGauges.moral, 0), 100);
+    const food = tuto ? tutoFood : Math.min(Math.max(user.stateOfGauges.food, 0), 100);
 
     const deltaFoodGauge = 5;    // on ajoute un petit décalage pour éviter que l'icone maque les valeurs basses de la jauge
     const newPercentFood = food === 0 ? 0 : deltaFoodGauge + food * (100 - deltaFoodGauge) / 100;
@@ -359,6 +423,23 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     const foodBlinkStyle = useAnimatedStyle(() => ({  // style à appliquer sur la jauge pour afficher le clignotement
         opacity: foodBlink.value
+    }));
+
+    // Animation de clignotement de la barre de nourriture pendant le tuto
+    useEffect(() => {
+    if (tuto && indexCardTuto === 2) {
+        barBlink.value = withRepeat(
+        withTiming(0, { duration: 800 }), //met 1s à jouer l'animation
+        -1, // boucle à l'infini
+        true // mode reverse
+        );
+    } else {
+        barBlink.value = withTiming(1, { duration: 300 }); // retour à la normale quand la jauge n'est plus vide
+    }
+    }, [indexCardTuto, tuto]);
+
+    const barBlinkStyle = useAnimatedStyle(() => ({  // style à appliquer sur la jauge pour afficher le clignotement
+        opacity: barBlink.value
     }));
 
     // mise à jour progressive de la jauge de nourriture quand elle est modifiée
@@ -427,7 +508,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                                 {gameover && 
                                 <Animated.View 
                                 style={styles.gameoverSection}
-                                entering={FadeIn.duration(800).delay(1000)}
+                                entering={FadeIn.duration(600).delay(1000)}
                                 exiting={FadeOut.duration(200)}
                                 >
                                     <Image source={require('../assets/icon-skull.png')} resizeMode="contain" style={styles.skullLogo} />
@@ -467,12 +548,19 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
                         </View>
                     </Animated.View>               
                 </View>
+                {tuto && 
+                <View style={styles.tutorialContainer}>
+                    <View style={styles.tutorialContainer}>
+                        <Image source={require('../assets/tutorial.png')} style={styles.tutorial} />
+                    </View>
+                </View>
+                }
                 <View style={styles.bottomSection}>
                     <View style={styles.foodSection}>
                         <View style={styles.foodGlobalContent}>
                             
                             <View style={[styles.foodBarContainer]}>
-                                <Animated.View style={[styles.foodBarFill, foodAnimatedStyle]} />
+                                <Animated.View style={[styles.foodBarFill, foodAnimatedStyle, barBlinkStyle]} />
                             </View>
                             <Animated.Image source={require('../assets/icon-food.png')} style={[styles.foodIcon, foodBlinkStyle]} />
                         </View>
@@ -486,6 +574,18 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 }
 
 const styles = StyleSheet.create({
+    tutorialContainer:{
+        position: 'absolute',
+        top : 45,
+        width : '100%',
+        alignItems: 'center'
+
+    },
+    tutorial:{
+        width: 224,
+        height: 40,
+
+    },
     backgroundImage: {
         flex: 1,
         alignItems: 'center',

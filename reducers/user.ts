@@ -59,11 +59,12 @@ export type UserState= {
         btnSoundOn: boolean;
         soundOn: boolean;
         volume: number;
+        firstGame: boolean;
     }
 }
 
 const initialState: UserState = {
-    value : {email: null, username: null, token: null, refreshToken: null, stateOfGauges: null, numberDays: null, bestScore: null, currentCard: null, btnSoundOn: true, soundOn: true, volume: 50},
+    value : {email: null, username: null, token: null, refreshToken: null, stateOfGauges: null, numberDays: null, bestScore: null, currentCard: null, btnSoundOn: true, soundOn: true, volume: 50, firstGame: true},
 };
 
 export const userSlice = createSlice({
@@ -119,8 +120,12 @@ export const userSlice = createSlice({
                 state.value.volume = action.payload.volume;
             }
         },
+        setFirstGame : (state, action: PayloadAction<boolean>) =>{
+            console.log("setFirstGame " + action.payload);
+            state.value.firstGame = action.payload
+        }
     }
 });
 
-export const { signin, setGameState, setGauges, setCurrentCard, setCurrentNumberDays, setUserData, signout, updateBestScore, updateSettings, updateTokens } = userSlice.actions;
+export const { signin, setGameState, setGauges, setCurrentCard, setCurrentNumberDays, setUserData, signout, updateBestScore, updateSettings, updateTokens, setFirstGame } = userSlice.actions;
 export default userSlice.reducer;
