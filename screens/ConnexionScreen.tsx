@@ -52,7 +52,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
             fetch(`${BACKEND_ADDRESS}/users/signin`, {
                 method: 'POST',
                 headers: {'Content-Type' : 'application/json'},
-                body: JSON.stringify({username, password})
+                body: JSON.stringify({username : username.trim(), password})
             })
             .then(response => {console.log("response received"); return response.json()})
             .then(data => {
@@ -204,8 +204,8 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
 
 
 
-                    <TouchableOpacity onPress={() => {setIsResetPWDVisible(true); setUsername(''); setPassword('')}} style={styles.buttonReset} activeOpacity={0.8}>
-                        <Text style={styles.buttonTextResetPwd}>Mot de passe oublié ?</Text>
+                    <TouchableOpacity onPress={() => {setIsResetPWDVisible(true); setUsername(''); setPassword('')}} activeOpacity={0.8}>
+                        <Text style={styles.textResetPwd}>Mot de passe oublié ?</Text>
                     </TouchableOpacity>
                     <Modal
                     visible = {isResetPWDVisible}
@@ -227,14 +227,14 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                 />
                                 {emailError && <Text style={styles.error}>Email invalide</Text>}
                                 <View style={styles.modalButtons}>
-                                    <TouchableOpacity style={styles.btn} onPress={handleResetPassword} disabled={loading}>
+                                    <TouchableOpacity style={styles.btnValid} onPress={handleResetPassword} disabled={loading}>
                                         {loading ? (
                                         <ActivityIndicator color="#FFE7BF" size="small" />
                                     ) : (
                                         <Text style={styles.buttonTextModal}>Valider</Text>
                                     )}
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.btn} onPress={()=> {setIsResetPWDVisible(false); setEmailReset(''); setEmailError(false)}}>
+                                    <TouchableOpacity style={styles.btnCancel} onPress={()=> {setIsResetPWDVisible(false); setEmailReset(''); setEmailError(false)}}>
                                         <Text style={styles.buttonTextModal}>Annuler</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -243,10 +243,10 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                     </Modal>
                     
 
-
+                    <View style={styles.line}></View>
                     <Text style={styles.title2}>Pas encore de compte ?</Text>
                     <TouchableOpacity onPress={() => {AudioManager.playEffect('click'); setIsSignupVisible(true); setUsername(''); setPassword('')}} style={styles.button} activeOpacity={0.8}>
-                        <Text style={styles.buttonText}>Créer un compte</Text>
+                        <Text style={styles.buttonCreate}>Créer un compte</Text>
                     </TouchableOpacity>
                     <Modal
                     visible = {isSignupVisible}
@@ -256,7 +256,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                     >
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
-                                <Text style={styles.modalTitle}>Rejoins la survie!</Text>
+                                <Text style={styles.modalTitle}>REJOINS LA SURVIE !</Text>
                                 <TextInput
                                     style={styles.inputModal}
                                     placeholder="Email"
@@ -296,10 +296,10 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                 {signupError && <Text style={styles.error}>{signupError}</Text>}
 
                                 <View style={styles.modalButtons}>
-                                    <TouchableOpacity style={styles.btn} onPress={handleSignup}>
+                                    <TouchableOpacity style={styles.btnValid} onPress={handleSignup}>
                                         <Text style={styles.buttonTextModal}>Valider</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.btn} onPress={()=> {AudioManager.playEffect('click'); setIsSignupVisible(false); setEmailSignup(''); setUsernameSignup(''); setPasswordSignup('')}}>
+                                    <TouchableOpacity style={styles.btnCancel} onPress={()=> {AudioManager.playEffect('click'); setIsSignupVisible(false); setEmailSignup(''); setUsernameSignup(''); setPasswordSignup('')}}>
                                         <Text style={styles.buttonTextModal}>Annuler</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        paddingTop: 150
     },
     text: {
         alignItems: 'center',
@@ -325,21 +326,20 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 40,
         fontWeight: '600',
-        fontFamily: 'Futura',
         paddingBottom: 30,
         alignItems: 'center',
         justifyContent: 'center',
-        color:"#FFE7BF"      
+        color:"#FFE7BF",
+        fontFamily: 'ArialRounded',      
     },
 
     title2:{
-        fontSize: 30,
+        fontSize: 24,
         fontWeight: '600',
-        fontFamily: 'Futura',
+        fontFamily: 'ArialRounded',
         paddingBottom: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 55,
         color:"#FFE7BF"   
     },
 
@@ -375,11 +375,12 @@ const styles = StyleSheet.create({
     },
 
     modalTitle:{
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: "600",
-        marginBottom: 15,
+        marginBottom: 20,
         textAlign: "center",
-        color: "#FFE7BF"
+        color: "#FFE7BF",
+        fontFamily: 'ArialRounded',
     },
 
     input:{
@@ -413,15 +414,22 @@ const styles = StyleSheet.create({
         margin: 5,
     },
 
-    btn:{
+    btnValid:{
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#342C29',
-        width: 100,
-        height: 40,
+        backgroundColor: '#73954d',
+        width: 120,
+        height: 50,
         borderRadius: 8,
-        borderWidth: 1,
-        borderColor: "#FFE7BF",
+    },
+
+     btnCancel:{
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#cf5a34',
+        width: 120,
+        height: 50,
+        borderRadius: 8,
     },
 
     buttonText: {
@@ -429,10 +437,19 @@ const styles = StyleSheet.create({
         fontSize: 23,
         fontWeight: 'bold',
         color: '#EFDAB7',
+        fontFamily: 'ArialRounded',
+    },
+    buttonCreate: {
+        textTransform: 'uppercase',
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#EFDAB7',
+        fontFamily: 'ArialRounded',
     },
 
     buttonTextModal: {
         textTransform: 'uppercase',
+        fontFamily: 'ArialRounded',
         fontSize: 18,
         fontWeight: 'bold',
         color: '#EFDAB7',
@@ -444,6 +461,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: 'center',
         fontWeight: '500',
+        fontFamily: 'ArialRounded',
     },
 
     eyeButton: {
@@ -462,7 +480,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
 
-     passwordInput: {
+    passwordInput: {
         flex: 1,
         height: '100%',
         color: "#342C29",
@@ -488,11 +506,16 @@ passwordInputModal: {
     color: '#342C29',
     fontSize: 16,
 },
-buttonTextResetPwd: {
-    textTransform: 'uppercase',
-    fontSize: 15,
+textResetPwd: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#EFDAB7',
+    textAlign: 'center',
+    fontFamily: 'ArialRounded',
+    marginVertical : 10,
+    textShadowColor: '#242120',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
 },
 buttonReset: {
     alignItems: 'center',
@@ -505,4 +528,10 @@ buttonReset: {
     borderRadius: 15,
     margin: 15,
 },
+line:{
+    width : 250,
+    height: 1.5,
+    backgroundColor : '#EFDAB7',
+    marginVertical : 50
+}
 });

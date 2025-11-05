@@ -1,13 +1,14 @@
-import { store } from '../App';
-import { updateAccestoken, signout } from '../reducers/user';
+import { store } from '../store';
+import { updateTokens, signout } from '../reducers/user';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export const fetchWithAuth = async (endpoint: string, options: any = {}) => {
-  const state = store.getState();
+  
+  try{
+    const state = store.getState();
   const { token: accessToken, refreshToken } = state.user.value;
 
-console.log('STATE REDUX:', state.user.value)
 
   let response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
@@ -16,32 +17,34 @@ console.log('STATE REDUX:', state.user.value)
 
   // Si 401 → refresh
   if (response.status === 401) {
-    console.log(' TOKEN EXPIRÉ')
-    console.log('refresh token utilisé :', refreshToken);
-    const newToken = await fetch(`${API_URL}/auth/refresh`, {
+
+    const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken })
-    }).then(r => {
-      console.log('Status refresh:', r.status); // ← LOG
-      return r.json();
-    }).then(d => {
-      console.log('Response refresh:', d); // ← LOG
-      return d;
-    });
+    })
 
-    console.log('newToken reçu :', newToken.token);
-    if (newToken.token) {
-        console.log('NOUVEAU TOKEN OBTENU');
-      store.dispatch(updateAccestoken(newToken.token));
+    if(!refreshResponse.ok){
+        store.dispatch(signout());
+        return response;
+        }
+    
+    const newToken = await refreshResponse.json();
+
+    if (newToken.tokens.token) {
+      store.dispatch(updateTokens(newToken.tokens));;
       response = await fetch(`${API_URL}${endpoint}`, {
         ...options,
-        headers: { Authorization: `Bearer ${newToken.token}`, ...options.headers }
+        headers: { Authorization: `Bearer ${newToken.tokens.token}`, ...options.headers }
       });
     } else {
-      console.log('REFRESH ÉCHOUÉ - DÉCONNEXION');
       store.dispatch(signout());
     }
   }
   return response;
+    } catch (error) {
+        // gestion globale des erreurs
+        console.error('fetchWithAuth error:', error);
+        throw error;
+    }
 };

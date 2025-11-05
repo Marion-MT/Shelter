@@ -24,6 +24,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
     const [soundClicEnabled, setSoundClicEnabled] = useState(user.btnSoundOn);
     const [soundClicText, setSoundClicText] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
+    const [resetConfirmationModal, setResetConfirmationModal] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -105,7 +106,7 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
         .then(data => {
             if (data.result === true) {
                 dispatch(updateBestScore(data.bestScore));
-                Alert.alert('Compte réinitialisé avec succès')
+                setResetConfirmationModal(true);
                 return;
             } else {
                 console.log('Échec de la réinitialisation du compte');
@@ -201,6 +202,26 @@ export default function ParametreScreen({ navigation }: ParametreScreenProps ) {
                                     </View>   
                                 </View>
                             </View>
+                        </Modal>
+                        <Modal
+                        visible={resetConfirmationModal}
+                        transparent
+                        >
+                        <View style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0,0,0,0.5)'
+                        }}>
+                            <View style={styles.confirmModal}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: "#ffe7bf" , fontFamily: "ArialRounded"}}>
+                                Compte réinitialisé avec succès
+                            </Text>
+                            <TouchableOpacity style={styles.btnContainerYes} onPress={() => setResetConfirmationModal(false)}>
+                                <Text style={styles.modalBtnText }>OK</Text>
+                            </TouchableOpacity>
+                            </View>
+                        </View>
                         </Modal>
                     </View>
                 </View>
@@ -374,5 +395,15 @@ const styles = StyleSheet.create({
         fontSize: 20,
         textTransform: 'uppercase',
         fontFamily: 'ArialRounded',
+    },
+    confirmModal :{
+        backgroundColor: '#242120',
+        padding: 20,
+        borderRadius: 12,
+        width: '80%',
+        alignItems: 'center',
+        borderWidth: 4,
+        borderColor: '#554946',
+        gap : 20
     },
 });

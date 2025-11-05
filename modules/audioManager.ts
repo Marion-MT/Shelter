@@ -15,8 +15,9 @@ class AudioManager {
   private static musicMuted = false;
   private static effectsMuted = false;
   private static volume = 0.2;
+  private static fadeDuration = 1000; // ms
 
-  // --- Préchargement ---
+  // Précharge tous les sons
   static async preloadAll() {
     for (const key of Object.keys(soundFiles) as SoundKey[]) {
       if (!this.sounds[key]) {
@@ -24,64 +25,79 @@ class AudioManager {
         await sound.loadAsync(soundFiles[key]);
         if (key === 'background' || key === 'backgroundGame') {
           await sound.setIsLoopingAsync(true);
-          await sound.setVolumeAsync(this.volume);
+          await sound.setVolumeAsync(0); // démarrage muet
         }
         this.sounds[key] = sound;
       }
     }
   }
 
-  // --- Musique de fond (menu) ---
+  // Permet la fondu du son lors des transitions
+  private static async fadeSound(sound: Audio.Sound, from: number, to: number, duration: number) {
+    const steps = 10;
+    const stepTime = duration / steps;
+    const stepVolume = (to - from) / steps;
+
+    for (let i = 0; i <= steps; i++) {
+      await sound.setVolumeAsync(from + stepVolume * i);
+      await new Promise((r) => setTimeout(r, stepTime));
+    }
+  }
+
+  // Musique de fond du menu
   static async playBackground() {
     if (this.musicMuted) return;
-
-    // Coupe la musique de jeu si elle tourne
-    await this.pauseBackgroundGame();
-
-    const sound = this.sounds.background;
-    if (!sound) return;
-    const status = await sound.getStatusAsync();
-    if (status.isPlaying) return;
-
-    await sound.setPositionAsync(0);
-    await sound.setVolumeAsync(this.volume);
-    await sound.playAsync();
+    await this.crossFade('backgroundGame', 'background');
   }
 
   static async pauseBackground() {
     const sound = this.sounds.background;
     if (sound) {
+      await this.fadeSound(sound, this.volume, 0, this.fadeDuration);
       const status = await sound.getStatusAsync();
       if (status.isPlaying) await sound.pauseAsync();
     }
   }
 
-  // --- Musique de jeu ---
+  // Musique de fond pendant une partie
   static async playBackgroundGame() {
     if (this.musicMuted) return;
-
-    // Coupe la musique du menu si elle tourne
-    await this.pauseBackground();
-
-    const sound = this.sounds.backgroundGame;
-    if (!sound) return;
-    const status = await sound.getStatusAsync();
-    if (status.isPlaying) return;
-
-    await sound.setPositionAsync(0);
-    await sound.setVolumeAsync(this.volume);
-    await sound.playAsync();
+    await this.crossFade('background', 'backgroundGame');
   }
 
   static async pauseBackgroundGame() {
     const sound = this.sounds.backgroundGame;
     if (sound) {
+      await this.fadeSound(sound, this.volume, 0, this.fadeDuration);
       const status = await sound.getStatusAsync();
       if (status.isPlaying) await sound.pauseAsync();
     }
   }
 
-  // --- Bruitages ---
+  // Fondu entre deux musiques
+  private static async crossFade(fromKey: SoundKey, toKey: SoundKey) {
+    const fromSound = this.sounds[fromKey];
+    const toSound = this.sounds[toKey];
+
+    if (fromSound) {
+      const status = await fromSound.getStatusAsync();
+      if (status.isPlaying) {
+        await this.fadeSound(fromSound, this.volume, 0, this.fadeDuration);
+        await fromSound.pauseAsync();
+      }
+    }
+
+    if (toSound) {
+      const status = await toSound.getStatusAsync();
+      if (!status.isPlaying) {
+        await toSound.setPositionAsync(0);
+        await toSound.playAsync();
+      }
+      await this.fadeSound(toSound, 0, this.volume, this.fadeDuration);
+    }
+  }
+
+  // Bruitages
   static async playEffect(type: Exclude<SoundKey, 'background' | 'backgroundGame'>) {
     if (this.effectsMuted) return;
     const effect = new Audio.Sound();
@@ -106,7 +122,7 @@ class AudioManager {
       await this.pauseBackground();
       await this.pauseBackgroundGame();
     } else {
-      await this.playBackground(); // relance la musique du menu
+      await this.playBackground();
     }
   }
 
@@ -116,15 +132,13 @@ class AudioManager {
 
   static async setMusicVolume(value: number) {
     this.volume = value / 100;
-
     const bg = this.sounds.background;
     const bgGame = this.sounds.backgroundGame;
-
     if (bg) await bg.setVolumeAsync(this.volume);
     if (bgGame) await bgGame.setVolumeAsync(this.volume);
   }
 
-  // --- Nettoyage ---
+  // Nettoyage des son a la fermeture de l'apllication
   static async unloadAll() {
     for (const key in this.sounds) {
       await this.sounds[key as SoundKey]?.unloadAsync();

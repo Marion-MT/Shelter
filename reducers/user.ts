@@ -76,8 +76,9 @@ export const userSlice = createSlice({
             state.value.email = action.payload.email;
             state.value.username = action.payload.username;
         },
-        updateAccestoken:(state, action: PayloadAction<string>) => {
-            state.value.token = action.payload;
+        updateTokens:(state, action: PayloadAction<{token:string; refreshToken:string;}>) => {
+            state.value.token = action.payload.token;
+            state.value.refreshToken = action.payload.refreshToken;
         },
         setGameState:(state, action: PayloadAction<{stateOfGauges: Gauge; numberDays: number; currentCard: Card}>) => {
             state.value.stateOfGauges = action.payload.stateOfGauges;
@@ -121,5 +122,5 @@ export const userSlice = createSlice({
     }
 });
 
-export const { signin, setGameState, setGauges, setCurrentCard, setCurrentNumberDays, setUserData, signout, updateBestScore, updateSettings, updateAccestoken } = userSlice.actions;
+export const { signin, setGameState, setGauges, setCurrentCard, setCurrentNumberDays, setUserData, signout, updateBestScore, updateSettings, updateTokens } = userSlice.actions;
 export default userSlice.reducer;
