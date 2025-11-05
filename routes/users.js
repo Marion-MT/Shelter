@@ -10,6 +10,8 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto')
 const { sendResetEmail } = require('../utilitaires/emailService');
 
+const FRONT_END_RESET = process.env.FRONT_END_RESET
+
 /////////////////Routes POST////////////////////
       ////////Route Inscription////////
       router.post('/signup', (req, res) => {
@@ -212,7 +214,7 @@ router.post('/forgot-password', async (req, res) => {
         await user.save();
         
         // Envoyer l'email
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+        const resetLink = `${FRONT_END_RESET}/reset-password?token=${token}`;
         await sendResetEmail(user.email, resetLink);
         
         res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
