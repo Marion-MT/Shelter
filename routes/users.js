@@ -217,7 +217,7 @@ router.post('/forgot-password', async (req, res) => {
         const resetLink = `${FRONT_END_RESET}/reset-password?token=${token}`;
         await sendResetEmail(user.email, resetLink);
         
-        res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+        res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé. Pensez à regarder dans les spams' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erreur serveur' });

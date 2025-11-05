@@ -15,7 +15,13 @@ var app = express();
 require('./models/connection')
 
 const cors = require("cors");
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3001',
+    'http://192.168.1.78:3001',
+    'https://shelter-reset.vercel.app'
+  ]
+}));
 
 app.use(logger('dev'));
 app.use(express.json());

@@ -164,7 +164,7 @@ describe('POST /signup', () => {
 
     // Vérifie que le token est stocké dans la base de données
     const userInDb = await User.findOne({ username: userData.username });
-    expect(userInDb.token).toBe(res.body.token);
+    expect(userInDb.refreshToken.token).toBe(res.body.refreshToken.token);
   });
 
   // Test 8: Body complètement vide
