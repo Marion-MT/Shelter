@@ -119,9 +119,9 @@ export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
 });
 
   const medalsImages = [
-    require('../assets/top1.png'),
-    require('../assets/top2.png'),
-    require('../assets/top3.png')
+    require('../assets/icon-top1.png'),
+    require('../assets/icon-top2.png'),
+    require('../assets/icon-top3.png')
   ];
 
 

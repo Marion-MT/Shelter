@@ -48,14 +48,6 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
     
     const succes = achievements.map((data, i)=> {
         return <Achievement key={i} name={data.name} description={data.description} image={data.image} isUnlocked={true}/>
-   /* return(
-        <View key={i} style={styles.unlockedAchievement}>
-            <View style={styles.textContainer}>
-                <Text style={styles.name}>{data.name}</Text>
-                <Text style={styles.description}>{data.description.endsWith('.') ? data.description : `${data.description}.`}</Text>
-            </View>
-        </View>
-    )*/
     });
 
     const checkScore = () => {
@@ -219,9 +211,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     newLogo: {
-        marginLeft: 15,
-        width: 65,
-        height: 65,
+        width: 50,
+        height: 50,
+        position: 'absolute',
+        top: -70,
+        left : 80
     },
     bestScore: {
         marginTop: 20,

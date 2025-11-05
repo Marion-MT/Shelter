@@ -23,6 +23,8 @@ export function getImage(type : String){
             return require('../assets/pictures/icon-expedition.png');
         case 'fight' :    
             return require('../assets/pictures/icon-fight.png');
+        case 'fishing' :    
+            return require('../assets/pictures/icon-fishing.png');
         case 'foraging' :    
             return require('../assets/pictures/icon-foraging.png');
         case 'garden' :    
