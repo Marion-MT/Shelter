@@ -16,7 +16,7 @@ class AudioManager {
   private static effectsMuted = false;
   private static volume = 0.2;
 
-  // --- Préchargement ---
+  // Préchargement
   static async preloadAll() {
     for (const key of Object.keys(soundFiles) as SoundKey[]) {
       if (!this.sounds[key]) {
@@ -31,59 +31,107 @@ class AudioManager {
     }
   }
 
-  // --- Musique de fond (menu) ---
+  // --- Fonction interne : charge un son manquant ---
+  private static async loadSound(key: SoundKey) {
+    const sound = new Audio.Sound();
+    await sound.loadAsync(soundFiles[key]);
+    if (key === 'background' || key === 'backgroundGame') {
+      await sound.setIsLoopingAsync(true);
+      await sound.setVolumeAsync(this.volume);
+    }
+    this.sounds[key] = sound;
+    return sound;
+  }
+
+  // --- Fonction interne : stoppe tout sauf une clé donnée ---
+  private static async stopAllExcept(exceptKey: SoundKey) {
+    for (const key of Object.keys(this.sounds) as SoundKey[]) {
+      if (key !== exceptKey) {
+        const sound = this.sounds[key];
+        if (sound) {
+          const status = await sound.getStatusAsync();
+          if (status.isLoaded && status.isPlaying) {
+            await sound.stopAsync();
+          }
+        }
+      }
+    }
+  }
+
+  // Musique de fond du menu
   static async playBackground() {
     if (this.musicMuted) return;
 
-    // Coupe la musique de jeu si elle tourne
-    await this.pauseBackgroundGame();
+    try {
+      if (!this.sounds.background) {
+        await this.loadSound('background');
+      }
 
-    const sound = this.sounds.background;
-    if (!sound) return;
-    const status = await sound.getStatusAsync();
-    if (status.isPlaying) return;
+      const sound = this.sounds.background!;
+      const status = await sound.getStatusAsync();
 
-    await sound.setPositionAsync(0);
-    await sound.setVolumeAsync(this.volume);
-    await sound.playAsync();
+      if (!status.isLoaded) {
+        await this.loadSound('background');
+      }
+
+      await this.stopAllExcept('background');
+
+      await sound.setVolumeAsync(this.volume);
+      await sound.playAsync();
+    } catch (error) {
+      console.log('Erreur playBackground :', error);
+    }
   }
 
   static async pauseBackground() {
     const sound = this.sounds.background;
     if (sound) {
       const status = await sound.getStatusAsync();
-      if (status.isPlaying) await sound.pauseAsync();
+      if (status.isLoaded && status.isPlaying) {
+        await sound.pauseAsync();
+      }
     }
   }
 
-  // --- Musique de jeu ---
+  // Musique de fond de la partie
   static async playBackgroundGame() {
     if (this.musicMuted) return;
 
-    // Coupe la musique du menu si elle tourne
-    await this.pauseBackground();
+    try {
+      if (!this.sounds.backgroundGame) {
+        await this.loadSound('backgroundGame');
+      }
 
-    const sound = this.sounds.backgroundGame;
-    if (!sound) return;
-    const status = await sound.getStatusAsync();
-    if (status.isPlaying) return;
+      const sound = this.sounds.backgroundGame!;
+      const status = await sound.getStatusAsync();
 
-    await sound.setPositionAsync(0);
-    await sound.setVolumeAsync(this.volume);
-    await sound.playAsync();
+      if (!status.isLoaded) {
+        await this.loadSound('backgroundGame');
+      }
+
+      await this.stopAllExcept('backgroundGame');
+
+      await sound.setVolumeAsync(this.volume);
+      await sound.playAsync();
+    } catch (error) {
+      console.log('Erreur playBackgroundGame :', error);
+    }
   }
 
   static async pauseBackgroundGame() {
     const sound = this.sounds.backgroundGame;
     if (sound) {
       const status = await sound.getStatusAsync();
-      if (status.isPlaying) await sound.pauseAsync();
+      if (status.isLoaded && status.isPlaying) {
+        await sound.pauseAsync();
+      }
     }
   }
 
-  // --- Bruitages ---
+  // Bruitages
   static async playEffect(type: Exclude<SoundKey, 'background' | 'backgroundGame'>) {
     if (this.effectsMuted) return;
+
     const effect = new Audio.Sound();
     try {
       await effect.loadAsync(soundFiles[type]);
@@ -106,7 +154,8 @@ class AudioManager {
       await this.pauseBackground();
       await this.pauseBackgroundGame();
     } else {
-      await this.playBackground(); // relance la musique du menu
+      // On redémarre uniquement la musique du menu si on est dans un écran menu
+      await this.playBackground();
     }
   }
 
@@ -124,10 +173,16 @@ class AudioManager {
     if (bgGame) await bgGame.setVolumeAsync(this.volume);
   }
 
-  // --- Nettoyage ---
+  // Nettoyage des sons quand on quitte l'application
   static async unloadAll() {
     for (const key in this.sounds) {
-      await this.sounds[key as SoundKey]?.unloadAsync();
+      const sound = this.sounds[key as SoundKey];
+      if (sound) {
+        const status = await sound.getStatusAsync();
+        if (status.isLoaded) {
+          await sound.unloadAsync();
+        }
+      }
     }
     this.sounds = {};
   }

@@ -1,4 +1,4 @@
-import { store } from '../App';
+import { store } from '../store';
 import { updateTokens, signout } from '../reducers/user';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;

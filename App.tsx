@@ -1,12 +1,14 @@
 import 'react-native-reanimated';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-
 import { useEffect } from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { useFonts } from 'expo-font';
+
 import AudioManager from './modules/audioManager';
+import { store, persistor } from './store';  // import du store
 
 import ConnexionScreen from './screens/ConnexionScreen';
 import CreditScreen from './screens/CreditScreen';
@@ -19,70 +21,50 @@ import SplashScreen from './screens/SplashScreen';
 import SuccesScreen from './screens/SuccesScreen';
 import RecapGameScreen from './screens/RecapGameScreen';
 
-//redux imports
-import { Provider } from 'react-redux';
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import user from './reducers/user'
-
-/*const store= configureStore({
-  reducer: {user},
-})
-  */
-
-
-//redux-presist imports
-import { persistStore, persistReducer } from 'redux-persist';
-import { PersistGate } from 'redux-persist/integration/react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const reducers = combineReducers({user})
-const persistConfig = {
-  key: 'shelter',
-  storage: AsyncStorage
-}
-
-const store = configureStore({
-  reducer : persistReducer(persistConfig, reducers),
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware ({serializableCheck: false})
-})
-
-const persistor = persistStore(store);
-
-export { store }
-
-import { useFonts } from 'expo-font';
-
-
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 
-
+  // Charge les sons et lance la musique de fond du menu
   useEffect(() => {
-    (async () => {
+    const init = async () => {
       await AudioManager.preloadAll();
 
-      const state = store.getState().user.value;
-      AudioManager.setMusicMuted(!state.soundOn);
-      AudioManager.setEffectsMuted(!state.btnSoundOn);
-      AudioManager.setMusicVolume(state.volume);
-    })();
-
-    // Écoute automatique des changements Redux
-    const unsubscribe = store.subscribe(() => {
-      const { soundOn, btnSoundOn, volume } = store.getState().user.value;
-      AudioManager.setMusicMuted(!soundOn);
-      AudioManager.setEffectsMuted(!btnSoundOn);
-      AudioManager.setMusicVolume(volume);
-    });
-
-    return () => {
-      unsubscribe();
-      AudioManager.unloadAll();
+      await AudioManager.playBackground();
     };
+
+    init();
   }, []);
 
+  // Permet la transition de la musique de fond du menu a celle de la game
+  useEffect(() => {
+    let lastInGame = store.getState().game?.inGame;
+
+    const unsubscribe = store.subscribe(async () => {
+      const state = store.getState();
+      const inGame = state.game?.inGame;
+
+      if (inGame !== lastInGame) {
+        console.log(`🎮 Transition: ${lastInGame} → ${inGame}`);
+
+        if (inGame) {
+          console.log('🎵 Passage à la musique de jeu');
+          await AudioManager.pauseBackground();
+          await AudioManager.playBackgroundGame();
+        } else {
+          console.log('🎵 Retour à la musique du menu');
+          await AudioManager.pauseBackgroundGame();
+          await AudioManager.playBackground();
+        }
+
+        lastInGame = inGame;
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Chargement des polices
   const [loaded, error] = useFonts({
     DaysLater: require('./assets/fonts/28 Days Later.ttf'),
     ArialRounded: require('./assets/fonts/arialroundedmtbold.ttf'),
@@ -92,29 +74,26 @@ export default function App() {
     return null;
   }
 
-
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-          <GestureHandlerRootView>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name='SplashScreen' component={SplashScreen} />
-            {<Stack.Screen name='Introduction' component={IntroductionScreen} />}
-            <Stack.Screen name='Connexion' component={ConnexionScreen} />
-            <Stack.Screen name='Home' component={HomeScreen}/>
-            <Stack.Screen name='Parametre' component={ParametreScreen} />
-            <Stack.Screen name='Credit' component={CreditScreen} />
-            <Stack.Screen name='Succes' component={SuccesScreen} />
-            <Stack.Screen name='Game' component={GameScreen}/>
-            <Stack.Screen name='EndGame' component={EndGameScreen} />
-            <Stack.Screen name='RecapGame' component={RecapGameScreen} />
-            <Stack.Screen name='Splash' component={SplashScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <GestureHandlerRootView>
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="SplashScreen" component={SplashScreen} />
+              <Stack.Screen name="Introduction" component={IntroductionScreen} />
+              <Stack.Screen name="Connexion" component={ConnexionScreen} />
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Parametre" component={ParametreScreen} />
+              <Stack.Screen name="Credit" component={CreditScreen} />
+              <Stack.Screen name="Succes" component={SuccesScreen} />
+              <Stack.Screen name="Game" component={GameScreen} />
+              <Stack.Screen name="EndGame" component={EndGameScreen} />
+              <Stack.Screen name="RecapGame" component={RecapGameScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
         </GestureHandlerRootView>
-        </PersistGate>
+      </PersistGate>
     </Provider>
-
   );
 }

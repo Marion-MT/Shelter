@@ -19,6 +19,8 @@ import { setGauges, setCurrentCard, setCurrentNumberDays, Card } from "../reduce
 import AudioManager from "../modules/audioManager";
 import { getImage } from '../modules/imagesSelector';
 
+import { startGame, endGame } from "../reducers/gameSlice";
+
 
 type GameScreenProps = {
     navigation: NavigationProp<ParamListBase>;
@@ -69,17 +71,26 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const foodBlink = useSharedValue(1);
     const shakeOffset = useSharedValue(0); // pour seccouer la carte quand gameover
 
-    useFocusEffect(
-        useCallback(() => {
-
-        AudioManager.playBackgroundGame();
+    // Necessaire pour gérer la transition de musique
+    useEffect(() => {
+        dispatch(startGame());
 
         return () => {
-            AudioManager.pauseBackgroundGame();
-            AudioManager.playBackground();
+            dispatch(endGame());
         };
-    }, [])
+    }, [dispatch]);
+
+    // Transition de musique
+    useFocusEffect(
+        useCallback(() => {
+            AudioManager.playBackgroundGame();
+
+            return () => {
+                AudioManager.pauseBackgroundGame();
+            };
+        }, [])
     );
+
 
     const resetGame = () => {
         SetLocked(false);
@@ -106,6 +117,9 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     // Met à jour le côté où est penchée la carte (right/left/middle)
     const handleSideChange = (side: string) : void => {
+        if (side != currentSide) {
+            AudioManager.playEffect('scroll');
+        }
         setCurrentSide(side)
     }
 
@@ -278,6 +292,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const onSwipeLeft = () => {
         setCurrentSide('left');
         if(!gameover){
+            AudioManager.playEffect('validate');
             handleChoice();
         }
         else{
@@ -291,6 +306,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         setCurrentSide('right');
 
         if(!gameover){
+            AudioManager.playEffect('validate');
             handleChoice();
         }
         else{
