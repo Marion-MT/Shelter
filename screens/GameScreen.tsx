@@ -106,6 +106,9 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
 
     // Met à jour le côté où est penchée la carte (right/left/middle)
     const handleSideChange = (side: string) : void => {
+        if (side != currentSide) {
+            AudioManager.playEffect('scroll');
+        }
         setCurrentSide(side)
     }
 
@@ -278,6 +281,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
     const onSwipeLeft = () => {
         setCurrentSide('left');
         if(!gameover){
+            AudioManager.playEffect('validate');
             handleChoice();
         }
         else{
@@ -291,6 +295,7 @@ export default function GameScreen({ navigation }: GameScreenProps ) {
         setCurrentSide('right');
 
         if(!gameover){
+            AudioManager.playEffect('validate');
             handleChoice();
         }
         else{
