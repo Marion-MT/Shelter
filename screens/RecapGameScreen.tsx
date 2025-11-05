@@ -19,7 +19,7 @@ type Achievement = {
 };
 
 type RecapGameRouteParams = {
-  achievements: Achievement[];
+  achievements: [Achievement];
 };
 
 
@@ -31,7 +31,7 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
 
     const { achievements } = route.params;
 
-    console.log("achievements = ", achievements);
+    //console.log("achievements = ", achievements);
 
     // Update best score in reduce
     useFocusEffect(
