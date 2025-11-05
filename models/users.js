@@ -23,12 +23,12 @@ const userSchema = mongoose.Schema({
         default: () => ({})
     },
     unlockedAchievements : [{ type: mongoose.Schema.Types.ObjectId, ref: 'achievements' }],
-    refreshToken: [
+    refreshToken: 
         { 
         token: String, 
         expiresAt: Date
-        }
-    ]
+        },
+    
 })
 //userSchema.index({ resetPasswordExpires: 1 }, { expireAfterSeconds: 0 });
 const User = mongoose.model('users', userSchema);
