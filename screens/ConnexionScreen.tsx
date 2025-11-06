@@ -20,13 +20,11 @@ type ConnexionScreenProps = {
 const EMAIL_REGEX: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
-const USERNAME_SIGNIN = process.env.EXPO_PUBLIC_USERNAME_SIGNIN
-const PWD_SIGNIN = process.env.EXPO_PUBLIC_PWD_SIGNIN
 
 export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
        
-    const [username, setUsername] = useState(`${USERNAME_SIGNIN}`);
-    const [password, setPassword] = useState(`${PWD_SIGNIN}`);
+    const [username, setUsername] = useState(``);
+    const [password, setPassword] = useState(``);
     const [usernameSignup, setUsernameSignup] = useState(``);
     const [emailSignup, setEmailSignup] = useState('');
     const [passwordSignup, setPasswordSignup] = useState('');
