@@ -13,7 +13,6 @@ const fetchWithAuth = async (endpoint: string, options: any = {}) => {
   
   try{
     const state = store.getState();
-    console.log("state = ", state);
 
   const { token: accessToken, refreshToken } = state.user.value;
 
