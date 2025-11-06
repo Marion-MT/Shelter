@@ -17,7 +17,7 @@ require('./models/connection')
 const cors = require("cors");
 app.use(cors({
   origin: 'https://shelter-frontend-reset-web-lamy.vercel.app',
-//   credentials: true,
+  credentials: true,
 //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 //   allowedHeaders: ['Content-Type', 'Authorization']
 }));
