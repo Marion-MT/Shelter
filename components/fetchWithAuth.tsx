@@ -1,7 +1,9 @@
 import { store } from '../store';
 import { updateTokens, signout } from '../reducers/user';
 import { useNavigation } from '@react-navigation/native';
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
+
+import { DEPLOYED_BACKEND_ADDRESS } from "../modules/global";
+const API_URL = DEPLOYED_BACKEND_ADDRESS;//process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 
 export const useFetchWithAuth = () => {

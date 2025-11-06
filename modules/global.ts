@@ -1,0 +1,1 @@
+export const DEPLOYED_BACKEND_ADDRESS = "https://shelter-backend-five.vercel.app/";

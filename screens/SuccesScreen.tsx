@@ -11,6 +11,8 @@ import AudioManager from '../modules/audioManager';
 
 import { getImage } from '../modules/imagesSelector';
 
+import { DEPLOYED_BACKEND_ADDRESS } from "../modules/global";
+
 type SuccesScreenProps = {
     navigation: NavigationProp<ParamListBase>;
 }
@@ -26,7 +28,7 @@ type TopPlayer = {
     username: string,
 }
 
-const BACKEND_ADDRESS = process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
+const BACKEND_ADDRESS = DEPLOYED_BACKEND_ADDRESS;//process.env.EXPO_PUBLIC_BACKEND_ADDRESS;
 
 export default function SuccesScreen({ navigation }: SuccesScreenProps ) {
   const fetchWithAuth = useFetchWithAuth();
