@@ -63,7 +63,7 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
                         <Image source={require('../assets/icon-new.png')} style={styles.newLogo} />
                         </View>
                         <View style={styles.bestScore}>
-                            <Image source={require('../assets/icon-star-2.png')} style={styles.star} />
+                            <Image source={require('../assets/icon-star.png')} style={styles.star} />
                             <Text style={styles.bestScoreText}>Last Record : {previousBestScore} jour{previousBestScore > 1 ? 's' : ''}</Text>
                         </View>
                         {succes.length === 0 ? (
@@ -88,7 +88,7 @@ export default function RecapGameScreen({ navigation, route }: RecapGameScreenPr
                     </View>
                     <Text style={styles.daysText}>Jours</Text>
                     <View style={styles.bestScore}>
-                        <Image source={require('../assets/icon-star-2.png')} style={styles.star} />
+                        <Image source={require('../assets/icon-star.png')} style={styles.star} />
                         <Text style={styles.bestScoreText}>Record : {user.bestScore} jour{user.bestScore > 1 ? 's' : ''}</Text>
                     </View>
                     {succes.length === 0 ? (
