@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     },
 
     title2:{
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: '600',
         fontFamily: 'ArialRounded',
         paddingBottom: 30,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     },
 
     modalTitle:{
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: "600",
         marginBottom: 15,
         textAlign: "center",
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#342C29',
-        width: 100,
+        width: 120,
         height: 40,
         borderRadius: 8,
         borderWidth: 1,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
 
     buttonText: {
         textTransform: 'uppercase',
-        fontSize: 22,
+        fontSize: 20,
         fontFamily: 'ArialRounded',
         color: '#EFDAB7',
     },
@@ -492,7 +492,7 @@ passwordInputModal: {
     fontSize: 16,
 },
 buttonTextResetPwd: {
-    fontSize: 13,
+    fontSize: 16,
     color: '#EFDAB7',
     fontFamily: 'ArialRounded',
 
@@ -501,7 +501,7 @@ buttonTextResetPwd: {
 buttonReset: {
     alignItems: 'center',
     justifyContent: "space-around",
-    width: 150,
+    width: 180,
     height: 25,
     borderBottomWidth : 1.5,
     borderBottomColor: "#342C29",
