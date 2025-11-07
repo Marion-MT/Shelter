@@ -4,7 +4,7 @@
     "slug": "Shelter",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon-game.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -19,9 +19,9 @@
       }
     },
     "android": {
-      "icon": "./assets/icon-game.png",
+      "icon": "./assets/icon.png",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-game.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

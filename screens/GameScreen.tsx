@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
     textEvent: {
         color: '#ffe7bf',
         fontFamily: 'ArialRounded',
-        fontSize: 18,
+        fontSize: 16,
         textAlign: 'center'
     },
     gameoverSection:{
