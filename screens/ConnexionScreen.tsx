@@ -60,7 +60,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
             .then(data => {
                 if (data.result){
                     //stokage du token et redirection
-                    dispatch(signin({token : data.token, refreshToken: data.refreshToken, username, email: data.email}))
+                    dispatch(signin({token : data.token, refreshToken: data.refreshToken, username : username.trim(), email: data.email}))
                     setUsername('')
                     setPassword('')
                     SetSigninError('')
@@ -100,11 +100,11 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                 fetch(`${BACKEND_ADDRESS}/users/signup`,{
                     method: "POST",
                     headers:{'Content-Type' : 'application/json',},
-                    body: JSON.stringify({email: emailSignup, username: usernameSignup, password: passwordSignup})
+                    body: JSON.stringify({email: emailSignup, username: usernameSignup.trim(), password: passwordSignup})
                 }).then(response => response.json())
                 .then(data => {
                     if (data.result === true){
-                        dispatch(signin({token : data.token, refreshToken: data.refreshToken, username : usernameSignup, email: emailSignup}))
+                        dispatch(signin({token : data.token, refreshToken: data.refreshToken, username : usernameSignup.trim(), email: emailSignup}))
                         setEmailSignup('')
                         setUsername('')
                         setPasswordSignup('')
@@ -169,32 +169,36 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
                 <View style={styles.text}>
                     <Text style={styles.title}>Connexion</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Peudo"
-                        autoCapitalize="none"
-                        keyboardType='default'
-                        autoComplete="username"
-                        onChangeText={(value) => {AudioManager.playEffect('click'); setUsername(value); SetSigninError('')}}
-                        value={username}
-                    />
-
-                    <View style={styles.passwordContainer}>
-                        <TextInput 
-                            style={styles.passwordInput}
-                            placeholder="Password"
+                    <View style={styles.formContainer}>
+                        <Text style={styles.inputLabel}>Pseudo</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Peudo"
                             autoCapitalize="none"
-                            textContentType="password"
-                            autoCorrect = {false}
-                            keyboardType="default"
-                            secureTextEntry={!isPWDVisible}
-                            onChangeText={(value) => {AudioManager.playEffect('click'); setPassword(value); SetSigninError('')}}
-                            value={password}
+                            keyboardType='default'
+                            autoComplete="username"
+                            onChangeText={(value) => {AudioManager.playEffect('click'); setUsername(value); SetSigninError('')}}
+                            value={username}
                         />
-                        <TouchableOpacity style={styles.eyeButton} onPress={()=>setIsPWDvisible(!isPWDVisible)}>
-                            <Entypo name={isPWDVisible ? "eye-with-line" : "eye"} size={22} color={'#352c2bb0'}/>
-                        </TouchableOpacity>
+                        <Text style={styles.inputLabel}>Mot de passe</Text>
+                        <View style={styles.passwordContainer}>
+                            <TextInput 
+                                style={styles.passwordInput}
+                                placeholder="Password"
+                                autoCapitalize="none"
+                                textContentType="password"
+                                autoCorrect = {false}
+                                keyboardType="default"
+                                secureTextEntry={!isPWDVisible}
+                                onChangeText={(value) => {AudioManager.playEffect('click'); setPassword(value); SetSigninError('')}}
+                                value={password}
+                            />
+                            <TouchableOpacity style={styles.eyeButton} onPress={()=>setIsPWDvisible(!isPWDVisible)}>
+                                <Entypo name={isPWDVisible ? "eye-with-line" : "eye"} size={22} color={'#352c2bb0'}/>
+                            </TouchableOpacity>
+                        </View>
                     </View>
+                    
                     {signinError && <Text style={styles.error}>{signinError}</Text>}
                    
                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -219,6 +223,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
                                 <Text style={styles.modalTitle}>Demande de réinitialisation de mot de passe</Text>
+                                <Text style={styles.inputLabel}>Email</Text>
                                 <TextInput
                                     style={styles.inputModal}
                                     placeholder="Email"
@@ -260,6 +265,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
                                 <Text style={styles.modalTitle}>Rejoins la survie!</Text>
+                                <Text style={styles.inputLabel}>Email</Text>
                                 <TextInput
                                     style={styles.inputModal}
                                     placeholder="Email"
@@ -269,6 +275,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                     keyboardType="email-address"
                                     autoComplete="email"
                                 />
+                                <Text style={styles.inputLabel}>Pseudo</Text>
                                 <TextInput
                                     style={styles.inputModal}
                                     placeholder="Pseudo"
@@ -278,6 +285,7 @@ export default function ConnexionScreen({ navigation }: ConnexionScreenProps ) {
                                     onChangeText={(value) => {setUsernameSignup(value); SetSigninError('')}}
                                     value={usernameSignup}
                                 />
+                                <Text style={styles.inputLabel}>Mot de passe</Text>
                                 <View style={styles.passwordContainerModal}>
                                     <TextInput 
                                         style={styles.passwordInputModal}
@@ -384,6 +392,16 @@ const styles = StyleSheet.create({
         color: "#FFE7BF",
         fontFamily: 'ArialRounded',
 
+    },
+    formContainer: {
+        width: 240
+    },
+    inputLabel:{
+        width: '100%',
+        textAlign: 'left',
+        fontFamily: 'ArialRounded',
+        color: "#FFE7BF",
+        marginBottom: 5
     },
 
     input:{
