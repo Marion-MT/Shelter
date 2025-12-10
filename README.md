@@ -16,12 +16,12 @@ Ce jeu a été réalisé dans un cadre d'un projet de fin de formation par une �
 ## Fonctionnalités principales
 
 *	Cartes tirées semi-aléatoirement :
-  - début de partie scénarisé
-  - prise en compte des cartes déjà tirées
-  - système de cooldown
-  - scénarios requis / scénarios bloquants
-  - arbres scénaristiques
-  - déclenchement de nouvelles cartes ajoutées à la pioche
+    - début de partie scénarisé
+    - prise en compte des cartes déjà tirées
+    - système de cooldown
+    - scénarios requis / scénarios bloquants
+    - arbres scénaristiques
+    - déclenchement de nouvelles cartes ajoutées à la pioche
 
 * Choix binaires (swipe gauche/droite) impactant les jauges
 
