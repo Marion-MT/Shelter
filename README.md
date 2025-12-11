@@ -49,7 +49,7 @@ Ce jeu a été réalisé dans un cadre d'un projet de fin de formation par une �
 - Express — API REST
 - JWT
 - [bcrypt](https://github.com/kelektiv/node.bcrypt.js/)
-- [MongoDB](https://www.mongodb.com/)
+- MongoDB
 - [Mongoose](https://mongoosejs.com/)
 
 ## Équipe
