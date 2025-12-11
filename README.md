@@ -11,8 +11,6 @@ Shelter est un jeu mobile narratif de survie à choix binaires inspiré de <i>Re
 
 📉 Si une jauge tombe à 0, la partie est perdue.
 
-Ce jeu a été réalisé dans un cadre d'un projet de fin de formation par une équipe de 4 étudiants.
-
 ## Fonctionnalités principales
 
 *	Cartes tirées semi-aléatoirement :
@@ -53,7 +51,7 @@ Ce jeu a été réalisé dans un cadre d'un projet de fin de formation par une �
 - [Mongoose](https://mongoosejs.com/)
 
 ## Équipe
-
+Ce jeu a été réalisé en deux semaines dans un cadre d'un projet de fin de formation (Développeur Fullstack web & mobile) par une équipe de 4 étudiants :
 Ahmed Hassainia - Cédric Auneau - Marion Trehin - Valentin Dubillot
 
 ### Contribution personnelle au projet :
