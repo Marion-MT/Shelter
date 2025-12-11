@@ -32,3 +32,42 @@ Ce jeu a été réalisé dans un cadre d'un projet de fin de formation par une �
 *	Succès déblocables
 
 *	Possibilité de réinitialisation des données du compte
+
+## Stack Technique
+
+### Frontend
+- TypeScript
+- React Native
+- Expo
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [expo-av](https://docs.expo.dev/versions/latest/sdk/av/) (sons & musiques)
+- [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/) (détection de gestes)
+- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) (animations)
+
+### Backend
+- Node.js
+- Express — API REST
+- JWT
+- [bcrypt](https://github.com/kelektiv/node.bcrypt.js/)
+- [MongoDB](https://www.mongodb.com/)
+- [Mongoose](https://mongoosejs.com/)
+
+## Équipe
+
+Ahmed Hassainia - Cédric Auneau - Marion Trehin - Valentin Dubillot
+
+### Contribution personnelle au projet :
+- élaboration du Game Design
+- écriture des cartes et scénarios
+- équilibrage du jeu
+- UI/UX
+- Implémentations Backend :
+  * routes achievements
+  * une partie des routes users
+- Implémentations Frontend :
+    * écran Splawhcreen
+    * écran Introduction (cinématique animée)
+    * écran Crédit
+    * écran Game avec toute la logique du gameplay
+    * composant Card et Achievement
+    * animations et détection des gestes
